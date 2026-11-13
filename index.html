@@ -443,19 +443,14 @@ function subChat(cid){
   }).subscribe();
 }
 
-// ГЛОБАЛЬНЫЙ канал для уведомлений о сообщениях в ЛЮБОЙ чат
 function subGlobalMessages(){
   if(globalMsgChannel){sb.removeChannel(globalMsgChannel);globalMsgChannel=null}
   globalMsgChannel=sb.channel('global_msgs_'+state.user.id)
     .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages'},async(p)=>{
-      // не моё сообщение
       if(p.new.sender_id===state.user.id)return;
-      // не мой чат
       if(!state.chats.some(c=>c.id===p.new.chat_id))return;
-      // заблокирован
       const bl=state.blocks.map(b=>b.blocked_id);
       if(bl.includes(p.new.sender_id))return;
-      // если открыт тот же чат — subChat уже обработал
       if(state.chatId===p.new.chat_id)return;
       await loadProfs([p.new.sender_id]);
       pRecv();
@@ -463,7 +458,6 @@ function subGlobalMessages(){
       const title=snd?.display_name||'Nova';
       notify(title,p.new.content||'📎','msg_'+p.new.id,false);
       if(document.hidden||!document.hasFocus())flashTitle(title+': '+(p.new.content||'📎'));
-      // мгновенно обновить бейдж
       if(!state.unreadCounts[p.new.chat_id])state.unreadCounts[p.new.chat_id]=0;
       state.unreadCounts[p.new.chat_id]++;
       render();
@@ -705,7 +699,6 @@ async function updVS(){
   if(videoSender&&tr){
     try{await videoSender.replaceTrack(tr);console.log('[CALL] replaceTrack OK:',tr.kind,tr.readyState)}catch(e){console.error('[CALL] replaceTrack fail',e)}
   }else{console.warn('[CALL] no videoSender')}
-  // принудительная ре-penegotiation на всякий случай
   if(pc&&state.call&&state.call.activeAt){
     try{
       const offer=await pc.createOffer();
@@ -919,7 +912,7 @@ function renderCall(){
       <div class="name">${esc(o?.display_name||'?')}</div>
       <video id="remote-video" autoplay playsinline muted></video>
       <div class="timer" id="call-timer">${timerText}</div>
-      <div class="call-mini-controls" onclick="event.stopPropagation()">
+      <div class="call-mini-controls">
         <button data-act="t-mute" class="${state.muted?'off':''}">${state.muted?'🔇':'🎤'}</button>
         <button data-act="t-cam" class="${state.cameraOn?'on':''}">📹</button>
         <button data-act="t-scr" class="${state.screenOn?'on':''}">🖥️</button>
@@ -927,7 +920,7 @@ function renderCall(){
       </div>
     </div>`;
   }
-  return `<div class="overlay" data-act="minimize-call"><div class="call" onclick="event.stopPropagation()"><div class="video-wrap"><video id="remote-video" autoplay playsinline muted></video><video id="local-video" autoplay playsinline muted></video>${state.callReactions.map(r=>`<div class="call-reaction">${r.emoji}</div>`).join('')}</div><div class="row" style="justify-content:center">${aHtml(o,'sm')}<b>${esc(o?.display_name||'?')}</b></div><div class="muted" id="call-timer">${timerText}</div><div id="call-status" class="muted small"></div><div id="call-diag" class="muted" style="font-size:10px;opacity:.6"></div><div class="call-controls"><button class="call-btn ${state.muted?'off':''}" data-act="t-mute">${state.muted?'🔇':'🎤'}</button><button class="call-btn ${state.cameraOn?'on':''}" data-act="t-cam">📹</button><button class="call-btn ${state.screenOn?'on':''}" data-act="t-scr">🖥️</button><button class="call-btn" data-act="call-react-menu">😀</button><button class="call-btn" data-act="minimize-btn" title="${t('minimize')}">⬇️</button><button class="call-btn danger" data-act="end-call">📵</button></div></div></div>`;
+  return `<div class="overlay" data-act="minimize-call"><div class="call"><div class="video-wrap"><video id="remote-video" autoplay playsinline muted></video><video id="local-video" autoplay playsinline muted></video>${state.callReactions.map(r=>`<div class="call-reaction">${r.emoji}</div>`).join('')}</div><div class="row" style="justify-content:center">${aHtml(o,'sm')}<b>${esc(o?.display_name||'?')}</b></div><div class="muted" id="call-timer">${timerText}</div><div id="call-status" class="muted small"></div><div id="call-diag" class="muted" style="font-size:10px;opacity:.6"></div><div class="call-controls"><button class="call-btn ${state.muted?'off':''}" data-act="t-mute">${state.muted?'🔇':'🎤'}</button><button class="call-btn ${state.cameraOn?'on':''}" data-act="t-cam">📹</button><button class="call-btn ${state.screenOn?'on':''}" data-act="t-scr">🖥️</button><button class="call-btn" data-act="call-react-menu">😀</button><button class="call-btn" data-act="minimize-btn" title="${t('minimize')}">⬇️</button><button class="call-btn danger" data-act="end-call">📵</button></div></div></div>`;
 }
 function renderIncoming(){const c=state.profiles[state.incoming.caller_id];return `<div class="overlay"><div class="call">${aHtml(c,'huge')}<h2>${esc(c?.display_name||'?')}</h2><div class="muted">${t('inCall')}</div><div class="row" style="width:100%;gap:10px"><button class="btn success grow" data-act="accept-call">${t('acceptCall')}</button><button class="btn danger grow" data-act="decline-call">${t('declineCall')}</button></div></div></div>`}
 
@@ -1015,9 +1008,9 @@ case 'call':await startCall(id);break;
 case 'accept-call':await acceptCall();break;
 case 'decline-call':await declineCall();break;
 case 'end-call':await endCall();break;
-case 'minimize-call':state.callMinimized=true;render();break;
+case 'minimize-call':if(e.target!==el)return;state.callMinimized=true;render();break;
 case 'minimize-btn':state.callMinimized=true;render();break;
-case 'expand-call':state.callMinimized=false;render();break;
+case 'expand-call':if(e.target.closest('button'))return;state.callMinimized=false;render();break;
 case 't-mute':tMute();break;
 case 't-cam':await tCam();break;
 case 't-scr':await tScreen();break;
