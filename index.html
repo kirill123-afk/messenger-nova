@@ -6,14 +6,14 @@
 <title>Nova Messenger</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
-:root{--accent:#6366f1;--bg:#0e1015;--card:#171a22;--text:#e9ecf3;--muted:#8a92a6;--line:#242835;--font-scale:1}
+:root{--accent:#6366f1;--bg:#0e1015;--card:#171a22;--text:#e9ecf3;--muted:#8a92a6;--line:#242835;--font-scale:1;--online:#10b981}
 body.light{--bg:#f4f5f9;--card:#fff;--text:#14161c;--muted:#6b7280;--line:#e6e8ef}
 html,body{height:100%}
 body{background:var(--bg);color:var(--text);overflow:hidden;font-size:calc(14px * var(--font-scale))}
 #app{height:100dvh;display:flex;flex-direction:column}
 button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
-input,textarea{font:inherit;color:inherit;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px;width:100%;outline:none}
-input:focus,textarea:focus{border-color:var(--accent)}
+input,textarea,select{font:inherit;color:inherit;background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px;width:100%;outline:none}
+input:focus,textarea:focus,select:focus{border-color:var(--accent)}
 .muted{color:var(--muted)} .small{font-size:12px} .grow{flex:1;min-width:0}
 .row{display:flex;align-items:center;gap:10px} .between{justify-content:space-between}
 .btn{background:var(--card);border:1px solid var(--line);padding:12px 16px;border-radius:12px}
@@ -29,12 +29,12 @@ input:focus,textarea:focus{border-color:var(--accent)}
 .logo{font-size:26px;font-weight:800;letter-spacing:.5px;color:var(--accent)}
 .err{color:#ef4444;font-size:13px;min-height:18px}
 .top{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line);background:var(--card)}
-.ava{width:40px;height:40px;border-radius:14px;display:grid;place-items:center;font-size:20px;flex:none;background-size:cover;background-position:center;overflow:hidden}
+.ava{width:40px;height:40px;border-radius:14px;display:grid;place-items:center;font-size:20px;flex:none;background-size:cover;background-position:center;overflow:hidden;position:relative}
 .ava.sm{width:34px;height:34px;font-size:17px;border-radius:12px}
 .ava.big{width:64px;height:64px;font-size:30px;border-radius:20px}
 .ava.xs{width:26px;height:26px;font-size:14px;border-radius:9px}
 .ava.huge{width:110px;height:110px;font-size:54px;border-radius:36px}
-.ava.clickable{cursor:pointer}
+.ava-online::after{content:'';position:absolute;bottom:-1px;right:-1px;width:11px;height:11px;background:var(--online);border:2px solid var(--card);border-radius:50%}
 .content{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
 .content.chat{padding:0;gap:0}
 .tabs{display:flex;border-top:1px solid var(--line);background:var(--card)}
@@ -121,51 +121,85 @@ input:focus,textarea:focus{border-color:var(--accent)}
 </style>
 </head>
 <body>
-<div id="app">
-  <div class="boot">
-    <div class="ring"></div>
-    <div class="msg">Загрузка Nova…</div>
-    <div class="hint">если висит больше 15 секунд — F12 → Console</div>
-  </div>
-</div>
+<div id="app"><div class="boot"><div class="ring"></div><div class="msg">Загрузка Nova…</div><div class="hint">если висит больше 15 секунд — F12 → Console</div></div></div>
 <script src="supabase.js"></script>
 <script>
 (function(){
-  /* ============ НАСТРОЙКИ ============ */
   const SUPABASE_URL='https://bvoepphraeisksupmdrx.supabase.co';
   const SUPABASE_KEY='sb_publishable_dYr_FCMfpR0G6e7Q6giLFg_4ZP2orKt';
   const MAX_UPLOAD_BYTES=20*1024*1024;
 
   function fatal(title,text,hint){
-    document.getElementById('app').innerHTML=
-      '<div class="boot"><div class="fatal-title">'+title+'</div><div class="fatal-text">'+text+'</div>'+
-      (hint?'<div class="fatal-hint">'+hint+'</div>':'')+
-      '<button class="btn primary" onclick="location.reload()" style="margin-top:16px">Перезагрузить</button></div>';
+    document.getElementById('app').innerHTML='<div class="boot"><div class="fatal-title">'+title+'</div><div class="fatal-text">'+text+'</div>'+(hint?'<div class="fatal-hint">'+hint+'</div>':'')+'<button class="btn primary" onclick="location.reload()" style="margin-top:16px">Перезагрузить</button></div>';
   }
 
-  if(!window.supabase){
-    fatal('supabase.js не загрузился','Файл <code>supabase.js</code> должен лежать рядом с <code>index.html</code>.','Скачайте с <code>https://unpkg.com/@supabase/supabase-js@2</code> и положите рядом.');
-    return;
-  }
+  if(!window.supabase){fatal('supabase.js не загрузился','Файл <code>supabase.js</code> должен лежать рядом с <code>index.html</code>.','Скачайте с <code>https://unpkg.com/@supabase/supabase-js@2</code>.');return}
 
   let sb;
-  try{
-    sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{
-      auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storage:window.localStorage,storageKey:'nova-auth'}
-    });
-  }catch(e){fatal('Ошибка инициализации',String(e.message||e));return;}
+  try{sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storage:window.localStorage,storageKey:'nova-auth'}})}catch(e){fatal('Ошибка инициализации',String(e.message||e));return}
 
-  /* ============ НАСТРОЙКИ ПОЛЬЗОВАТЕЛЯ ============ */
-  let userSettings={sounds:true,notifications:true,fontScale:1};
-  function loadSettings(){
-    try{const s=JSON.parse(localStorage.getItem('nova_settings')||'null');if(s)userSettings={...userSettings,...s}}catch(e){}
-    document.documentElement.style.setProperty('--font-scale',userSettings.fontScale);
-  }
-  function saveSettings(){
-    try{localStorage.setItem('nova_settings',JSON.stringify(userSettings))}catch(e){}
-    document.documentElement.style.setProperty('--font-scale',userSettings.fontScale);
-  }
+  /* ============ НАСТРОЙКИ ============ */
+  let userSettings={sounds:true,notifications:true,fontScale:1,lang:'ru'};
+  function loadSettings(){try{const s=JSON.parse(localStorage.getItem('nova_settings')||'null');if(s)userSettings={...userSettings,...s}}catch(e){}document.documentElement.style.setProperty('--font-scale',userSettings.fontScale)}
+  function saveSettings(){try{localStorage.setItem('nova_settings',JSON.stringify(userSettings))}catch(e){}document.documentElement.style.setProperty('--font-scale',userSettings.fontScale)}
   loadSettings();
+
+  /* ============ ПЕРЕВОДЫ ============ */
+  const L={
+    ru:{chats:'Чаты',stories:'Истории',ai:'AI',profile:'Профиль',
+      login:'Войти',register:'Зарегистрироваться',createAcc:'Создать аккаунт',haveAcc:'У меня есть аккаунт',
+      email:'Email',password:'Пароль',username:'Логин',displayName:'Отображаемое имя',
+      online:'в сети',wasOnline:'был(а) в сети',yesterday:'вчера',daysAgo:'дн. назад',justNow:'только что',
+      members:'Участники',leaveGroup:'Выйти из группы',deleteGroup:'Удалить группу',kick:'Исключить',
+      groupName:'Название группы',groupDesc:'Описание',groupAvatar:'Аватар группы',save:'Сохранить',
+      newChat:'+ Чат',newGroup:'👥 Группа',message:'Сообщение...',send:'Отправить',create:'Создать',
+      soundsOn:'🔔 Звуки: вкл',soundsOff:'🔕 Звуки: выкл',notifOn:'🔔 Уведомления: вкл',notifOff:'🔕 Уведомления: выкл',
+      lang:'🌐 Язык',settings:'Настройки',privacy:'Приватность',appearance:'Внешний вид',theme:'🎨 Тема',
+      lastSeenPrivacy:'Кто видит «был(а) в сети»',messagesPrivacy:'Кто может писать',
+      everyone:'Все',contacts:'Контакты',nobody:'Никто',
+      aiGreeting:'Привет! Я AI-ассистент.\n\n• отвечу на вопросы\n• напишу песню или стих\n• сгенерирую картинку 🎨\n• помогу с текстом\n\nПросто напишите сообщение.',
+      aiThinking:'AI думает…',aiPlaceholder:'Спросите что угодно...',aiClear:'Очистить',
+      describeImage:'Опишите картинку...',generate:'Сгенерировать',improving:'Улучшаю промпт…',generating:'Генерирую…',
+      download:'Скачать',toChat:'В AI-чат',prompt:'Промпт',
+      kickConfirm:'Исключить участника?',deleteGroupConfirm:'Удалить группу навсегда? Все сообщения будут удалены.',
+      leaveConfirm:'Выйти из группы?',clearCacheConfirm:'Очистить кэш? Настройки и AI-история сохранятся.',
+      onlyCreator:'Только создатель может удалить',onlyAdmins:'Только админы',back:'Назад',close:'Закрыть',
+      noChats:'Пока нет чатов.',commonChats:'Общие чаты',noCommon:'Нет общих чатов',write:'Написать',bio:'Без описания',
+      noUsers:'Других пользователей нет',pickMembers:'Выберите участников',photoOnAvatar:'📷 Фото на аватар',
+      cache:'🧹 Очистить кэш',logout:'🚪 Выйти',saveProfile:'Сохранить профиль',accent:'Акцентный цвет',
+      addStory:'+ Добавить',noStories:'Историй за 24ч нет',newStory:'Новая история',caption:'Подпись...',
+      publish:'Опубликовать',photo:'📷 Фото',edit:'✏️ Редактировать',del:'🗑️ Удалить',reaction:'Реакция',
+      full:'Развернуть',files:'Файл',voice:'Голосовое',acceptCall:'Принять',declineCall:'Отклонить',
+      inCall:'входящий звонок…',calling:'звонок…',connected:'✓ Соединено',
+      typeMessage:'Сообщение...',mutedByAdmin:'🔇 Вы заглушены админом'},
+    en:{chats:'Chats',stories:'Stories',ai:'AI',profile:'Profile',
+      login:'Log in',register:'Sign up',createAcc:'Create account',haveAcc:'I have an account',
+      email:'Email',password:'Password',username:'Username',displayName:'Display name',
+      online:'online',wasOnline:'last seen',yesterday:'yesterday',daysAgo:'days ago',justNow:'just now',
+      members:'Members',leaveGroup:'Leave group',deleteGroup:'Delete group',kick:'Kick',
+      groupName:'Group name',groupDesc:'Description',groupAvatar:'Group avatar',save:'Save',
+      newChat:'+ Chat',newGroup:'👥 Group',message:'Message...',send:'Send',create:'Create',
+      soundsOn:'🔔 Sounds: on',soundsOff:'🔕 Sounds: off',notifOn:'🔔 Notifications: on',notifOff:'🔕 Notifications: off',
+      lang:'🌐 Language',settings:'Settings',privacy:'Privacy',appearance:'Appearance',theme:'🎨 Theme',
+      lastSeenPrivacy:'Who sees last seen',messagesPrivacy:'Who can message',
+      everyone:'Everyone',contacts:'Contacts',nobody:'Nobody',
+      aiGreeting:'Hi! I am an AI assistant.\n\n• answer questions\n• write a song or poem\n• generate images 🎨\n• help with text\n\nJust send a message.',
+      aiThinking:'AI is thinking…',aiPlaceholder:'Ask anything...',aiClear:'Clear',
+      describeImage:'Describe the image...',generate:'Generate',improving:'Improving prompt…',generating:'Generating…',
+      download:'Download',toChat:'To AI chat',prompt:'Prompt',
+      kickConfirm:'Kick member?',deleteGroupConfirm:'Delete group permanently? All messages will be deleted.',
+      leaveConfirm:'Leave group?',clearCacheConfirm:'Clear cache? Settings and AI history will be kept.',
+      onlyCreator:'Only creator can delete',onlyAdmins:'Only admins',back:'Back',close:'Close',
+      noChats:'No chats yet.',commonChats:'Common chats',noCommon:'No common chats',write:'Message',bio:'No bio',
+      noUsers:'No other users',pickMembers:'Select members',photoOnAvatar:'📷 Avatar photo',
+      cache:'🧹 Clear cache',logout:'🚪 Log out',saveProfile:'Save profile',accent:'Accent color',
+      addStory:'+ Add',noStories:'No stories in 24h',newStory:'New story',caption:'Caption...',
+      publish:'Publish',photo:'📷 Photo',edit:'✏️ Edit',del:'🗑️ Delete',reaction:'Reaction',
+      full:'Full',files:'File',voice:'Voice',acceptCall:'Accept',declineCall:'Decline',
+      inCall:'incoming call…',calling:'calling…',connected:'✓ Connected',
+      typeMessage:'Message...',mutedByAdmin:'🔇 You are muted by admin'}
+  };
+  function t(k){return (L[userSettings.lang]||L.ru)[k]||k}
 
   /* ============ СОСТОЯНИЕ ============ */
   const EMOJI_REACTS=['❤️','😂','👍','😮','😢','🔥'];
@@ -180,18 +214,18 @@ input:focus,textarea:focus{border-color:var(--accent)}
     recording:false,recordStart:0,recordInterval:null,
     mediaRecorder:null,recordedChunks:[],recordStream:null,lightbox:null,
     aiMessages:[],aiLoading:false,aiModal:null,
-    viewProfile:null
+    viewProfile:null,groupSettings:null
   };
   let callTimer=null,ringInterval=null,dialInterval=null;
   let pc=null,cameraTrack=null,screenTrack=null,videoSender=null,remoteStream=null,dummyVideoTrack=null;
-  let msgChannel=null,callsChannel=null,sigChannel=null,sigPollTimer=null;
+  let msgChannel=null,callsChannel=null,sigChannel=null,sigPollTimer=null,heartbeatTimer=null,profilesChannel=null;
   let processedSignals=new Set();
 
   /* ============ ЗВУКИ ============ */
   let audioCtx=null;
   function initAudio(){if(!audioCtx){try{audioCtx=new(window.AudioContext||window.webkitAudioContext)()}catch(e){}}}
   function unlockAudio(){initAudio();if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume().catch(()=>{})}
-  function beep(f,d,v=0.6,t='sine',w=0){if(!audioCtx||!userSettings.sounds)return;const run=()=>{try{const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=t;o.frequency.value=f;o.connect(g);g.connect(audioCtx.destination);const now=audioCtx.currentTime+w;g.gain.setValueAtTime(0.0001,now);g.gain.exponentialRampToValueAtTime(v,now+0.015);g.gain.exponentialRampToValueAtTime(0.0001,now+d);o.start(now);o.stop(now+d+0.05)}catch(e){}};if(audioCtx.state==='suspended')audioCtx.resume().then(run).catch(()=>{});else run()}
+  function beep(f,d,v=0.6,ty='sine',w=0){if(!audioCtx||!userSettings.sounds)return;const run=()=>{try{const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type=ty;o.frequency.value=f;o.connect(g);g.connect(audioCtx.destination);const now=audioCtx.currentTime+w;g.gain.setValueAtTime(0.0001,now);g.gain.exponentialRampToValueAtTime(v,now+0.015);g.gain.exponentialRampToValueAtTime(0.0001,now+d);o.start(now);o.stop(now+d+0.05)}catch(e){}};if(audioCtx.state==='suspended')audioCtx.resume().then(run).catch(()=>{});else run()}
   const playSend=()=>beep(950,0.08,0.45);
   const playRecv=()=>{beep(700,0.09,0.6);beep(950,0.12,0.6,'sine',0.09)};
   const playConnected=()=>{beep(660,0.12,0.7);beep(880,0.24,0.7,'sine',0.13)};
@@ -215,27 +249,28 @@ input:focus,textarea:focus{border-color:var(--accent)}
   const uid=()=>Math.random().toString(36).slice(2,10);
   function formatSize(b){if(!b||b<0)return'';if(b<1024)return b+' Б';if(b<1024*1024)return (b/1024).toFixed(1)+' КБ';return (b/1024/1024).toFixed(2)+' МБ'}
   function avatarStyle(u){if(u?.avatar_url)return`background-image:url(${u.avatar_url});background-size:cover;background-position:center;`;return`background:${u?.accent_color||'#6366f1'};`}
-  function avaHtml(u,cls='',extra=''){if(!u)return`<div class="ava ${cls}" style="background:var(--line);${extra}"></div>`;if(u.avatar_url)return`<div class="ava ${cls}" style="${avatarStyle(u)}${extra}"></div>`;return`<div class="ava ${cls}" style="${avatarStyle(u)}${extra}">${esc(u.display_name?.[0]?.toUpperCase()||'?')}</div>`}
+  function avaHtml(u,cls='',extra=''){if(!u)return`<div class="ava ${cls}" style="background:var(--line);${extra}"></div>`;const on=isOnline(u);const c='ava '+cls+(on?' ava-online':'');if(u.avatar_url)return`<div class="${c}" style="${avatarStyle(u)}${extra}"></div>`;return`<div class="${c}" style="${avatarStyle(u)}${extra}">${esc(u.display_name?.[0]?.toUpperCase()||'?')}</div>`}
+  function isOnline(u){if(!u?.last_seen)return false;return (Date.now()-new Date(u.last_seen).getTime())<120000}
+  function canSeeLastSeen(u){if(!u)return false;if(u.id===state.user?.id)return true;const p=u.privacy_last_seen||'everyone';if(p==='nobody')return false;if(p==='everyone')return true;if(p==='contacts'){return state.chats.some(c=>{const ms=state.members[c.id]||[];return ms.some(m=>m.user_id===u.id)&&ms.some(m=>m.user_id===state.user.id)})}return true}
+  function formatLastSeen(u){if(!u?.last_seen)return '';if(!canSeeLastSeen(u))return '';if(isOnline(u))return `<span style="color:var(--online)">● ${t('online')}</span>`;const d=new Date(u.last_seen);const now=new Date();const diff=Date.now()-d.getTime();const diffDays=Math.floor(diff/86400000);if(diffDays===0)return `${t('wasOnline')} ${time(u.last_seen)}`;if(diffDays===1)return `${t('wasOnline')} ${t('yesterday')} ${time(u.last_seen)}`;if(diffDays<7)return `${t('wasOnline')} ${diffDays} ${t('daysAgo')}`;return `${t('wasOnline')} ${d.toLocaleDateString()}`}
   function showToast(msg,color='#ef4444'){const el=document.createElement('div');el.textContent=msg;el.style.cssText=`position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:${color};color:#fff;padding:10px 18px;border-radius:12px;z-index:9999;font-size:14px;max-width:90vw;text-align:center;line-height:1.4`;document.body.appendChild(el);setTimeout(()=>el.remove(),6000)}
   function resizeImage(file,maxDim,quality){return new Promise((res,rej)=>{if(!file||!file.type||!file.type.startsWith('image/'))return rej(new Error('Не изображение'));const img=new Image();const url=URL.createObjectURL(file);img.onload=()=>{URL.revokeObjectURL(url);const w=img.naturalWidth||img.width;const h=img.naturalHeight||img.height;if(!w||!h)return rej(new Error('0×0'));let{width,height}=img;if(width>maxDim||height>maxDim){const r=Math.min(maxDim/width,maxDim/height);width=Math.round(width*r);height=Math.round(height*r)}const c=document.createElement('canvas');c.width=width;c.height=height;c.getContext('2d').drawImage(img,0,0,width,height);let dataUrl;try{dataUrl=c.toDataURL('image/jpeg',quality)}catch(e){return rej(e)}if(!dataUrl||!dataUrl.startsWith('data:image'))return rej(new Error('пустое'));res(dataUrl)};img.onerror=()=>{URL.revokeObjectURL(url);rej(new Error('load failed'))};img.src=url})}
   function dataURLtoBlob(d){const parts=d.split(',');const m=(parts[0]||'').match(/:(.*?);/);const mime=m?m[1]:'image/jpeg';const bin=atob(parts[1]||'');const arr=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);return new Blob([arr],{type:mime})}
 
   /* ============ АУТЕНТИФИКАЦИЯ ============ */
   async function loadSession(){try{const {data:{session},error}=await sb.auth.getSession();if(error){console.warn('getSession:',error);return}if(session?.user)state.user=session.user}catch(e){console.warn('loadSession',e)}}
-  async function loadProfile(retries=3){
-    if(!state.user)return;
-    for(let i=0;i<retries;i++){
-      try{
-        const {data,error}=await sb.from('profiles').select('*').eq('id',state.user.id).single();
-        if(!error&&data){state.profile=data;state.profiles[data.id]=data;return}
-        if(error&&error.code!=='PGRST116'){console.warn(`profile ${i+1}/${retries}:`,error.message);await new Promise(r=>setTimeout(r,1000*(i+1)));continue}
-        return;
-      }catch(e){console.warn('profile ex',e);await new Promise(r=>setTimeout(r,1000))}
-    }
-  }
+  async function loadProfile(retries=3){if(!state.user)return;for(let i=0;i<retries;i++){try{const {data,error}=await sb.from('profiles').select('*').eq('id',state.user.id).single();if(!error&&data){state.profile=data;state.profiles[data.id]=data;return}if(error&&error.code!=='PGRST116'){console.warn(`profile ${i+1}/${retries}:`,error.message);await new Promise(r=>setTimeout(r,1000*(i+1)));continue}return}catch(e){console.warn('profile ex',e);await new Promise(r=>setTimeout(r,1000))}}}
   async function signUp(email,password,username,display_name){const {data,error}=await sb.auth.signUp({email,password,options:{data:{username,display_name}}});if(error)throw error;return data}
   async function signIn(email,password){const {error}=await sb.auth.signInWithPassword({email,password});if(error)throw error}
   async function signOut(){await sb.auth.signOut();state.user=null;state.profile=null;state.chats=[];state.messages=[];render()}
+
+  /* ============ СЕРДЦЕБИЕНИЕ ============ */
+  function startHeartbeat(){
+    if(heartbeatTimer)clearInterval(heartbeatTimer);
+    const beat=async()=>{if(!state.user)return;try{await sb.from('profiles').update({last_seen:new Date().toISOString()}).eq('id',state.user.id)}catch(e){}};
+    beat();heartbeatTimer=setInterval(beat,45000);
+  }
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)startHeartbeat()});
 
   /* ============ ДАННЫЕ ============ */
   async function loadProfiles(ids){const missing=ids.filter(id=>!state.profiles[id]);if(!missing.length)return;const {data}=await sb.from('profiles').select('*').in('id',missing);(data||[]).forEach(p=>state.profiles[p.id]=p)}
@@ -247,25 +282,20 @@ input:focus,textarea:focus{border-color:var(--accent)}
     if(!ids.length){state.chats=[];return}
     const {data:chats,error:cerr}=await sb.from('chats').select('*').in('id',ids);
     if(cerr){console.warn('chats',cerr);state.chats=[];return}
-    // ФИКС: дедупликация по id
-    const seen=new Set();
-    state.chats=(chats||[]).filter(c=>{if(!c||seen.has(c.id))return false;seen.add(c.id);return true});
+    const seen=new Set();state.chats=(chats||[]).filter(c=>{if(!c||seen.has(c.id))return false;seen.add(c.id);return true});
     const {data:allMembers}=await sb.from('chat_members').select('*').in('chat_id',ids);
     const userIds=[...new Set((allMembers||[]).map(m=>m.user_id))];
     await loadProfiles(userIds);
-    state.members={};
-    (allMembers||[]).forEach(m=>{if(!state.members[m.chat_id])state.members[m.chat_id]=[];state.members[m.chat_id].push(m)});
+    state.members={};(allMembers||[]).forEach(m=>{if(!state.members[m.chat_id])state.members[m.chat_id]=[];state.members[m.chat_id].push(m)});
   }
   async function openChat(chatId){state.chatId=chatId;state.chat=state.chats.find(c=>c.id===chatId)||{id:chatId};await loadMessages(chatId);subscribeChat(chatId);render()}
   async function loadMessages(chatId){
     const {data}=await sb.from('messages').select('*').eq('chat_id',chatId).order('created_at',{ascending:true});
     state.messages=data||[];
-    const senderIds=[...new Set(state.messages.map(m=>m.sender_id))];
-    await loadProfiles(senderIds);
+    const senderIds=[...new Set(state.messages.map(m=>m.sender_id))];await loadProfiles(senderIds);
     if(state.messages.length){
       const {data:rx}=await sb.from('reactions').select('*').in('message_id',state.messages.map(m=>m.id));
-      const map={};
-      (rx||[]).forEach(r=>{if(!map[r.message_id])map[r.message_id]={};if(!map[r.message_id][r.emoji])map[r.message_id][r.emoji]=[];map[r.message_id][r.emoji].push(r.user_id)});
+      const map={};(rx||[]).forEach(r=>{if(!map[r.message_id])map[r.message_id]={};if(!map[r.message_id][r.emoji])map[r.message_id][r.emoji]=[];map[r.message_id][r.emoji].push(r.user_id)});
       state.messages.forEach(m=>m.reactions=map[m.id]||{});
     }
   }
@@ -273,7 +303,7 @@ input:focus,textarea:focus{border-color:var(--accent)}
   async function refreshChatsAndMembers(){await loadChats();if(state.chatId){const chat=state.chats.find(c=>c.id===state.chatId);if(!chat){state.chatId=null;state.chat=null}else state.chat=chat}}
 
   /* ============ STORAGE ============ */
-  async function selfCheckStorage(){try{const {data:b,error:be}=await sb.storage.getBucket('media');if(be||!b){console.warn('Storage media:',be?.message||be);return}console.log('✓ Storage media OK, public=',b.public)}catch(e){console.warn('Storage selfcheck:',e)}}
+  async function selfCheckStorage(){try{const {data:b,error:be}=await sb.storage.getBucket('media');if(be||!b){console.warn('Storage media:',be?.message||be);return}console.log('✓ Storage media OK')}catch(e){}}
   async function uploadMedia(path,blob,contentType){if(blob.size>MAX_UPLOAD_BYTES)throw new Error('Файл больше '+formatSize(MAX_UPLOAD_BYTES));const {error:upErr}=await sb.storage.from('media').upload(path,blob,{upsert:false,contentType});if(upErr)throw new Error(upErr.message);const {data:urlData}=sb.storage.from('media').getPublicUrl(path);if(!urlData?.publicUrl)throw new Error('Bucket не публичный');return urlData.publicUrl}
 
   /* ============ REALTIME ============ */
@@ -281,15 +311,21 @@ input:focus,textarea:focus{border-color:var(--accent)}
     if(msgChannel){sb.removeChannel(msgChannel);msgChannel=null}
     msgChannel=sb.channel('chat_'+chatId)
       .on('postgres_changes',{event:'*',schema:'public',table:'messages',filter:`chat_id=eq.${chatId}`},async(p)=>{
-        if(p.eventType==='INSERT'){
-          if(p.new.sender_id!==state.user.id){playRecv()}
-          await loadProfiles([p.new.sender_id]);
-          if(!state.messages.find(m=>m.id===p.new.id)){p.new.reactions={};state.messages.push(p.new);render()}
-        }else if(p.eventType==='UPDATE'){const i=state.messages.findIndex(m=>m.id===p.new.id);if(i>=0){state.messages[i]={...state.messages[i],...p.new};render()}}
+        if(p.eventType==='INSERT'){if(p.new.sender_id!==state.user.id){playRecv()}await loadProfiles([p.new.sender_id]);if(!state.messages.find(m=>m.id===p.new.id)){p.new.reactions={};state.messages.push(p.new);render()}}
+        else if(p.eventType==='UPDATE'){const i=state.messages.findIndex(m=>m.id===p.new.id);if(i>=0){state.messages[i]={...state.messages[i],...p.new};render()}}
         else if(p.eventType==='DELETE'){state.messages=state.messages.filter(m=>m.id!==p.old.id);render()}
       })
       .on('postgres_changes',{event:'*',schema:'public',table:'reactions'},async()=>{await loadMessages(chatId);render()})
       .on('postgres_changes',{event:'*',schema:'public',table:'chat_members',filter:`chat_id=eq.${chatId}`},async()=>{await refreshChatsAndMembers();render()})
+      .subscribe();
+  }
+  function subscribeProfiles(){
+    if(profilesChannel){sb.removeChannel(profilesChannel);profilesChannel=null}
+    profilesChannel=sb.channel('profiles_updates')
+      .on('postgres_changes',{event:'UPDATE',schema:'public',table:'profiles'},(p)=>{
+        if(p.new&&state.profiles[p.new.id]){state.profiles[p.new.id]={...state.profiles[p.new.id],...p.new};render()}
+        if(p.new&&state.profile&&p.new.id===state.profile.id){state.profile={...state.profile,...p.new}}
+      })
       .subscribe();
   }
   function subscribeIncomingCalls(){
@@ -297,10 +333,7 @@ input:focus,textarea:focus{border-color:var(--accent)}
     callsChannel=sb.channel('calls_'+state.user.id)
       .on('postgres_changes',{event:'INSERT',schema:'public',table:'calls',filter:`callee_id=eq.${state.user.id}`},async(p)=>{if(p.new.status==='ringing'){state.incoming=p.new;startRingtone();render()}})
       .on('postgres_changes',{event:'UPDATE',schema:'public',table:'calls'},async(p)=>{
-        if(state.call&&p.new.id===state.call.id){
-          if(p.new.status==='active'&&!state.call.activeAt){state.call.activeAt=new Date(p.new.accepted_at||Date.now()).getTime();stopAllSounds();playConnected();setupWebRTC();render()}
-          else if(p.new.status==='ended'||p.new.status==='declined'){cleanupCall()}
-        }
+        if(state.call&&p.new.id===state.call.id){if(p.new.status==='active'&&!state.call.activeAt){state.call.activeAt=new Date(p.new.accepted_at||Date.now()).getTime();stopAllSounds();playConnected();setupWebRTC();render()}else if(p.new.status==='ended'||p.new.status==='declined'){cleanupCall()}}
         if(state.incoming&&p.new.id===state.incoming.id&&p.new.status!=='ringing'){state.incoming=null;stopRingtone();render()}
       })
       .subscribe();
@@ -314,297 +347,122 @@ input:focus,textarea:focus{border-color:var(--accent)}
   async function acceptCall(){if(!state.incoming)return;await ensureMic();const {data}=await sb.from('calls').update({status:'active',accepted_at:new Date().toISOString()}).eq('id',state.incoming.id).select().single();state.call={...data,outbound:false,activeAt:Date.now()};state.incoming=null;stopAllSounds();playConnected();setupWebRTC();render()}
   async function declineCall(){if(!state.incoming)return;await sb.from('calls').update({status:'declined'}).eq('id',state.incoming.id);state.incoming=null;stopRingtone();render()}
   async function endCall(){if(!state.call)return;const dur=state.call.activeAt?Math.floor((Date.now()-state.call.activeAt)/1000):0;await sb.from('calls').update({status:'ended',ended_at:new Date().toISOString(),duration:dur}).eq('id',state.call.id);cleanupCall()}
-  function cleanupCall(){
-    stopAllSounds();clearInterval(callTimer);callTimer=null;
-    if(sigPollTimer){clearInterval(sigPollTimer);sigPollTimer=null}
-    stopMic();cleanupMedia();
-    if(pc){try{pc.close()}catch(e){}pc=null}
-    state.call=null;state.muted=false;processedSignals=new Set();
-    if(sigChannel){sb.removeChannel(sigChannel);sigChannel=null}
-    document.getElementById('unmute-btn')?.remove();
-    const a=document.getElementById('remote-audio');if(a){a.srcObject=null;a.remove()}
-    playEnded();render();
-  }
-  function getDummyVideoTrack(){
-    if(dummyVideoTrack&&dummyVideoTrack.readyState==='live')return dummyVideoTrack;
-    try{
-      const c=document.createElement('canvas');c.width=32;c.height=32;
-      const ctx=c.getContext('2d');ctx.fillStyle='#000';ctx.fillRect(0,0,32,32);
-      const stream=c.captureStream(1);dummyVideoTrack=stream.getVideoTracks()[0];return dummyVideoTrack;
-    }catch(e){console.warn('dummy track fail',e);return null}
-  }
+  function cleanupCall(){stopAllSounds();clearInterval(callTimer);callTimer=null;if(sigPollTimer){clearInterval(sigPollTimer);sigPollTimer=null}stopMic();cleanupMedia();if(pc){try{pc.close()}catch(e){}pc=null}state.call=null;state.muted=false;processedSignals=new Set();if(sigChannel){sb.removeChannel(sigChannel);sigChannel=null}document.getElementById('unmute-btn')?.remove();const a=document.getElementById('remote-audio');if(a){a.srcObject=null;a.remove()}playEnded();render()}
+  function getDummyVideoTrack(){if(dummyVideoTrack&&dummyVideoTrack.readyState==='live')return dummyVideoTrack;try{const c=document.createElement('canvas');c.width=32;c.height=32;const ctx=c.getContext('2d');ctx.fillStyle='#000';ctx.fillRect(0,0,32,32);const stream=c.captureStream(1);dummyVideoTrack=stream.getVideoTracks()[0];return dummyVideoTrack}catch(e){return null}}
   function setupWebRTC(){
     if(!state.call||pc||!state.stream)return;
     const isCaller=state.call.outbound;
-    pc=new RTCPeerConnection({iceServers:[
-      {urls:'stun:stun.l.google.com:19302'},
-      {urls:'stun:stun1.l.google.com:19302'},
-      {urls:'stun:stun2.l.google.com:19302'},
-      {urls:'stun:stun.cloudflare.com:3478'}
-    ]});
+    pc=new RTCPeerConnection({iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'},{urls:'stun:stun.cloudflare.com:3478'}]});
     state.stream.getTracks().forEach(t=>pc.addTrack(t,state.stream));
     const dummy=getDummyVideoTrack();
-    if(dummy){
-      const tr=pc.addTransceiver(dummy,{direction:'sendrecv'});
-      videoSender=tr.sender;
-    }else{
-      const tr=pc.addTransceiver('video',{direction:'sendrecv'});
-      videoSender=tr.sender;
-    }
+    const tr=dummy?pc.addTransceiver(dummy,{direction:'sendrecv'}):pc.addTransceiver('video',{direction:'sendrecv'});
+    videoSender=tr.sender;
     pc.ontrack=e=>{
-      console.log('ONTRACK:',e.track.kind,'streams:',e.streams.length);
-      if(e.track.kind==='audio'){
-        let audio=document.getElementById('remote-audio');
-        if(!audio){audio=document.createElement('audio');audio.id='remote-audio';audio.autoplay=true;audio.playsInline=true;document.body.appendChild(audio)}
-        audio.srcObject=e.streams[0];
-        audio.play().catch(()=>{
-          if(document.getElementById('unmute-btn'))return;
-          const btn=document.createElement('button');btn.id='unmute-btn';btn.textContent='🔊 Включить звук';
-          btn.style.cssText='position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:9999;padding:10px 20px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:14px;cursor:pointer';
-          btn.onclick=()=>{audio.play().catch(()=>{});btn.remove()};
-          document.body.appendChild(btn);
-        });
-      }else if(e.track.kind==='video'){
-        remoteStream=e.streams[0]||new MediaStream([e.track]);
-        const v=document.getElementById('remote-video');
-        if(v){v.srcObject=remoteStream;v.muted=true;v.play().catch(err=>console.warn('video play',err))}
-      }
+      if(e.track.kind==='audio'){let audio=document.getElementById('remote-audio');if(!audio){audio=document.createElement('audio');audio.id='remote-audio';audio.autoplay=true;audio.playsInline=true;document.body.appendChild(audio)}audio.srcObject=e.streams[0];audio.play().catch(()=>{if(document.getElementById('unmute-btn'))return;const btn=document.createElement('button');btn.id='unmute-btn';btn.textContent='🔊';btn.style.cssText='position:fixed;top:12px;left:50%;transform:translateX(-50%);z-index:9999;padding:10px 20px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-size:14px;cursor:pointer';btn.onclick=()=>{audio.play().catch(()=>{});btn.remove()};document.body.appendChild(btn)})}
+      else if(e.track.kind==='video'){remoteStream=e.streams[0]||new MediaStream([e.track]);const v=document.getElementById('remote-video');if(v){v.srcObject=remoteStream;v.muted=true;v.play().catch(()=>{})}}
     };
     pc.onicecandidate=e=>{if(e.candidate)sendSignal('ice',{candidate:e.candidate.toJSON()})};
-    pc.onconnectionstatechange=()=>{
-      const el=document.getElementById('call-status');
-      const diag=document.getElementById('call-diag');
-      if(el)el.textContent=pc.connectionState==='connected'?'✓ Соединено':pc.connectionState;
-      if(diag)diag.textContent=`ICE: ${pc.iceConnectionState} | PC: ${pc.connectionState} | Track: ${videoSender?.track?.kind||'none'}`;
-    };
-    pc.oniceconnectionstatechange=()=>{
-      const diag=document.getElementById('call-diag');
-      if(diag)diag.textContent=`ICE: ${pc.iceConnectionState} | PC: ${pc.connectionState} | Track: ${videoSender?.track?.kind||'none'}`;
-    };
-    subscribeCallSignals(state.call.id);
-    startSigPolling(state.call.id);
-    if(isCaller){
-      pc.createOffer().then(o=>pc.setLocalDescription(o)).then(()=>sendSignal('offer',{sdp:pc.localDescription.toJSON()})).catch(e=>console.warn('offer',e));
-    }
+    pc.onconnectionstatechange=()=>{const el=document.getElementById('call-status');const diag=document.getElementById('call-diag');const s=pc.connectionState==='connected'?t('connected'):pc.connectionState;if(el)el.textContent=s;if(diag)diag.textContent=`ICE: ${pc.iceConnectionState} | Track: ${videoSender?.track?.kind||'none'}`};
+    subscribeCallSignals(state.call.id);startSigPolling(state.call.id);
+    if(isCaller){pc.createOffer().then(o=>pc.setLocalDescription(o)).then(()=>sendSignal('offer',{sdp:pc.localDescription.toJSON()})).catch(e=>console.warn('offer',e))}
   }
-  function subscribeCallSignals(callId){
-    if(sigChannel)sb.removeChannel(sigChannel);
-    sigChannel=sb.channel('sig_'+callId)
-      .on('postgres_changes',{event:'INSERT',schema:'public',table:'call_signals',filter:`call_id=eq.${callId}`},p=>{
-        if(p.new.sender_id===state.user.id)return;
-        if(processedSignals.has(p.new.id))return;
-        processedSignals.add(p.new.id);
-        processSignal(p.new);
-      })
-      .subscribe();
-  }
-  function startSigPolling(callId){
-    if(sigPollTimer)clearInterval(sigPollTimer);
-    sigPollTimer=setInterval(async()=>{
-      if(!state.call||state.call.id!==callId)return;
-      try{
-        const {data}=await sb.from('call_signals').select('*').eq('call_id',callId).order('created_at');
-        for(const sig of data||[]){
-          if(processedSignals.has(sig.id))continue;
-          if(sig.sender_id===state.user.id)continue;
-          processedSignals.add(sig.id);
-          await processSignal(sig);
-        }
-      }catch(e){}
-    },900);
-  }
+  function subscribeCallSignals(callId){if(sigChannel)sb.removeChannel(sigChannel);sigChannel=sb.channel('sig_'+callId).on('postgres_changes',{event:'INSERT',schema:'public',table:'call_signals',filter:`call_id=eq.${callId}`},p=>{if(p.new.sender_id===state.user.id)return;if(processedSignals.has(p.new.id))return;processedSignals.add(p.new.id);processSignal(p.new)}).subscribe()}
+  function startSigPolling(callId){if(sigPollTimer)clearInterval(sigPollTimer);sigPollTimer=setInterval(async()=>{if(!state.call||state.call.id!==callId)return;try{const {data}=await sb.from('call_signals').select('*').eq('call_id',callId).order('created_at');for(const sig of data||[]){if(processedSignals.has(sig.id))continue;if(sig.sender_id===state.user.id)continue;processedSignals.add(sig.id);await processSignal(sig)}}catch(e){}},900)}
   async function sendSignal(type,payload){if(!state.call)return;await sb.from('call_signals').insert({call_id:state.call.id,sender_id:state.user.id,type,payload})}
   async function processSignal(sig){if(!pc)return;try{if(sig.type==='offer'){await pc.setRemoteDescription(new RTCSessionDescription(sig.payload.sdp));const a=await pc.createAnswer();await pc.setLocalDescription(a);await sendSignal('answer',{sdp:pc.localDescription.toJSON()})}else if(sig.type==='answer'){await pc.setRemoteDescription(new RTCSessionDescription(sig.payload.sdp))}else if(sig.type==='ice'){await pc.addIceCandidate(new RTCIceCandidate(sig.payload.candidate)).catch(()=>{})}}catch(e){console.warn('signal',e)}}
-  function updateVideoSender(){const t=screenTrack||cameraTrack||getDummyVideoTrack();if(videoSender&&t){videoSender.replaceTrack(t).catch(e=>console.warn('replaceTrack',e))}attachLocal()}
-  async function toggleCamera(){
-    if(state.cameraOn){cameraTrack?.stop();cameraTrack=null;state.cameraOn=false;updateVideoSender();playCam(false);render();return}
-    try{
-      const st=await navigator.mediaDevices.getUserMedia({video:{width:640,height:480}});
-      cameraTrack=st.getVideoTracks()[0];
-      state.cameraOn=true;
-      updateVideoSender();playCam(true);render();
-    }catch(e){showToast('Камера: '+e.message);console.warn('cam',e)}
-  }
-  async function toggleScreen(){
-    if(state.screenOn){screenTrack?.stop();screenTrack=null;state.screenOn=false;updateVideoSender();playScreen(false);render();return}
-    if(!navigator.mediaDevices.getDisplayMedia){showToast('Демонстрация экрана не поддерживается');return}
-    try{
-      const st=await navigator.mediaDevices.getDisplayMedia({video:true});
-      screenTrack=st.getVideoTracks()[0];
-      screenTrack.onended=()=>{screenTrack=null;state.screenOn=false;updateVideoSender();render()};
-      state.screenOn=true;
-      updateVideoSender();playScreen(true);render();
-    }catch(e){console.warn('screen',e);showToast('Экран: '+(e.message||'отменено'))}
-  }
-  function toggleMute(){if(!state.stream)return;const t=state.stream.getAudioTracks()[0];if(!t)return;t.enabled=!t.enabled;state.muted=!t.enabled;playMute(!state.muted);render()}
+  function updateVideoSender(){const tr=screenTrack||cameraTrack||getDummyVideoTrack();if(videoSender&&tr){videoSender.replaceTrack(tr).catch(e=>console.warn('replaceTrack',e))}attachLocal()}
+  async function toggleCamera(){if(state.cameraOn){cameraTrack?.stop();cameraTrack=null;state.cameraOn=false;updateVideoSender();playCam(false);render();return}try{const st=await navigator.mediaDevices.getUserMedia({video:{width:640,height:480}});cameraTrack=st.getVideoTracks()[0];state.cameraOn=true;updateVideoSender();playCam(true);render()}catch(e){showToast('Камера: '+e.message)}}
+  async function toggleScreen(){if(state.screenOn){screenTrack?.stop();screenTrack=null;state.screenOn=false;updateVideoSender();playScreen(false);render();return}if(!navigator.mediaDevices.getDisplayMedia){showToast('Не поддерживается');return}try{const st=await navigator.mediaDevices.getDisplayMedia({video:true});screenTrack=st.getVideoTracks()[0];screenTrack.onended=()=>{screenTrack=null;state.screenOn=false;updateVideoSender();render()};state.screenOn=true;updateVideoSender();playScreen(true);render()}catch(e){console.warn(e)}}
+  function toggleMute(){if(!state.stream)return;const tr=state.stream.getAudioTracks()[0];if(!tr)return;tr.enabled=!tr.enabled;state.muted=!tr.enabled;playMute(!state.muted);render()}
   function attachLocal(){const v=document.getElementById('local-video');if(!v)return;const track=screenTrack||cameraTrack;if(track){v.style.display='block';v.srcObject=new MediaStream([track]);v.play().catch(()=>{})}else{v.style.display='none';v.srcObject=null}}
 
   /* ============ ГРУППЫ ============ */
-  async function createGroup(name,memberIds){
-    const {data,error}=await sb.rpc('create_group',{group_name:name,member_ids:memberIds});
-    if(error){showToast(error.message);return null}
-    // ФИКС: ждём 400мс, чтобы realtime-события не наслаивались
-    await new Promise(r=>setTimeout(r,400));
-    await refreshChatsAndMembers();
-    return data;
-  }
+  async function createGroup(name,memberIds){const {data,error}=await sb.rpc('create_group',{group_name:name,member_ids:memberIds});if(error){showToast(error.message);return null}await new Promise(r=>setTimeout(r,400));await refreshChatsAndMembers();return data}
   async function startDM(otherId){const {data,error}=await sb.rpc('get_or_create_dm',{other_id:otherId});if(error){showToast(error.message);return null}await refreshChatsAndMembers();return data}
   async function setMemberRole(chatId,userId,role){const {error}=await sb.rpc('set_member_role',{target_chat:chatId,target_user:userId,new_role:role});if(error){showToast(error.message);return}await refreshChatsAndMembers();render()}
   async function setMemberMuted(chatId,userId,muted){const {error}=await sb.rpc('set_member_muted',{target_chat:chatId,target_user:userId,muted_state:muted});if(error){showToast(error.message);return}await refreshChatsAndMembers();render()}
-  async function leaveGroup(chatId){if(!confirm('Выйти из группы?'))return;const {error}=await sb.rpc('leave_chat',{target_chat:chatId});if(error){showToast(error.message);return}state.chatId=null;state.chat=null;await refreshChatsAndMembers();render()}
+  async function leaveGroup(chatId){if(!confirm(t('leaveConfirm')))return;const {error}=await sb.rpc('leave_chat',{target_chat:chatId});if(error){showToast(error.message);return}state.chatId=null;state.chat=null;state.groupSettings=null;await refreshChatsAndMembers();render()}
+  async function kickMember(chatId,userId){if(!confirm(t('kickConfirm')))return;const {error}=await sb.rpc('kick_member',{target_chat:chatId,target_user:userId});if(error){showToast(error.message);return}await refreshChatsAndMembers();render()}
+  async function deleteGroup(chatId){if(!confirm(t('deleteGroupConfirm')))return;const {error}=await sb.rpc('delete_group',{target_chat:chatId});if(error){showToast(error.message);return}state.chatId=null;state.chat=null;state.groupSettings=null;await refreshChatsAndMembers();render()}
   function isAdmin(chatId){const m=(state.members[chatId]||[]).find(x=>x.user_id===state.user.id);return m?.role==='admin'}
+  function isCreator(chatId){const c=state.chats.find(x=>x.id===chatId);return c&&c.created_by===state.user.id}
 
   /* ============ ГОЛОСОВЫЕ ============ */
   function isRecordingSupported(){return !!(navigator.mediaDevices&&window.MediaRecorder)}
   async function startRecording(){
-    if(state.recording)return;
-    if(!isRecordingSupported()){showToast('Запись не поддерживается');return}
-    if(!state.chatId){showToast('Откройте чат');return}
+    if(state.recording)return;if(!isRecordingSupported()){showToast('Запись не поддерживается');return}if(!state.chatId){showToast('Откройте чат');return}
     try{
-      const stream=await navigator.mediaDevices.getUserMedia({audio:true});
-      state.recordStream=stream;
-      const mimeCandidates=['audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus','audio/mp4','audio/ogg'];
-      let mime='';
+      const stream=await navigator.mediaDevices.getUserMedia({audio:true});state.recordStream=stream;
+      const mimeCandidates=['audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus','audio/mp4','audio/ogg'];let mime='';
       for(const m of mimeCandidates){if(window.MediaRecorder.isTypeSupported&&MediaRecorder.isTypeSupported(m)){mime=m;break}}
-      const rec=new MediaRecorder(stream,mime?{mimeType:mime}:undefined);
-      state.mediaRecorder=rec;state.recordedChunks=[];
+      const rec=new MediaRecorder(stream,mime?{mimeType:mime}:undefined);state.mediaRecorder=rec;state.recordedChunks=[];
       rec.ondataavailable=e=>{if(e.data&&e.data.size>0)state.recordedChunks.push(e.data)};
-      rec.onstop=async()=>{
-        const blob=new Blob(state.recordedChunks,{type:rec.mimeType||'audio/webm'});
-        state.recordedChunks=[];cleanupRecordUI();
-        if(blob.size<512){showToast('Слишком короткая');return}
-        if(blob.size>MAX_UPLOAD_BYTES){showToast('Слишком большой файл');return}
-        await uploadAndSendAudio(blob);
-      };
-      rec.start();
-      state.recording=true;state.recordStart=Date.now();
-      playRecStart();render();
+      rec.onstop=async()=>{const blob=new Blob(state.recordedChunks,{type:rec.mimeType||'audio/webm'});state.recordedChunks=[];cleanupRecordUI();if(blob.size<512){showToast('Короткая');return}if(blob.size>MAX_UPLOAD_BYTES){showToast('Большая');return}await uploadAndSendAudio(blob)};
+      rec.start();state.recording=true;state.recordStart=Date.now();playRecStart();render();
       state.recordInterval=setInterval(()=>{const el=document.getElementById('rec-time');if(el)el.textContent=fmtDur((Date.now()-state.recordStart)/1000)},250);
     }catch(e){showToast('Микрофон: '+e.message);cleanupRecordUI();render()}
   }
   function stopRecording(send=true){if(!state.recording||!state.mediaRecorder)return;try{if(state.mediaRecorder.state!=='inactive'){if(!send)state.recordedChunks=[];state.mediaRecorder.stop()}}catch(e){}state.recording=false;if(!send){cleanupRecordUI();playRecStop()}else{playRecStop()}render()}
   function cleanupRecordUI(){if(state.recordInterval){clearInterval(state.recordInterval);state.recordInterval=null}state.recordStream?.getTracks().forEach(t=>t.stop());state.recordStream=null;state.mediaRecorder=null;state.recording=false}
-  async function uploadAndSendAudio(blob){
-    try{
-      const ext=blob.type.includes('mp4')?'m4a':blob.type.includes('ogg')?'ogg':'webm';
-      const path=`chat/${state.chatId}/${uid()}.${ext}`;
-      const cleanType=(blob.type||'audio/webm').split(';')[0];
-      const url=await uploadMedia(path,blob,cleanType);
-      const {error}=await sb.from('messages').insert({chat_id:state.chatId,sender_id:state.user.id,content:null,media_url:url,media_type:'audio',media_name:`Голосовое.${ext}`,media_size:blob.size});
-      if(error){showToast('Send: '+error.message);return}
-      playSend();
-    }catch(e){showToast('Аудио: '+(e.message||e))}
-  }
+  async function uploadAndSendAudio(blob){try{const ext=blob.type.includes('mp4')?'m4a':blob.type.includes('ogg')?'ogg':'webm';const path=`chat/${state.chatId}/${uid()}.${ext}`;const cleanType=(blob.type||'audio/webm').split(';')[0];const url=await uploadMedia(path,blob,cleanType);const {error}=await sb.from('messages').insert({chat_id:state.chatId,sender_id:state.user.id,content:null,media_url:url,media_type:'audio',media_name:`${t('voice')}.${ext}`,media_size:blob.size});if(error){showToast('Send: '+error.message);return}playSend()}catch(e){showToast('Аудио: '+(e.message||e))}}
 
   /* ============ ФАЙЛЫ ============ */
   async function sendChatFile(file){
-    if(!file||!state.chatId)return;
-    if(file.size>MAX_UPLOAD_BYTES){showToast('Файл больше '+formatSize(MAX_UPLOAD_BYTES));return}
+    if(!file||!state.chatId)return;if(file.size>MAX_UPLOAD_BYTES){showToast('Файл больше '+formatSize(MAX_UPLOAD_BYTES));return}
     try{
-      const mime=file.type||'application/octet-stream';
-      let blob=file,path,mediaType,name=file.name||'file';
-      if(mime.startsWith('image/')){
-        mediaType='image';
-        try{const data=await resizeImage(file,1600,0.82);blob=dataURLtoBlob(data);path=`chat/${state.chatId}/${uid()}.jpg`}
-        catch(e){const ext=(name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'');path=`chat/${state.chatId}/${uid()}.${ext||'jpg'}`}
-      }else{
-        const ext=(name.split('.').pop()||'bin').toLowerCase().replace(/[^a-z0-9]/g,'');
-        path=`chat/${state.chatId}/${uid()}.${ext||'bin'}`;
-        if(mime.startsWith('audio/'))mediaType='audio';
-        else if(mime.startsWith('video/'))mediaType='video';
-        else mediaType='file';
-      }
+      const mime=file.type||'application/octet-stream';let blob=file,path,mediaType,name=file.name||'file';
+      if(mime.startsWith('image/')){mediaType='image';try{const data=await resizeImage(file,1600,0.82);blob=dataURLtoBlob(data);path=`chat/${state.chatId}/${uid()}.jpg`}catch(e){const ext=(name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'');path=`chat/${state.chatId}/${uid()}.${ext||'jpg'}`}}
+      else{const ext=(name.split('.').pop()||'bin').toLowerCase().replace(/[^a-z0-9]/g,'');path=`chat/${state.chatId}/${uid()}.${ext||'bin'}`;if(mime.startsWith('audio/'))mediaType='audio';else if(mime.startsWith('video/'))mediaType='video';else mediaType='file'}
       const url=await uploadMedia(path,blob,mime);
       const {error}=await sb.from('messages').insert({chat_id:state.chatId,sender_id:state.user.id,content:null,media_url:url,media_type:mediaType,media_name:name,media_size:file.size});
-      if(error){showToast('Send: '+error.message);return}
-      playSend();
-    }catch(e){console.error(e);showToast('Файл: '+(e.message||e))}
+      if(error){showToast('Send: '+error.message);return}playSend();
+    }catch(e){showToast('Файл: '+(e.message||e))}
   }
 
-  /* ============ AI (Pollinations) ============ */
+  /* ============ AI ============ */
   function loadAIHistory(){try{state.aiMessages=JSON.parse(localStorage.getItem('nova_ai_history')||'[]')}catch(e){state.aiMessages=[]}}
   function saveAIHistory(){try{localStorage.setItem('nova_ai_history',JSON.stringify(state.aiMessages.slice(-60)))}catch(e){}}
   loadAIHistory();
 
   async function sendAIMessage(){
-    const inp=document.getElementById('ai-input');
-    const text=inp.value.trim();
+    const inp=document.getElementById('ai-input');const text=inp.value.trim();
     if(!text||state.aiLoading)return;
     inp.value='';
     state.aiMessages.push({role:'user',content:text});
-    state.aiLoading=true;
-    saveAIHistory();render();
-    scrollAIBottom();
+    state.aiLoading=true;saveAIHistory();render();
     try{
-      const res=await fetch('https://text.pollinations.ai/',{
-        method:'POST',
-        headers:{'Content-Type':'application/json'},
-        body:JSON.stringify({
-          messages:[
-            {role:'system',content:'Ты полезный AI-ассистент в мессенджере Nova. Отвечай на русском, кратко и по делу. Можешь писать стихи, песни, код, советы.'},
-            ...state.aiMessages.slice(-20).map(m=>({role:m.role,content:m.content||''}))
-          ],
-          model:'openai'
-        })
-      });
+      const sysPrompt=userSettings.lang==='en'?'You are a helpful AI assistant in the Nova messenger. Respond in English, briefly and to the point. You can write poems, songs, code, advice.':'Ты полезный AI-ассистент в мессенджере Nova. Отвечай на русском, кратко и по делу. Можешь писать стихи, песни, код, советы.';
+      const res=await fetch('https://text.pollinations.ai/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:[{role:'system',content:sysPrompt},...state.aiMessages.slice(-20).map(m=>({role:m.role,content:m.content||''}))],model:'openai'})});
       if(!res.ok)throw new Error('HTTP '+res.status);
       const answer=(await res.text()).trim();
-      state.aiMessages.push({role:'assistant',content:answer||'Пустой ответ'});
-    }catch(e){
-      console.error('AI error',e);
-      state.aiMessages.push({role:'assistant',content:'⚠ Ошибка AI: '+(e.message||e)+'\n\nПроверьте интернет. Если ошибка повторяется — попробуйте позже.'});
-    }finally{
-      state.aiLoading=false;
-      saveAIHistory();render();
-      scrollAIBottom();
-    }
+      state.aiMessages.push({role:'assistant',content:answer||'...'});
+    }catch(e){state.aiMessages.push({role:'assistant',content:'⚠ '+e.message})}
+    finally{state.aiLoading=false;saveAIHistory();render();setTimeout(()=>{const m=document.getElementById('ai-messages');if(m)m.scrollTop=m.scrollHeight},50)}
   }
-  function scrollAIBottom(){setTimeout(()=>{const m=document.getElementById('ai-messages');if(m)m.scrollTop=m.scrollHeight},50)}
 
   async function generateAIImage(){
-    const inp=document.getElementById('ai-image-prompt');
-    if(!inp)return;
-    const prompt=inp.value.trim();
-    if(!prompt)return;
+    const inp=document.getElementById('ai-image-prompt');if(!inp)return;
+    const prompt=inp.value.trim();if(!prompt)return;
     const result=document.getElementById('ai-image-result');
-    const seed=Math.floor(Math.random()*1000000);
-    const url=`https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1024&height=1024&nologo=true&seed=${seed}`;
-    result.innerHTML='<div class="muted small" style="text-align:center;padding:20px">⏳ Генерация… (10–30 сек)</div>';
-    const img=new Image();
-    img.onload=()=>{
-      result.innerHTML=`<img src="${url}" style="max-width:100%;border-radius:12px;margin-top:10px" data-act="open-ai-lightbox" data-src="${url}"><div class="row" style="margin-top:10px;gap:8px"><button class="btn ghost grow" data-act="ai-save-image" data-src="${url}">Скачать</button><button class="btn primary grow" data-act="ai-to-chat" data-src="${url}">В AI-чат</button></div>`;
-    };
-    img.onerror=()=>{result.innerHTML='<div class="small" style="color:#ef4444;text-align:center;padding:14px">Ошибка генерации. Попробуйте другой промпт.</div>'};
-    img.src=url;
-  }
-
-  /* ============ ПРОСМОТР ПРОФИЛЯ ============ */
-  function renderProfileView(){
-    const u=state.profiles[state.viewProfile];
-    if(!u)return '';
-    const myChats=state.chats.filter(c=>(state.members[c.id]||[]).some(m=>m.user_id===u.id));
-    const isMe=u.id===state.user.id;
-    return `<div class="overlay"><div class="card modal">
-      <div class="row between"><b>Профиль</b><button class="icon" data-act="close-profile-view">✕</button></div>
-      <div class="row" style="align-items:flex-start">${avaHtml(u,'big')}
-        <div class="grow"><h2 style="margin:0 0 4px">${esc(u.display_name||u.username)}</h2>
-          <div class="muted small">@${esc(u.username)}</div>
-          ${u.bio?`<div style="margin-top:8px">${esc(u.bio)}</div>`:'<div class="muted small" style="margin-top:8px">Без описания</div>'}
-        </div>
-      </div>
-      <div class="lbl">Общие чаты (${myChats.length})</div>
-      <div class="list">
-        ${myChats.length ? myChats.map(c=>{
-          const members=state.members[c.id]||[];
-          const other=members.find(m=>m.user_id!==state.user.id);
-          const otherProfile=other?state.profiles[other.user_id]:null;
-          const title=c.is_group?c.name:(otherProfile?.display_name||'Чат');
-          const av=c.is_group?{display_name:c.name,accent_color:'#f59e0b'}:(otherProfile||{});
-          return `<div class="item" data-act="profile-open-chat" data-id="${c.id}">${avaHtml(av,'xs')}<div class="grow"><b>${esc(title)}</b></div></div>`;
-        }).join('') : '<div class="empty">Нет общих чатов</div>'}
-      </div>
-      ${!isMe?`<button class="btn primary wide" data-act="dm-from-profile" data-id="${u.id}">Написать</button>`:''}
-    </div></div>`;
+    result.innerHTML=`<div class="muted small" style="text-align:center;padding:20px">⏳ ${t('improving')}</div>`;
+    try{
+      // Переводим промпт на английский и обогащаем
+      const translateResp=await fetch('https://text.pollinations.ai/'+encodeURIComponent(`Translate to English and enrich with visual details (style, lighting, quality, mood). Return ONLY the final English prompt, one sentence, no explanations, no quotes: "${prompt}"`));
+      let englishPrompt=(await translateResp.text()).trim().replace(/^["'`]|["'`]$/g,'').split('\n')[0].slice(0,220);
+      if(!englishPrompt||englishPrompt.length<5)englishPrompt=prompt;
+      console.log('Original:',prompt,'\nTranslated:',englishPrompt);
+      result.innerHTML=`<div class="muted small" style="text-align:center;padding:20px">🎨 ${t('generating')}<br><span style="opacity:.6;font-size:11px">${esc(englishPrompt)}</span></div>`;
+      const seed=Math.floor(Math.random()*1000000);
+      const url=`https://image.pollinations.ai/prompt/${encodeURIComponent(englishPrompt)}?width=1024&height=1024&nologo=true&seed=${seed}&model=flux`;
+      const img=new Image();
+      img.onload=()=>{
+        result.innerHTML=`<img src="${url}" style="max-width:100%;border-radius:12px;margin-top:10px" data-act="open-ai-lightbox" data-src="${url}">
+          <div class="small muted" style="margin-top:6px">${t('prompt')}: ${esc(englishPrompt)}</div>
+          <div class="row" style="margin-top:10px;gap:8px"><button class="btn ghost grow" data-act="ai-save-image" data-src="${url}">${t('download')}</button><button class="btn primary grow" data-act="ai-to-chat" data-src="${url}">${t('toChat')}</button></div>`;
+      };
+      img.onerror=()=>{result.innerHTML='<div class="small" style="color:#ef4444;text-align:center;padding:14px">Ошибка генерации</div>'};
+      img.src=url;
+    }catch(e){result.innerHTML=`<div class="small" style="color:#ef4444;text-align:center;padding:14px">Ошибка: ${esc(e.message)}</div>`}
   }
 
   /* ============ РЕНДЕР ============ */
@@ -614,32 +472,22 @@ input:focus,textarea:focus{border-color:var(--accent)}
     const app=document.getElementById('app');
     if(!state.user){app.innerHTML=renderAuth();return}
     if(!state.profile){app.innerHTML=renderProfileLoading();return}
-    const msgEl=document.getElementById('msg-input');
-    const msgVal=msgEl?msgEl.value:null;
+    const msgEl=document.getElementById('msg-input');const msgVal=msgEl?msgEl.value:null;
     app.innerHTML=renderApp();
     const newMsg=document.getElementById('msg-input');
     if(newMsg&&msgVal!==null){newMsg.value=msgVal;if(document.activeElement===msgEl)newMsg.focus()}
     const m=document.getElementById('msgs');if(m)m.scrollTop=m.scrollHeight;
     attachLocal();
-    if(state.call&&state.call.activeAt&&!callTimer){
-      callTimer=setInterval(()=>{const el=document.getElementById('call-timer');if(!el||!state.call?.activeAt)return;const s=Math.floor((Date.now()-state.call.activeAt)/1000);el.textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')},500);
-    }
+    if(state.call&&state.call.activeAt&&!callTimer){callTimer=setInterval(()=>{const el=document.getElementById('call-timer');if(!el||!state.call?.activeAt)return;const s=Math.floor((Date.now()-state.call.activeAt)/1000);el.textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')},500)}
   }
-  function renderProfileLoading(){
-    return `<div class="boot"><div class="ring"></div><div class="msg">Загрузка профиля…</div>
-      <div class="hint">Не удалось получить профиль. Проверьте соединение.</div>
-      <button class="btn primary" data-act="retry-profile" style="margin-top:14px">Повторить</button>
-      <button class="btn ghost" data-act="logout" style="margin-top:8px">Выйти</button></div>`;
-  }
+  function renderProfileLoading(){return `<div class="boot"><div class="ring"></div><div class="msg">Загрузка профиля…</div><button class="btn primary" data-act="retry-profile" style="margin-top:14px">Повторить</button><button class="btn ghost" data-act="logout" style="margin-top:8px">${t('logout')}</button></div>`}
   function renderAuth(){
     const reg=state.authMode==='register';
-    return `<div class="auth-wrap"><div class="auth-card"><div class="logo">◈ Nova</div>
-      <div class="muted small">${reg?'Создайте аккаунт':'Войдите'}</div>
-      ${reg?`<input id="a-user" placeholder="Логин (username)"><input id="a-name" placeholder="Отображаемое имя">`:''}
-      <input id="a-email" type="email" placeholder="Email">
-      <input id="a-pass" type="password" placeholder="Пароль">
-      <button class="btn primary" data-act="do-auth">${reg?'Зарегистрироваться':'Войти'}</button>
-      <button class="btn ghost" data-act="toggle-auth">${reg?'У меня есть аккаунт':'Создать аккаунт'}</button>
+    return `<div class="auth-wrap"><div class="auth-card"><div class="logo">◈ Nova</div><div class="muted small">${reg?t('createAcc'):t('login')}</div>
+      ${reg?`<input id="a-user" placeholder="${t('username')}"><input id="a-name" placeholder="${t('displayName')}">`:''}
+      <input id="a-email" type="email" placeholder="${t('email')}"><input id="a-pass" type="password" placeholder="${t('password')}">
+      <button class="btn primary" data-act="do-auth">${reg?t('register'):t('login')}</button>
+      <button class="btn ghost" data-act="toggle-auth">${reg?t('haveAcc'):t('createAcc')}</button>
       <div class="err">${esc(state.authErr)}</div></div></div>`;
   }
   function renderApp(){
@@ -647,50 +495,38 @@ input:focus,textarea:focus{border-color:var(--accent)}
     const tabs=[['chats','💬'],['stories','✨'],['ai','🤖'],['profile','⚙️']];
     return `<header class="top">${avaHtml(u)}<div class="grow"><b>${esc(u.display_name||u.username)}</b><div class="muted small">@${esc(u.username)}</div></div></header>
       <main class="content ${state.chatId?'chat':''}">${state.chatId?renderChat():renderTab()}</main>
-      ${state.chatId?'':`<nav class="tabs">${tabs.map(([k,l])=>`<button class="tab ${state.tab===k?'on':''}" data-act="tab" data-tab="${k}">${l}<br>${k==='chats'?'Чаты':k==='stories'?'Истории':k==='ai'?'AI':'Профиль'}</button>`).join('')}</nav>`}
-      ${state.modal==='pick'?renderPick():''}
-      ${state.createGroup?renderCreateGroup():''}
-      ${state.viewMembers?renderMembers():''}
-      ${state.storyCompose?renderStoryCompose():''}
-      ${state.msgMenu?renderMsgMenu():''}
-      ${state.viewStory?renderStoryView():''}
-      ${state.viewProfile?renderProfileView():''}
-      ${state.aiModal==='image'?renderAIImageModal():''}
-      ${state.incoming?renderIncoming():''}
-      ${state.call?renderCall():''}
-      ${state.lightbox?`<div class="lightbox" data-act="close-lightbox"><img src="${state.lightbox}"></div>`:''}`;
+      ${state.chatId?'':`<nav class="tabs">${tabs.map(([k,l])=>`<button class="tab ${state.tab===k?'on':''}" data-act="tab" data-tab="${k}">${l}<br>${t(k)}</button>`).join('')}</nav>`}
+      ${state.modal==='pick'?renderPick():''}${state.createGroup?renderCreateGroup():''}${state.viewMembers?renderMembers():''}${state.groupSettings?renderGroupSettings():''}${state.storyCompose?renderStoryCompose():''}${state.msgMenu?renderMsgMenu():''}${state.viewStory?renderStoryView():''}${state.viewProfile?renderProfileView():''}${state.aiModal==='image'?renderAIImageModal():''}${state.incoming?renderIncoming():''}${state.call?renderCall():''}${state.lightbox?`<div class="lightbox" data-act="close-lightbox"><img src="${state.lightbox}"></div>`:''}`;
   }
   function renderTab(){if(state.tab==='stories')return renderStories();if(state.tab==='ai')return renderAI();if(state.tab==='profile')return renderProfile();return renderChats()}
 
   function renderAI(){
-    return `<div class="row between"><h2>🤖 AI Assistant</h2><button class="btn small ghost" data-act="ai-clear">Очистить</button></div>
+    return `<div class="row between"><h2>🤖 AI</h2><button class="btn small ghost" data-act="ai-clear">${t('aiClear')}</button></div>
     <div class="ai-chat">
       <div class="ai-messages" id="ai-messages">
-        ${state.aiMessages.length===0?'<div class="empty">Привет! Я AI-ассистент.<br><br>Могу:<br>• ответить на вопросы<br>• написать песню или стих<br>• сгенерировать картинку 🎨<br>• помочь с текстом<br><br>Просто напишите сообщение.</div>':''}
+        ${state.aiMessages.length===0?`<div class="empty">${esc(t('aiGreeting')).replace(/\n/g,'<br>')}</div>`:''}
         ${state.aiMessages.map(m=>`<div class="ai-msg ${m.role}">${m.image?`<img src="${m.image}">`:''}${esc(m.content||'').replace(/\n/g,'<br>')}</div>`).join('')}
-        ${state.aiLoading?'<div class="ai-msg assistant"><span class="muted">AI думает…</span></div>':''}
+        ${state.aiLoading?`<div class="ai-msg assistant"><span class="muted">${t('aiThinking')}</span></div>`:''}
       </div>
       <div class="ai-composer">
-        <button class="icon-btn" data-act="ai-image" title="Картинка">🎨</button>
-        <button class="icon-btn" data-act="ai-song" title="Песня">🎵</button>
-        <input id="ai-input" placeholder="Спросите что угодно..." autocomplete="off">
+        <button class="icon-btn" data-act="ai-image" title="🎨">🎨</button>
+        <button class="icon-btn" data-act="ai-song" title="🎵">🎵</button>
+        <input id="ai-input" placeholder="${t('aiPlaceholder')}" autocomplete="off">
         <button class="btn primary" data-act="ai-send" style="padding:10px 16px">➤</button>
       </div>
     </div>`;
   }
   function renderAIImageModal(){
-    return `<div class="overlay"><div class="card modal">
-      <div class="row between"><b>🎨 Сгенерировать картинку</b><button class="icon" data-act="close-ai-image">✕</button></div>
-      <input id="ai-image-prompt" placeholder="Опишите картинку: закат на море, кот в шляпе, киберпанк-город...">
-      <button class="btn primary wide" data-act="ai-image-go">Сгенерировать</button>
+    return `<div class="overlay"><div class="card modal"><div class="row between"><b>🎨</b><button class="icon" data-act="close-ai-image">✕</button></div>
+      <input id="ai-image-prompt" placeholder="${t('describeImage')}">
+      <button class="btn primary wide" data-act="ai-image-go">${t('generate')}</button>
       <div id="ai-image-result"></div>
     </div></div>`;
   }
   function renderChats(){
-    const seen=new Set();
-    const list=state.chats.filter(c=>{if(!c||seen.has(c.id))return false;seen.add(c.id);return true});
-    let h=`<div class="row between"><h2>Чаты</h2><div class="row"><button class="btn small ghost" data-act="new-group">👥 Группа</button><button class="btn small" data-act="new-chat">+ Чат</button></div></div>`;
-    if(!list.length)h+=`<div class="empty">Пока нет чатов.<br>Создайте личный или групповой чат.</div>`;
+    const seen=new Set();const list=state.chats.filter(c=>{if(!c||seen.has(c.id))return false;seen.add(c.id);return true});
+    let h=`<div class="row between"><h2>${t('chats')}</h2><div class="row"><button class="btn small ghost" data-act="new-group">${t('newGroup')}</button><button class="btn small" data-act="new-chat">${t('newChat')}</button></div></div>`;
+    if(!list.length)h+=`<div class="empty">${t('noChats')}</div>`;
     h+='<div class="list">';
     for(const c of list){
       const members=state.members[c.id]||[];
@@ -698,22 +534,18 @@ input:focus,textarea:focus{border-color:var(--accent)}
       const otherProfile=other?state.profiles[other.user_id]:null;
       const title=c.is_group?c.name:(otherProfile?.display_name||'Чат');
       const av=c.is_group?{avatar_url:c.avatar_url||null,accent_color:'#f59e0b',display_name:c.name}:(otherProfile||{});
-      h+=`<div class="item" data-act="open-chat" data-id="${c.id}">${avaHtml(av)}<div class="grow"><b>${esc(title)}</b><div class="muted small">${c.is_group?`${members.length} участников`:'личный чат'}</div></div></div>`;
+      const ls=!c.is_group&&otherProfile?formatLastSeen(otherProfile):'';
+      h+=`<div class="item" data-act="open-chat" data-id="${c.id}">${avaHtml(av)}<div class="grow"><b>${esc(title)}</b><div class="muted small">${c.is_group?`${members.length} ${t('members').toLowerCase()}`:(ls||'@'+esc(otherProfile?.username||'—'))}</div></div></div>`;
     }
     return h+'</div>';
   }
   function renderMsgBody(m){
-    let out='';
-    const url=m.media_url||'';
-    const name=m.media_name||'файл';
-    const size=m.media_size?formatSize(m.media_size):'';
-    if(url&&m.media_type==='image'){out+=`<img class="msg-image" src="${url}" data-act="open-lightbox" data-src="${url}" alt="${esc(name)}">`}
-    else if(url&&m.media_type==='audio'){out+=`<audio controls preload="metadata" src="${url}"></audio>`}
-    else if(url&&m.media_type==='video'){out+=`<video controls preload="metadata" src="${url}"></video>`}
-    else if(url&&m.media_type==='file'){
-      out+=`<a class="file-link" href="${url}" target="_blank" rel="noopener" download="${esc(name)}"><span class="file-icon">📎</span><span class="file-info"><span class="file-name">${esc(name)}</span><span class="file-size">${size}</span></span></a>`;
-    }
-    if(m.content)out+=`<div>${esc(m.content)}${m.edited_at?'<span class="edited-mark">(изм.)</span>':''}</div>`;
+    let out='';const url=m.media_url||'';const name=m.media_name||'file';const size=m.media_size?formatSize(m.media_size):'';
+    if(url&&m.media_type==='image')out+=`<img class="msg-image" src="${url}" data-act="open-lightbox" data-src="${url}" alt="${esc(name)}">`;
+    else if(url&&m.media_type==='audio')out+=`<audio controls preload="metadata" src="${url}"></audio>`;
+    else if(url&&m.media_type==='video')out+=`<video controls preload="metadata" src="${url}"></video>`;
+    else if(url&&m.media_type==='file')out+=`<a class="file-link" href="${url}" target="_blank" rel="noopener" download="${esc(name)}"><span class="file-icon">📎</span><span class="file-info"><span class="file-name">${esc(name)}</span><span class="file-size">${size}</span></span></a>`;
+    if(m.content)out+=`<div>${esc(m.content)}${m.edited_at?`<span class="edited-mark">(изм.)</span>`:''}</div>`;
     else if(m.edited_at)out+=`<span class="edited-mark">(изм.)</span>`;
     return out;
   }
@@ -725,32 +557,31 @@ input:focus,textarea:focus{border-color:var(--accent)}
     const title=c.is_group?c.name:(otherProfile?.display_name||'Чат');
     const av=c.is_group?{avatar_url:c.avatar_url||null,accent_color:'#f59e0b',display_name:c.name}:(otherProfile||{});
     const myMuted=(members.find(m=>m.user_id===state.user.id)||{}).muted;
-    const msgs=state.messages;
-    const u=state.user;
+    const msgs=state.messages;const u=state.user;
     const composer=state.recording
-      ?`<div class="rec-bar"><span>● Запись</span><span class="time" id="rec-time">00:00</span><div class="grow"></div><button class="btn small ghost" data-act="cancel-rec" style="color:#fff;border-color:rgba(255,255,255,.4)">Отмена</button><button class="btn small" data-act="stop-rec" style="background:#fff;color:#ef4444;border-color:#fff">Стоп</button></div>`
-      :`<button class="icon-btn" data-act="attach-file" title="Файл">📎</button><input type="file" id="chat-file" accept="*/*" style="display:none"><input id="msg-input" placeholder="${myMuted?'Вы заглушены':'Сообщение...'}" ${myMuted?'disabled':''}><button class="icon-btn" data-act="start-rec" title="Голосовое" ${myMuted?'disabled':''}>🎤</button><button class="btn primary" data-act="send" ${myMuted?'disabled':''}>➤</button>`;
+      ?`<div class="rec-bar"><span>●</span><span class="time" id="rec-time">00:00</span><div class="grow"></div><button class="btn small ghost" data-act="cancel-rec" style="color:#fff;border-color:rgba(255,255,255,.4)">Отмена</button><button class="btn small" data-act="stop-rec" style="background:#fff;color:#ef4444;border-color:#fff">Стоп</button></div>`
+      :`<button class="icon-btn" data-act="attach-file">📎</button><input type="file" id="chat-file" accept="*/*" style="display:none"><input id="msg-input" placeholder="${myMuted?t('mutedByAdmin'):t('typeMessage')}" ${myMuted?'disabled':''}><button class="icon-btn" data-act="start-rec" ${myMuted?'disabled':''}>🎤</button><button class="btn primary" data-act="send" ${myMuted?'disabled':''}>➤</button>`;
     const avatarBlock=c.is_group
-      ?`<span data-act="view-group-info" style="cursor:pointer">${avaHtml(av,'sm')}</span>`
+      ?`<span data-act="open-group-settings" style="cursor:pointer">${avaHtml(av,'sm')}</span>`
       :`<span data-act="view-profile" data-id="${other?.user_id||''}" style="cursor:pointer">${avaHtml(av,'sm')}</span>`;
-    return `<div class="chat-head"><button class="icon" data-act="back">←</button>${avatarBlock}<div class="grow"><b>${esc(title)}</b><div class="muted small">${c.is_group?`${members.length} участников`:`@${otherProfile?.username||'—'}`}</div></div>${c.is_group?`<button class="icon" data-act="view-members" title="Участники">👥</button>`:''}${!c.is_group&&other?`<button class="icon" data-act="call" data-id="${other.user_id}">📞</button>`:''}</div>
+    const subtitle=c.is_group?`${members.length} ${t('members').toLowerCase()}`:(otherProfile?formatLastSeen(otherProfile)||('@'+esc(otherProfile.username)):'—');
+    const extraBtn=c.is_group&&isAdmin(c.id)?`<button class="icon" data-act="open-group-settings">⚙️</button>`:'';
+    return `<div class="chat-head"><button class="icon" data-act="back">←</button>${avatarBlock}<div class="grow"><b>${esc(title)}</b><div class="muted small">${subtitle}</div></div>${extraBtn}${!c.is_group&&other?`<button class="icon" data-act="call" data-id="${other.user_id}">📞</button>`:''}</div>
       <div class="messages" id="msgs">${msgs.length?msgs.map(m=>{
-        const out=m.sender_id===u.id;
-        const sender=state.profiles[m.sender_id];
-        const reactions=m.reactions||{};
+        const out=m.sender_id===u.id;const sender=state.profiles[m.sender_id];const reactions=m.reactions||{};
         const reactHtml=Object.entries(reactions).length?`<div class="reactions">${Object.entries(reactions).map(([e,a])=>`<button class="reaction-chip ${a.includes(u.id)?'mine':''}" data-act="react-msg" data-id="${m.id}" data-v="${e}">${e} ${a.length}</button>`).join('')}</div>`:'';
         return `<div class="msg-row ${out?'out':'in'}"><div class="msg ${out?'out':'in'}">${c.is_group&&!out?`<div class="sender-name">${esc(sender?.display_name||'?')}</div>`:''}<div class="bubble">${renderMsgBody(m)}</div>${reactHtml}<div class="ts">${time(m.created_at)}</div></div><button class="msg-menu-btn" data-act="msg-menu" data-id="${m.id}">⋯</button></div>`;
-      }).join(''):'<div class="empty">Начните диалог 👋</div>'}</div>
-      ${myMuted?'<div class="muted small" style="text-align:center;padding:8px">🔇 Вы заглушены админом</div>':''}
+      }).join(''):'<div class="empty">👋</div>'}</div>
+      ${myMuted?`<div class="muted small" style="text-align:center;padding:8px">${t('mutedByAdmin')}</div>`:''}
       <div class="composer">${composer}</div>`;
   }
   function renderStories(){
-    let h=`<div class="row between"><h2>Истории</h2><button class="btn small" data-act="add-story">+ Добавить</button></div>`;
-    if(!state.stories.length)h+=`<div class="empty">Историй за 24ч нет.</div>`;
+    let h=`<div class="row between"><h2>${t('stories')}</h2><button class="btn small" data-act="add-story">${t('addStory')}</button></div>`;
+    if(!state.stories.length)h+=`<div class="empty">${t('noStories')}</div>`;
     h+='<div class="stories-row">';
     for(const s of state.stories){
       const au=state.profiles[s.user_id];if(!au)continue;
-      let bg=s.media_url?`background-image:url(${s.media_url});background-size:cover;background-position:center`:`background:${s.background_color||'#6366f1'}`;
+      const bg=s.media_url?`background-image:url(${s.media_url});background-size:cover;background-position:center`:`background:${s.background_color||'#6366f1'}`;
       h+=`<div class="story" data-act="view-story" data-id="${s.id}" style="${bg}">${avaHtml(au,'xs','background:rgba(0,0,0,.35);')}<div><div>${esc(au.display_name)}</div><div class="small" style="opacity:.8">${time(s.created_at)}</div></div></div>`;
     }
     return h+'</div>';
@@ -758,54 +589,103 @@ input:focus,textarea:focus{border-color:var(--accent)}
   function renderProfile(){
     const u=state.profile;
     const accents=['#6366f1','#ec4899','#10b981','#f59e0b','#3b82f6','#ef4444','#8b5cf6','#14b8a6'];
-    return `<h2>Профиль</h2>
-    <div class="card"><div class="row">${avaHtml(u,'big')}<div class="grow"><input id="p-name" value="${esc(u.display_name||'')}" placeholder="Имя"><input id="p-bio" value="${esc(u.bio||'')}" placeholder="О себе" style="margin-top:8px"></div></div>
-      <button class="btn ghost" data-act="pick-avatar">📷 Фото на аватар</button>
-      <input type="file" id="avatar-file" accept="image/*" style="display:none">
-      <div class="lbl">Акцентный цвет</div>
-      <div class="chips">${accents.map(c=>`<button class="dot ${u.accent_color===c?'on':''}" style="background:${c}" data-act="set-accent" data-v="${c}"></button>`).join('')}</div>
-      <button class="btn primary wide" data-act="save-profile">Сохранить профиль</button>
+    const langs=[['ru','Русский'],['en','English']];
+    return `<h2>${t('profile')}</h2>
+    <div class="card"><div class="row">${avaHtml(u,'big')}<div class="grow"><input id="p-name" value="${esc(u.display_name||'')}" placeholder="${t('displayName')}"><input id="p-bio" value="${esc(u.bio||'')}" placeholder="${t('bio')}" style="margin-top:8px"></div></div>
+      <button class="btn ghost" data-act="pick-avatar">${t('photoOnAvatar')}</button><input type="file" id="avatar-file" accept="image/*" style="display:none">
+      <div class="lbl">${t('accent')}</div><div class="chips">${accents.map(c=>`<button class="dot ${u.accent_color===c?'on':''}" style="background:${c}" data-act="set-accent" data-v="${c}"></button>`).join('')}</div>
+      <button class="btn primary wide" data-act="save-profile">${t('saveProfile')}</button>
     </div>
     <div class="card">
-      <div class="lbl">Настройки</div>
-      <button class="btn ghost" data-act="toggle-sounds">${userSettings.sounds?'🔔 Звуки: включены':'🔕 Звуки: выключены'}</button>
-      <button class="btn ghost" data-act="toggle-notif">${userSettings.notifications?'🔔 Уведомления: включены':'🔕 Уведомления: выключены'}</button>
-      <button class="btn ghost" data-act="toggle-theme">🎨 Тема: ${u.theme==='light'?'светлая':'тёмная'}</button>
+      <div class="lbl">${t('appearance')}</div>
+      <button class="btn ghost" data-act="toggle-theme">${t('theme')}: ${u.theme==='light'?'☀️':'🌙'}</button>
       <div class="row" style="gap:8px"><button class="btn ghost grow" data-act="font-minus">A −</button><button class="btn ghost grow" data-act="font-plus">A +</button></div>
-      <button class="btn ghost" data-act="clear-cache">🧹 Очистить кэш</button>
-      <button class="btn ghost" data-act="logout">🚪 Выйти</button>
+      <div class="lbl">${t('lang')}</div>
+      <div class="chips">${langs.map(([k,l])=>`<button class="btn small ${userSettings.lang===k?'primary':'ghost'}" data-act="set-lang" data-v="${k}">${l}</button>`).join('')}</div>
+      <div class="lbl">${t('settings')}</div>
+      <button class="btn ghost" data-act="toggle-sounds">${userSettings.sounds?t('soundsOn'):t('soundsOff')}</button>
+      <button class="btn ghost" data-act="toggle-notif">${userSettings.notifications?t('notifOn'):t('notifOff')}</button>
+      <div class="lbl">${t('privacy')}</div>
+      <div class="small">${t('lastSeenPrivacy')}</div>
+      <select data-act="set-privacy-ls" style="margin-bottom:8px">
+        ${['everyone','contacts','nobody'].map(v=>`<option value="${v}" ${(u.privacy_last_seen||'everyone')===v?'selected':''}>${t(v)}</option>`).join('')}
+      </select>
+      <div class="small">${t('messagesPrivacy')}</div>
+      <select data-act="set-privacy-msg">
+        ${['everyone','contacts','nobody'].map(v=>`<option value="${v}" ${(u.privacy_messages||'everyone')===v?'selected':''}>${t(v)}</option>`).join('')}
+      </select>
+      <div style="height:10px"></div>
+      <button class="btn ghost" data-act="clear-cache">${t('cache')}</button>
+      <button class="btn ghost" data-act="logout">${t('logout')}</button>
     </div>`;
   }
   function renderPick(){
     const users=Object.values(state.profiles).filter(p=>p.id!==state.user.id);
-    return `<div class="overlay"><div class="card modal"><div class="row between"><b>${state.pickMode==='call'?'Кому позвонить':'Новый чат'}</b><button class="icon" data-act="close-modal">✕</button></div>
-      ${users.length?users.map(x=>`<div class="item" data-act="pick-user" data-id="${x.id}">${avaHtml(x)}<div class="grow"><b>${esc(x.display_name||x.username)}</b><div class="muted small">@${esc(x.username)}</div></div></div>`).join(''):'<div class="empty">Других пользователей нет.</div>'}
+    return `<div class="overlay"><div class="card modal"><div class="row between"><b>${state.pickMode==='call'?'📞':t('newChat')}</b><button class="icon" data-act="close-modal">✕</button></div>
+      ${users.length?users.map(x=>`<div class="item" data-act="pick-user" data-id="${x.id}">${avaHtml(x)}<div class="grow"><b>${esc(x.display_name||x.username)}</b><div class="muted small">${formatLastSeen(x)||('@'+esc(x.username))}</div></div></div>`).join(''):`<div class="empty">${t('noUsers')}</div>`}
     </div></div>`;
   }
   function renderCreateGroup(){
     const users=Object.values(state.profiles).filter(p=>p.id!==state.user.id);
-    return `<div class="overlay"><div class="card modal"><div class="row between"><b>Новая группа</b><button class="icon" data-act="close-modal">✕</button></div>
-      <input id="g-name" placeholder="Название группы" value="${esc(state.groupName)}">
-      <div class="lbl">Участники</div>
-      ${users.map(x=>`<label class="item" style="cursor:pointer">${avaHtml(x,'xs')}<div class="grow"><b>${esc(x.display_name||x.username)}</b></div><input type="checkbox" data-act="toggle-member" data-id="${x.id}" ${state.groupMembers.includes(x.id)?'checked':''} style="width:auto"></label>`).join('')||'<div class="empty">Нет других пользователей</div>'}
-      <button class="btn primary wide" data-act="create-group-btn">Создать группу</button></div></div>`;
+    return `<div class="overlay"><div class="card modal"><div class="row between"><b>${t('newGroup')}</b><button class="icon" data-act="close-modal">✕</button></div>
+      <input id="g-name" placeholder="${t('groupName')}" value="${esc(state.groupName)}">
+      <div class="lbl">${t('pickMembers')}</div>
+      ${users.map(x=>`<label class="item" style="cursor:pointer">${avaHtml(x,'xs')}<div class="grow"><b>${esc(x.display_name||x.username)}</b></div><input type="checkbox" data-act="toggle-member" data-id="${x.id}" ${state.groupMembers.includes(x.id)?'checked':''} style="width:auto"></label>`).join('')||`<div class="empty">${t('noUsers')}</div>`}
+      <button class="btn primary wide" data-act="create-group-btn">${t('create')}</button></div></div>`;
   }
   function renderMembers(){
     const c=state.chat;if(!c)return '';
     const members=state.members[c.id]||[];
-    const amAdmin=isAdmin(c.id);
-    return `<div class="overlay"><div class="card modal"><div class="row between"><b>Участники (${members.length})</b><button class="icon" data-act="close-modal">✕</button></div>
-      ${members.map(m=>{const p=state.profiles[m.user_id];const isMe=m.user_id===state.user.id;return `<div class="member-row">${avaHtml(p,'sm')}<div class="grow"><b>${esc(p?.display_name||'?')}${isMe?' (вы)':''}</b><div class="row"><span class="badge ${m.role==='admin'?'admin':''}">${m.role}</span>${m.muted?'<span class="badge muted">заглушён</span>':''}</div></div>${amAdmin&&!isMe?`<div class="member-actions">${m.role==='admin'?`<button class="btn small ghost" data-act="demote" data-id="${m.user_id}">−админ</button>`:`<button class="btn small ghost" data-act="promote" data-id="${m.user_id}">+админ</button>`}${m.muted?`<button class="btn small ghost" data-act="unmute" data-id="${m.user_id}">🔊</button>`:`<button class="btn small danger" data-act="mute" data-id="${m.user_id}">🔇</button>`}</div>`:''}</div>`}).join('')}
-      ${c.is_group?`<button class="btn danger wide" data-act="leave-group">🚪 Выйти из группы</button>`:''}</div></div>`;
+    const amAdmin=isAdmin(c.id);const creator=isCreator(c.id);
+    return `<div class="overlay"><div class="card modal"><div class="row between"><b>${t('members')} (${members.length})</b><button class="icon" data-act="close-modal">✕</button></div>
+      ${members.map(m=>{const p=state.profiles[m.user_id];const isMe=m.user_id===state.user.id;return `<div class="member-row">${avaHtml(p,'sm')}<div class="grow"><b>${esc(p?.display_name||'?')}${isMe?' (вы)':''}</b><div class="row"><span class="badge ${m.role==='admin'?'admin':''}">${m.role}</span>${m.muted?'<span class="badge muted">🔇</span>':''}</div></div>${amAdmin&&!isMe?`<div class="member-actions">${m.role==='admin'?`<button class="btn small ghost" data-act="demote" data-id="${m.user_id}">−</button>`:`<button class="btn small ghost" data-act="promote" data-id="${m.user_id}">+</button>`}${m.muted?`<button class="btn small ghost" data-act="unmute" data-id="${m.user_id}">🔊</button>`:`<button class="btn small danger" data-act="mute" data-id="${m.user_id}">🔇</button>`}${!creator||m.user_id!==c.created_by?`<button class="btn small danger" data-act="kick" data-id="${m.user_id}">✕</button>`:''}</div>`:''}</div>`}).join('')}
+      ${c.is_group?`<button class="btn danger wide" data-act="leave-group">${t('leaveGroup')}</button>`:''}</div></div>`;
+  }
+  function renderGroupSettings(){
+    const cid=state.groupSettings;const c=state.chats.find(x=>x.id===cid);
+    if(!c)return '';
+    const amAdmin=isAdmin(cid);const creator=isCreator(cid);
+    return `<div class="overlay"><div class="card modal"><div class="row between"><b>⚙️ ${t('settings')}</b><button class="icon" data-act="close-group-settings">✕</button></div>
+      <div class="row" style="justify-content:center">${avaHtml({avatar_url:c.avatar_url,display_name:c.name,accent_color:'#f59e0b'},'big')}</div>
+      ${amAdmin?`<button class="btn ghost" data-act="pick-group-avatar">${t('groupAvatar')}</button><input type="file" id="group-avatar-file" accept="image/*" style="display:none">`:''}
+      <div class="lbl">${t('groupName')}</div>
+      <input id="gs-name" value="${esc(c.name||'')}" ${amAdmin?'':'disabled'}>
+      <div class="lbl">${t('groupDesc')}</div>
+      <textarea id="gs-desc" rows="2" style="resize:none" ${amAdmin?'':'disabled'}>${esc(c.description||'')}</textarea>
+      ${amAdmin?`<button class="btn primary wide" data-act="save-group-settings">${t('save')}</button>`:''}
+      <button class="btn ghost wide" data-act="view-members">${t('members')} (${(state.members[cid]||[]).length})</button>
+      <button class="btn danger wide" data-act="leave-group">${t('leaveGroup')}</button>
+      ${creator?`<button class="btn danger wide" data-act="delete-group" data-id="${cid}">🗑️ ${t('deleteGroup')}</button>`:''}
+    </div></div>`;
+  }
+  function renderProfileView(){
+    const u=state.profiles[state.viewProfile];if(!u)return '';
+    const myChats=state.chats.filter(c=>(state.members[c.id]||[]).some(m=>m.user_id===u.id));
+    const isMe=u.id===state.user.id;
+    return `<div class="overlay"><div class="card modal">
+      <div class="row between"><b>${t('profile')}</b><button class="icon" data-act="close-profile-view">✕</button></div>
+      <div class="row" style="align-items:flex-start">${avaHtml(u,'big')}<div class="grow"><h2 style="margin:0 0 4px">${esc(u.display_name||u.username)}</h2><div class="muted small">@${esc(u.username)}</div>
+        <div class="muted small" style="margin-top:4px">${formatLastSeen(u)}</div>
+        ${u.bio?`<div style="margin-top:8px">${esc(u.bio)}</div>`:`<div class="muted small" style="margin-top:8px">${t('bio')}</div>`}
+      </div></div>
+      <div class="lbl">${t('commonChats')} (${myChats.length})</div>
+      <div class="list">${myChats.length?myChats.map(c=>{
+        const members=state.members[c.id]||[];const other=members.find(m=>m.user_id!==state.user.id);
+        const op=other?state.profiles[other.user_id]:null;
+        const title=c.is_group?c.name:(op?.display_name||'Чат');
+        const av=c.is_group?{display_name:c.name,accent_color:'#f59e0b'}:(op||{});
+        return `<div class="item" data-act="profile-open-chat" data-id="${c.id}">${avaHtml(av,'xs')}<div class="grow"><b>${esc(title)}</b></div></div>`;
+      }).join(''):`<div class="empty">${t('noCommon')}</div>`}</div>
+      ${!isMe?`<button class="btn primary wide" data-act="dm-from-profile" data-id="${u.id}">${t('write')}</button>`:''}
+    </div></div>`;
   }
   function renderStoryCompose(){
     let preview='';
     if(state.storyMedia)preview=`<div style="position:relative"><img class="preview-media" src="${state.storyMedia}"><button class="btn small danger" data-act="remove-story-media" style="position:absolute;top:6px;right:6px">✕</button></div>`;
-    return `<div class="overlay"><div class="card modal"><div class="row between"><b>Новая история</b><button class="icon" data-act="close-modal">✕</button></div>
-      ${preview}<textarea id="story-text" rows="3" placeholder="Подпись..." style="resize:none"></textarea>
-      <button class="btn ghost" data-act="pick-story-media">📷 Фото</button>
-      <input type="file" id="story-file" accept="image/*" style="display:none">
-      <button class="btn primary" data-act="publish-story">Опубликовать</button></div></div>`;
+    return `<div class="overlay"><div class="card modal"><div class="row between"><b>${t('newStory')}</b><button class="icon" data-act="close-modal">✕</button></div>
+      ${preview}<textarea id="story-text" rows="3" placeholder="${t('caption')}" style="resize:none"></textarea>
+      <button class="btn ghost" data-act="pick-story-media">${t('photo')}</button><input type="file" id="story-file" accept="image/*" style="display:none">
+      <button class="btn primary" data-act="publish-story">${t('publish')}</button></div></div>`;
   }
   function renderStoryView(){
     const s=state.stories.find(x=>x.id===state.viewStory);if(!s)return '';
@@ -814,24 +694,22 @@ input:focus,textarea:focus{border-color:var(--accent)}
     const bg=s.media_url?'background:#0b0c10':`background:${s.background_color||'#6366f1'}`;
     return `<div class="story-full" style="${bg}" data-act="close-story"><div class="row">${avaHtml(au,'xs','background:rgba(0,0,0,.35);')}<b>${esc(au?.display_name||'')}</b><div class="grow"></div><div class="small">${time(s.created_at)}</div></div>
       <div style="display:flex;flex-direction:column;gap:14px;align-items:center;justify-content:center;flex:1">${media}${s.content?`<div style="text-align:center">${esc(s.content)}</div>`:''}</div>
-      <div style="text-align:center" class="small">нажмите фон, чтобы закрыть</div></div>`;
+      <div style="text-align:center" class="small">tap</div></div>`;
   }
   function renderMsgMenu(){
     const m=state.messages.find(x=>x.id===state.msgMenu);if(!m)return '';
     const isMine=m.sender_id===state.user.id;
-    return `<div class="overlay"><div class="card modal"><div class="row between"><b>Действия</b><button class="icon" data-act="close-msg-menu">✕</button></div>
-      <div class="lbl">Реакция</div>
+    return `<div class="overlay"><div class="card modal"><div class="row between"><b>${t('reaction')}</b><button class="icon" data-act="close-msg-menu">✕</button></div>
       <div class="chips" style="font-size:22px">${EMOJI_REACTS.map(e=>`<button class="chip" data-act="react-msg" data-id="${m.id}" data-v="${e}">${e}</button>`).join('')}</div>
-      ${isMine&&m.content?`<button class="btn ghost" data-act="edit-msg" data-id="${m.id}">✏️ Редактировать</button>`:''}
-      ${isMine?`<button class="btn danger" data-act="delete-msg" data-id="${m.id}">🗑️ Удалить</button>`:''}</div></div>`;
+      ${isMine&&m.content?`<button class="btn ghost" data-act="edit-msg" data-id="${m.id}">${t('edit')}</button>`:''}
+      ${isMine?`<button class="btn danger" data-act="delete-msg" data-id="${m.id}">${t('del')}</button>`:''}</div></div>`;
   }
   function renderCall(){
     const other=state.profiles[state.call.outbound?state.call.callee_id:state.call.caller_id];
     return `<div class="overlay"><div class="call"><div class="video-wrap"><video id="remote-video" autoplay playsinline muted></video><video id="local-video" autoplay playsinline muted></video></div>
       <div class="row" style="justify-content:center">${avaHtml(other,'sm')}<b>${esc(other?.display_name||'?')}</b></div>
-      <div class="muted" id="call-timer">${state.call.activeAt?'00:00':'звонок…'}</div>
-      <div id="call-status" class="muted small"></div>
-      <div id="call-diag" class="muted" style="font-size:10px;opacity:.6"></div>
+      <div class="muted" id="call-timer">${state.call.activeAt?'00:00':t('calling')}</div>
+      <div id="call-status" class="muted small"></div><div id="call-diag" class="muted" style="font-size:10px;opacity:.6"></div>
       <div class="call-controls">
         <button class="call-btn ${state.muted?'off':''}" data-act="toggle-mute">${state.muted?'🔇':'🎤'}</button>
         <button class="call-btn ${state.cameraOn?'on':''}" data-act="toggle-cam">📹</button>
@@ -841,43 +719,36 @@ input:focus,textarea:focus{border-color:var(--accent)}
   }
   function renderIncoming(){
     const caller=state.profiles[state.incoming.caller_id];
-    return `<div class="overlay"><div class="call">${avaHtml(caller,'huge')}<h2>${esc(caller?.display_name||'?')}</h2><div class="muted">входящий звонок…</div>
-      <div class="row" style="width:100%;gap:10px"><button class="btn success grow" data-act="accept-call">Принять</button><button class="btn danger grow" data-act="decline-call">Отклонить</button></div></div></div>`;
+    return `<div class="overlay"><div class="call">${avaHtml(caller,'huge')}<h2>${esc(caller?.display_name||'?')}</h2><div class="muted">${t('inCall')}</div>
+      <div class="row" style="width:100%;gap:10px"><button class="btn success grow" data-act="accept-call">${t('acceptCall')}</button><button class="btn danger grow" data-act="decline-call">${t('declineCall')}</button></div></div></div>`;
   }
 
   /* ============ ДЕЙСТВИЯ ============ */
   async function doAuth(){
-    const email=document.getElementById('a-email').value.trim();
-    const pass=document.getElementById('a-pass').value;
-    if(!email||!pass){state.authErr='Заполните email и пароль';render();return}
+    const email=document.getElementById('a-email').value.trim();const pass=document.getElementById('a-pass').value;
+    if(!email||!pass){state.authErr='...';render();return}
     try{
       if(state.authMode==='register'){
-        const username=document.getElementById('a-user').value.trim();
-        const name=document.getElementById('a-name').value.trim();
-        if(!username){state.authErr='Введите логин';render();return}
+        const username=document.getElementById('a-user').value.trim();const name=document.getElementById('a-name').value.trim();
+        if(!username){state.authErr='...';render();return}
         const {user}=await signUp(email,pass,username,name||username);
-        if(user){state.user=user;await loadProfile();if(!state.profile){state.authErr='Подтвердите email или повторите';render();return}}
-      }else{
-        await signIn(email,pass);
-        await loadSession();
-      }
+        if(user){state.user=user;await loadProfile();if(!state.profile){state.authErr='Подтвердите email';render();return}}
+      }else{await signIn(email,pass);await loadSession()}
       await bootApp();
     }catch(e){state.authErr=e.message;render()}
   }
   async function bootApp(){
-    await loadProfile();
-    if(!state.profile){render();return}
-    await loadChats();
-    await loadStories();
-    await loadAllUsers();
-    subscribeIncomingCalls();
+    await loadProfile();if(!state.profile){render();return}
+    await loadChats();await loadStories();await loadAllUsers();
+    subscribeIncomingCalls();subscribeProfiles();
     await selfCheckStorage();
+    startHeartbeat();
     render();
   }
   async function sendMsg(){
     const inp=document.getElementById('msg-input');if(!inp)return;
-    const t=inp.value.trim();if(!t||!state.chatId)return;
-    const {error}=await sb.from('messages').insert({chat_id:state.chatId,sender_id:state.user.id,content:t});
+    const txt=inp.value.trim();if(!txt||!state.chatId)return;
+    const {error}=await sb.from('messages').insert({chat_id:state.chatId,sender_id:state.user.id,content:txt});
     if(error){showToast(error.message);return}
     inp.value='';playSend();
   }
@@ -901,20 +772,32 @@ input:focus,textarea:focus{border-color:var(--accent)}
       case 'toggle-member':if(state.groupMembers.includes(id))state.groupMembers=state.groupMembers.filter(x=>x!==id);else state.groupMembers.push(id);break;
       case 'create-group-btn':{
         const name=document.getElementById('g-name').value.trim();
-        if(!name){showToast('Введите название');return}
-        if(!state.groupMembers.length){showToast('Выберите хотя бы одного');return}
-        const btn=el;btn.disabled=true;
+        if(!name||!state.groupMembers.length){showToast('...');return}
+        el.disabled=true;
         const cid=await createGroup(name,state.groupMembers);
-        btn.disabled=false;
+        el.disabled=false;
         if(cid){state.createGroup=false;await openChat(cid)}
         break;
       }
-      case 'view-members':state.viewMembers=true;render();break;
+      case 'view-members':state.viewMembers=true;state.groupSettings=null;render();break;
       case 'promote':await setMemberRole(state.chatId,id,'admin');break;
       case 'demote':await setMemberRole(state.chatId,id,'member');break;
       case 'mute':await setMemberMuted(state.chatId,id,true);break;
       case 'unmute':await setMemberMuted(state.chatId,id,false);break;
-      case 'leave-group':await leaveGroup(state.chatId);state.viewMembers=false;break;
+      case 'kick':await kickMember(state.chatId||state.groupSettings,id);break;
+      case 'leave-group':await leaveGroup(state.chatId||state.groupSettings);break;
+      case 'open-group-settings':state.groupSettings=state.chatId;render();break;
+      case 'close-group-settings':state.groupSettings=null;render();break;
+      case 'pick-group-avatar':document.getElementById('group-avatar-file')?.click();break;
+      case 'save-group-settings':{
+        const cid=state.groupSettings;if(!cid)return;
+        const name=document.getElementById('gs-name').value.trim();
+        const desc=document.getElementById('gs-desc').value.trim();
+        const {error}=await sb.from('chats').update({name,description:desc}).eq('id',cid);
+        if(error){showToast(error.message);return}
+        await refreshChatsAndMembers();state.groupSettings=null;render();break;
+      }
+      case 'delete-group':await deleteGroup(id);break;
       case 'msg-menu':state.msgMenu=id;render();break;
       case 'close-msg-menu':state.msgMenu=null;render();break;
       case 'react-msg':{
@@ -923,60 +806,31 @@ input:focus,textarea:focus{border-color:var(--accent)}
         else{await sb.from('reactions').insert({message_id:id,user_id:state.user.id,emoji:v})}
         state.msgMenu=null;break;
       }
-      case 'edit-msg':{
-        const m=state.messages.find(x=>x.id===id);if(!m||!m.content)return;
-        const nt=prompt('Новое сообщение:',m.content);
-        if(nt===null||!nt.trim())return;
-        await sb.from('messages').update({content:nt.trim(),edited_at:new Date().toISOString()}).eq('id',id);
-        state.msgMenu=null;break;
-      }
-      case 'delete-msg':if(confirm('Удалить сообщение?'))await sb.from('messages').delete().eq('id',id);state.msgMenu=null;break;
+      case 'edit-msg':{const m=state.messages.find(x=>x.id===id);if(!m||!m.content)return;const nt=prompt('',m.content);if(!nt||!nt.trim())return;await sb.from('messages').update({content:nt.trim(),edited_at:new Date().toISOString()}).eq('id',id);state.msgMenu=null;break}
+      case 'delete-msg':if(confirm(t('del')+'?'))await sb.from('messages').delete().eq('id',id);state.msgMenu=null;break;
       case 'add-story':state.storyCompose=true;state.storyMedia=null;render();break;
       case 'pick-story-media':document.getElementById('story-file')?.click();break;
       case 'remove-story-media':state.storyMedia=null;render();break;
       case 'publish-story':{
         const txt=document.getElementById('story-text').value.trim();
-        if(!txt&&!state.storyMedia){showToast('Пустая история');return}
+        if(!txt&&!state.storyMedia)return;
         let media_url=null;
-        if(state.storyMedia){
-          try{
-            const blob=dataURLtoBlob(state.storyMedia);
-            const path=`stories/${state.user.id}/${uid()}.jpg`;
-            const {error:upErr}=await sb.storage.from('media').upload(path,blob,{contentType:'image/jpeg'});
-            if(upErr){showToast('Story: '+upErr.message);return}
-            const {data:urlData}=sb.storage.from('media').getPublicUrl(path);
-            if(!urlData?.publicUrl){showToast('Bucket не публичный');return}
-            media_url=urlData.publicUrl;
-          }catch(err){showToast('Story: '+(err.message||err));return}
-        }
-        const {error:insErr}=await sb.from('stories').insert({user_id:state.user.id,content:txt,media_url,background_color:state.storyBg});
-        if(insErr){showToast('Story: '+insErr.message);return}
-        state.storyCompose=false;state.storyMedia=null;
-        await loadStories();state.tab='stories';render();break;
+        if(state.storyMedia){try{const blob=dataURLtoBlob(state.storyMedia);const path=`stories/${state.user.id}/${uid()}.jpg`;const {error:upErr}=await sb.storage.from('media').upload(path,blob,{contentType:'image/jpeg'});if(upErr){showToast(upErr.message);return}const {data:urlData}=sb.storage.from('media').getPublicUrl(path);media_url=urlData?.publicUrl}catch(err){showToast(err.message);return}}
+        await sb.from('stories').insert({user_id:state.user.id,content:txt,media_url,background_color:state.storyBg});
+        state.storyCompose=false;state.storyMedia=null;await loadStories();state.tab='stories';render();break;
       }
       case 'view-story':state.viewStory=id;render();break;
       case 'close-story':if(e.target.closest('img,button,audio,video'))return;state.viewStory=null;render();break;
       case 'pick-avatar':document.getElementById('avatar-file')?.click();break;
       case 'set-accent':await sb.from('profiles').update({accent_color:v}).eq('id',state.user.id);await loadProfile();render();break;
-      case 'save-profile':{
-        const name=document.getElementById('p-name').value.trim();
-        const bio=document.getElementById('p-bio').value.trim();
-        await sb.from('profiles').update({display_name:name,bio}).eq('id',state.user.id);
-        await loadProfile();render();break;
-      }
-      case 'toggle-theme':{
-        const t=state.profile.theme==='light'?'dark':'light';
-        await sb.from('profiles').update({theme:t}).eq('id',state.user.id);
-        await loadProfile();render();break;
-      }
+      case 'save-profile':{const name=document.getElementById('p-name').value.trim();const bio=document.getElementById('p-bio').value.trim();await sb.from('profiles').update({display_name:name,bio}).eq('id',state.user.id);await loadProfile();render();break}
+      case 'toggle-theme':{const th=state.profile.theme==='light'?'dark':'light';await sb.from('profiles').update({theme:th}).eq('id',state.user.id);await loadProfile();render();break}
       case 'toggle-sounds':userSettings.sounds=!userSettings.sounds;saveSettings();render();break;
       case 'toggle-notif':userSettings.notifications=!userSettings.notifications;saveSettings();render();break;
       case 'font-plus':userSettings.fontScale=Math.min(1.4,(userSettings.fontScale||1)+0.1);saveSettings();render();break;
       case 'font-minus':userSettings.fontScale=Math.max(0.8,(userSettings.fontScale||1)-0.1);saveSettings();render();break;
-      case 'clear-cache':
-        if(!confirm('Очистить кэш? Настройки и история AI сохранятся.'))return;
-        try{for(const k of Object.keys(localStorage)){if(k.startsWith('nova_ai')||k==='nova_settings'||k==='nova-auth')continue;localStorage.removeItem(k)}showToast('Кэш очищен','#10b981')}catch(err){}
-        break;
+      case 'set-lang':userSettings.lang=v;saveSettings();render();break;
+      case 'clear-cache':if(!confirm(t('clearCacheConfirm')))return;try{for(const k of Object.keys(localStorage)){if(k.startsWith('nova_ai')||k==='nova_settings'||k==='nova-auth')continue;localStorage.removeItem(k)}}catch(e){}break;
       case 'call':await startCall(id);break;
       case 'accept-call':await acceptCall();break;
       case 'decline-call':await declineCall();break;
@@ -990,84 +844,47 @@ input:focus,textarea:focus{border-color:var(--accent)}
       case 'attach-file':document.getElementById('chat-file')?.click();break;
       case 'open-lightbox':e.stopPropagation();state.lightbox=el.dataset.src;render();break;
       case 'close-lightbox':state.lightbox=null;render();break;
-      /* ===== AI ===== */
       case 'ai-send':await sendAIMessage();break;
-      case 'ai-clear':if(confirm('Очистить историю AI?')){state.aiMessages=[];saveAIHistory();render()}break;
+      case 'ai-clear':if(confirm('?')){state.aiMessages=[];saveAIHistory();render()}break;
       case 'ai-image':state.aiModal='image';render();break;
       case 'close-ai-image':state.aiModal=null;render();break;
       case 'ai-image-go':await generateAIImage();break;
-      case 'ai-save-image':{const url=el.dataset.src;const a=document.createElement('a');a.href=url;a.download='nova-ai.png';a.target='_blank';a.click();break}
-      case 'ai-to-chat':{
-        state.aiMessages.push({role:'assistant',content:'Сгенерированная картинка:',image:el.dataset.src});
-        saveAIHistory();state.aiModal=null;render();break;
-      }
-      case 'ai-song':{const inp=document.getElementById('ai-input');if(inp){inp.value='Напиши текст песни про ';inp.focus();inp.setSelectionRange(inp.value.length,inp.value.length)}break}
-      /* ===== Профиль ===== */
+      case 'ai-save-image':{const url=el.dataset.src;const link=document.createElement('a');link.href=url;link.download='nova-ai.png';link.target='_blank';link.click();break}
+      case 'ai-to-chat':{state.aiMessages.push({role:'assistant',content:'',image:el.dataset.src});saveAIHistory();state.aiModal=null;render();break}
+      case 'ai-song':{const inp=document.getElementById('ai-input');if(inp){inp.value=userSettings.lang==='en'?'Write a song about ':'Напиши текст песни про ';inp.focus()}break}
       case 'view-profile':state.viewProfile=id;render();break;
       case 'close-profile-view':state.viewProfile=null;render();break;
       case 'profile-open-chat':state.viewProfile=null;await openChat(id);break;
       case 'dm-from-profile':{const cid=await startDM(id);state.viewProfile=null;if(cid)await openChat(cid);break}
-      case 'view-group-info':state.viewMembers=true;render();break;
+      case 'open-ai-lightbox':state.lightbox=el.dataset.src;state.aiModal=null;render();break;
     }
   });
 
   document.addEventListener('change',async e=>{
     if(e.target.id==='avatar-file'){
       const f=e.target.files[0];if(!f)return;
-      try{
-        const data=await resizeImage(f,300,0.85);
-        const blob=dataURLtoBlob(data);
-        const path=`avatars/${state.user.id}.jpg`;
-        const {error:upErr}=await sb.storage.from('media').upload(path,blob,{upsert:true,contentType:'image/jpeg'});
-        if(upErr){showToast('Upload: '+upErr.message);return}
-        const {data:urlData}=sb.storage.from('media').getPublicUrl(path);
-        if(!urlData?.publicUrl){showToast('Bucket не публичный');return}
-        const {error:updErr}=await sb.from('profiles').update({avatar_url:urlData.publicUrl+'?t='+Date.now()}).eq('id',state.user.id);
-        if(updErr){showToast('Profile: '+updErr.message);return}
-        await loadProfile();render();
-      }catch(err){showToast('Ошибка: '+(err.message||err))}
+      try{const data=await resizeImage(f,300,0.85);const blob=dataURLtoBlob(data);const path=`avatars/${state.user.id}.jpg`;const {error:upErr}=await sb.storage.from('media').upload(path,blob,{upsert:true,contentType:'image/jpeg'});if(upErr){showToast(upErr.message);return}const {data:urlData}=sb.storage.from('media').getPublicUrl(path);const {error:updErr}=await sb.from('profiles').update({avatar_url:urlData.publicUrl+'?t='+Date.now()}).eq('id',state.user.id);if(updErr){showToast(updErr.message);return}await loadProfile();render()}catch(err){showToast(err.message)}
       e.target.value='';
     }
-    if(e.target.id==='story-file'){
-      const f=e.target.files[0];if(!f)return;
-      try{state.storyMedia=await resizeImage(f,800,0.75);render()}
-      catch(err){showToast('Ошибка: '+(err.message||err))}
+    if(e.target.id==='group-avatar-file'){
+      const f=e.target.files[0];if(!f||!state.groupSettings)return;
+      try{const data=await resizeImage(f,300,0.85);const blob=dataURLtoBlob(data);const path=`groups/${state.groupSettings}.jpg`;const {error:upErr}=await sb.storage.from('media').upload(path,blob,{upsert:true,contentType:'image/jpeg'});if(upErr){showToast(upErr.message);return}const {data:urlData}=sb.storage.from('media').getPublicUrl(path);const {error:updErr}=await sb.from('chats').update({avatar_url:urlData.publicUrl+'?t='+Date.now()}).eq('id',state.groupSettings);if(updErr){showToast(updErr.message);return}await refreshChatsAndMembers();render()}catch(err){showToast(err.message)}
       e.target.value='';
     }
-    if(e.target.id==='chat-file'){
-      const f=e.target.files[0];if(!f)return;
-      await sendChatFile(f);
-      e.target.value='';
-    }
+    if(e.target.id==='story-file'){const f=e.target.files[0];if(!f)return;try{state.storyMedia=await resizeImage(f,800,0.75);render()}catch(err){showToast(err.message)}e.target.value=''}
+    if(e.target.id==='chat-file'){const f=e.target.files[0];if(!f)return;await sendChatFile(f);e.target.value=''}
+    if(e.target.dataset.act==='set-privacy-ls'){await sb.from('profiles').update({privacy_last_seen:e.target.value}).eq('id',state.user.id);await loadProfile();render()}
+    if(e.target.dataset.act==='set-privacy-msg'){await sb.from('profiles').update({privacy_messages:e.target.value}).eq('id',state.user.id);await loadProfile();render()}
   });
 
   document.addEventListener('keydown',e=>{
     if(e.key==='Enter'&&e.target.id==='msg-input'){e.preventDefault();sendMsg()}
     if(e.key==='Enter'&&e.target.id==='ai-input'){e.preventDefault();sendAIMessage()}
   });
+  window.addEventListener('beforeunload',()=>{if(state.recording){try{state.mediaRecorder?.stop()}catch(e){}cleanupRecordUI()}if(sigPollTimer)clearInterval(sigPollTimer);if(heartbeatTimer)clearInterval(heartbeatTimer)});
+  sb.auth.onAuthStateChange(async(event,session)=>{if(event==='SIGNED_OUT'){state.user=null;state.profile=null;render()}if(event==='TOKEN_REFRESHED'&&session?.user){state.user=session.user}});
 
-  window.addEventListener('beforeunload',()=>{
-    if(state.recording){try{state.mediaRecorder?.stop()}catch(e){}cleanupRecordUI()}
-    if(sigPollTimer){clearInterval(sigPollTimer)}
-  });
-
-  sb.auth.onAuthStateChange(async(event,session)=>{
-    if(event==='SIGNED_OUT'){state.user=null;state.profile=null;render()}
-    if(event==='TOKEN_REFRESHED'&&session?.user){state.user=session.user}
-  });
-
-  /* ============ СТАРТ ============ */
-  (async()=>{
-    try{
-      await loadSession();
-      if(state.user){await loadProfile()}
-      if(state.user&&state.profile)await bootApp();
-      else render();
-    }catch(e){
-      console.error('BOOT ERROR:',e);
-      fatal('Ошибка запуска',String(e.message||e),'F12 → Console → пришлите красную строку.');
-    }
-  })();
+  (async()=>{try{await loadSession();if(state.user){await loadProfile()}if(state.user&&state.profile)await bootApp();else render()}catch(e){console.error('BOOT ERROR:',e);fatal('Ошибка',String(e.message||e),'F12 → Console')}})();
 })();
 </script>
 </body>
