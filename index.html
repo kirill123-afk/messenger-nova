@@ -189,7 +189,18 @@ async function loadSess(){try{const {data:{session},error}=await sb.auth.getSess
 async function loadProf(retries=3){if(!state.user)return;for(let i=0;i<retries;i++){try{const {data,error}=await sb.from('profiles').select('*').eq('id',state.user.id).single();if(!error&&data){state.profile=data;state.profiles[data.id]=data;return}if(error&&error.code!=='PGRST116'){await new Promise(r=>setTimeout(r,1000*(i+1)));continue}return}catch(e){await new Promise(r=>setTimeout(r,1000))}}}
 async function signUp(e,p,un,dn){const {data,error}=await sb.auth.signUp({email:e,password:p,options:{data:{username:un,display_name:dn}}});if(error)throw error;return data}
 async function signIn(e,p){const {error}=await sb.auth.signInWithPassword({email:e,password:p});if(error)throw error}
-async function signOut(){await sb.auth.signOut();state.user=null;state.profile=null;state.chats=[];state.messages=[];state.contacts=[];state.blocks=[];render()}
+async function signOut(){
+  try{if(msgChannel)sb.removeChannel(msgChannel)}catch(e){}
+  try{if(profilesChannel)sb.removeChannel(profilesChannel)}catch(e){}
+  try{if(callsChannel)sb.removeChannel(callsChannel)}catch(e){}
+  try{if(sigChannel)sb.removeChannel(sigChannel)}catch(e){}
+  msgChannel=null;profilesChannel=null;callsChannel=null;sigChannel=null;
+  if(refreshInterval){clearInterval(refreshInterval);refreshInterval=null}
+  if(heartbeatTimer){clearInterval(heartbeatTimer);heartbeatTimer=null}
+  await sb.auth.signOut();
+  state.user=null;state.profile=null;state.chats=[];state.messages=[];state.contacts=[];state.blocks=[];state.authErr='';
+  render();
+}
 
 function startHeartbeat(){if(heartbeatTimer)clearInterval(heartbeatTimer);const b=async()=>{if(!state.user)return;try{await sb.from('profiles').update({last_seen:new Date().toISOString()}).eq('id',state.user.id)}catch(e){}};b();heartbeatTimer=setInterval(b,30000)}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)startHeartbeat()});
@@ -273,12 +284,27 @@ const app=document.getElementById('app');
 if(!state.user){app.innerHTML=renderAuth();return}
 if(!state.profile){app.innerHTML=renderProfLoad();return}
 const mi=document.getElementById('msg-input');const mv=mi?mi.value:null;
+const saveIds=['a-login','a-user','a-name','a-pass','twofa-code','search-input','pick-search'];
+const saved={};let focusId=null;
+saveIds.forEach(fid=>{const el=document.getElementById(fid);if(el){saved[fid]=el.value;if(document.activeElement===el)focusId=fid}});
 app.innerHTML=renderApp();
 const nm=document.getElementById('msg-input');if(nm&&mv!==null){nm.value=mv;if(document.activeElement===mi)nm.focus()}
+saveIds.forEach(fid=>{const el=document.getElementById(fid);if(el&&saved[fid]!==undefined)el.value=saved[fid]});
+if(focusId){const el=document.getElementById(focusId);if(el)el.focus()}
 const m=document.getElementById('msgs');if(m)m.scrollTop=m.scrollHeight;
 attLocal();attachRemote();
 if(state.call&&state.call.activeAt&&!callTimer){callTimer=setInterval(()=>{const el=document.getElementById('call-timer');if(!el||!state.call?.activeAt)return;const s=Math.floor((Date.now()-state.call.activeAt)/1000);el.textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')},500)}}
-function renderProfLoad(){return `<div class="boot"><div class="ring"></div><div class="msg">Загрузка…</div><button class="btn primary" data-act="retry-prof" style="margin-top:14px">Повторить</button><button class="btn ghost" data-act="logout" style="margin-top:8px">${t('logout')}</button></div>`}
+function renderProfLoad(){
+  return `<div class="boot">
+    <div class="ring"></div>
+    <div class="msg">Загрузка профиля…</div>
+    <div class="hint" style="max-width:340px;line-height:1.6">
+      Если висит долго — вероятно, email не подтверждён (включён Confirm email в Supabase) или триггер <code>handle_new_user</code> не сработал.
+    </div>
+    <button class="btn primary" data-act="retry-prof" style="margin-top:14px">Повторить</button>
+    <button class="btn ghost" data-act="force-logout" style="margin-top:8px">← Назад на вход</button>
+  </div>`;
+}
 function renderAuth(){if(state.pending2FA)return `<div class="auth-wrap"><div class="auth-card"><div class="logo">🔐 2FA</div><div class="muted small">${t('twofaHint')}: <b>${esc(state.pending2FA.email)}</b></div><input id="twofa-code" placeholder="${t('twofaCode')}" maxlength="6" style="text-align:center;font-size:22px;letter-spacing:6px"><button class="btn primary" data-act="verify-2fa">${t('verify')}</button><button class="btn ghost" data-act="cancel-2fa">${t('back')}</button><div class="err">${esc(state.authErr)}</div></div></div>`;const reg=state.authMode==='register';return `<div class="auth-wrap"><div class="auth-card"><div class="logo">◈ Nova</div><div class="muted small">${reg?t('createAcc'):t('login')}</div>${reg?`<input id="a-user" placeholder="${t('username')}"><input id="a-name" placeholder="${t('displayName')}">`:''}<input id="a-login" placeholder="${t('email')}"><input id="a-pass" type="password" placeholder="${t('password')}"><button class="btn primary" data-act="do-auth">${reg?t('register'):t('login')}</button><button class="btn ghost" data-act="toggle-auth">${reg?t('haveAcc'):t('createAcc')}</button><div class="err">${esc(state.authErr)}</div></div></div>`}
 function renderApp(){const u=state.profile;const tabs=[['chats','💬'],['stories','✨'],['contacts','👥'],['profile','⚙️']];let ex='';if(state.showAI)ex+=renderAI();if(state.showBlocked)ex+=renderBlocked();if(state.aiModal==='image')ex+=renderImgModal();return `<header class="top">${aHtml(u)}<div class="grow"><b>${esc(u.display_name||u.username)}</b><div class="muted small">@${esc(u.username)}</div></div></header><main class="content ${state.chatId?'chat':''}">${state.chatId?renderChat():renderTab()}</main>${state.chatId?'':`<nav class="tabs">${tabs.map(([k,l])=>`<button class="tab ${state.tab===k?'on':''}" data-act="tab" data-tab="${k}">${l}<br>${t(k)}</button>`).join('')}</nav>`}${state.tab==='chats'&&!state.chatId?`<button class="floating-ai" data-act="open-ai">🤖</button>`:''}${state.modal==='pick'?renderPick():''}${state.modal==='search'?renderSearchModal():''}${state.createGroup?renderCreate():''}${state.viewMembers?renderMembers():''}${state.groupSettings?renderGroupSet():''}${state.storyCompose?renderStoryComp():''}${state.msgMenu?renderMsgMenu():''}${state.viewStory?renderStoryView():''}${state.viewProfile?renderProfileView():''}${state.incoming?renderIncoming():''}${state.call?renderCall():''}${state.lightbox?`<div class="lightbox" data-act="close-lb"><img src="${state.lightbox}"></div>`:''}${ex}`}
 function renderTab(){if(state.tab==='stories')return renderStories();if(state.tab==='contacts')return renderContactsTab();if(state.tab==='profile')return renderProfile();return renderChats()}
@@ -306,7 +332,50 @@ function renderMsgMenu(){const m=state.messages.find(x=>x.id===state.msgMenu);if
 function renderCall(){const o=state.profiles[state.call.outbound?state.call.callee_id:state.call.caller_id];return `<div class="overlay"><div class="call"><div class="video-wrap"><video id="remote-video" autoplay playsinline muted></video><video id="local-video" autoplay playsinline muted></video></div><div class="row" style="justify-content:center">${aHtml(o,'sm')}<b>${esc(o?.display_name||'?')}</b></div><div class="muted" id="call-timer">${state.call.activeAt?'00:00':t('calling')}</div><div id="call-status" class="muted small"></div><div id="call-diag" class="muted" style="font-size:10px;opacity:.6"></div><div class="call-controls"><button class="call-btn ${state.muted?'off':''}" data-act="t-mute">${state.muted?'🔇':'🎤'}</button><button class="call-btn ${state.cameraOn?'on':''}" data-act="t-cam">📹</button><button class="call-btn ${state.screenOn?'on':''}" data-act="t-scr">🖥️</button><button class="call-btn danger" data-act="end-call">📵</button></div></div></div>`}
 function renderIncoming(){const c=state.profiles[state.incoming.caller_id];return `<div class="overlay"><div class="call">${aHtml(c,'huge')}<h2>${esc(c?.display_name||'?')}</h2><div class="muted">${t('inCall')}</div><div class="row" style="width:100%;gap:10px"><button class="btn success grow" data-act="accept-call">${t('acceptCall')}</button><button class="btn danger grow" data-act="decline-call">${t('declineCall')}</button></div></div></div>`}
 
-async function doAuth(){const lr=document.getElementById('a-login').value;const pw=document.getElementById('a-pass').value;if(!pw){state.authErr='Введите пароль';render();return}const id=detId(lr);if(!id){state.authErr='Введите email или корректный телефон';render();return}try{if(state.authMode==='register'){const un=document.getElementById('a-user').value.trim();const nm=document.getElementById('a-name').value.trim();if(!un){state.authErr='Введите логин';render();return}const {user}=await signUp(id.email,pw,un,nm||un);if(user){state.user=user;await loadProf();if(!state.profile){state.authErr='Профиль не создан';render();return}if(id.type==='phone'){await sb.from('profiles').update({phone:id.value}).eq('id',user.id);state.profile.phone=id.value}}}else{await signIn(id.email,pw);await loadSess()}await boot()}catch(e){state.authErr=e.message;render()}}
+async function doAuth(){
+  const lrEl=document.getElementById('a-login');
+  const pwEl=document.getElementById('a-pass');
+  const errEl=document.querySelector('.err');
+  if(!lrEl||!pwEl)return;
+  const lr=lrEl.value, pw=pwEl.value;
+  const showErr=m=>{if(errEl)errEl.textContent=m;state.authErr=m};
+  if(!pw){showErr('Введите пароль');return}
+  const id=detId(lr);
+  if(!id){showErr('Введите email или корректный телефон (+7 900 123-45-67)');return}
+
+  try{
+    if(state.authMode==='register'){
+      const unEl=document.getElementById('a-user');
+      const nmEl=document.getElementById('a-name');
+      const un=unEl?.value.trim();
+      const nm=nmEl?.value.trim();
+      if(!un){showErr('Введите логин');return}
+      const {user,session}=await signUp(id.email,pw,un,nm||un);
+      if(!session){
+        showErr('Регистрация не завершена. Если включён Confirm email — подтвердите его, либо попросите владельца проекта отключить его в Supabase (Authentication → Providers → Email → Confirm email = OFF).');
+        return;
+      }
+      state.user=session.user||user;
+      await loadProf();
+      if(!state.profile){showErr('Профиль не создан. Проверьте триггер handle_new_user в Supabase.');return}
+      if(id.type==='phone'){
+        await sb.from('profiles').update({phone:id.value}).eq('id',state.user.id);
+        state.profile.phone=id.value;
+      }
+    }else{
+      const {data,error}=await sb.auth.signInWithPassword({email:id.email,password:pw});
+      if(error)throw error;
+      if(!data.session){showErr('Сессия не создана. Email не подтверждён или аккаунт заблокирован.');return}
+      state.user=data.session.user;
+      await loadProf();
+      if(!state.profile){showErr('Профиль не найден.');return}
+    }
+    state.authErr='';
+    await boot();
+  }catch(e){
+    showErr(e.message||String(e));
+  }
+}
 async function boot(){await loadProf();if(!state.profile){render();return}await loadChats();await loadStories();await loadAll();await loadContacts();await loadBlocks();subCalls();subProfiles();startHeartbeat();if(refreshInterval)clearInterval(refreshInterval);refreshInterval=setInterval(()=>{if(!state.chatId&&!document.hidden)render()},30000);render()}
 async function sendMsg(){const i=document.getElementById('msg-input');if(!i)return;const x=i.value.trim();if(!x||!state.chatId)return;const {error}=await sb.from('messages').insert({chat_id:state.chatId,sender_id:state.user.id,content:x});if(error){toast(error.message);return}i.value='';pSend()}
 
@@ -317,6 +386,7 @@ switch(a){
 case 'toggle-auth':state.authMode=state.authMode==='login'?'register':'login';state.authErr='';render();break;
 case 'do-auth':doAuth();break;
 case 'retry-prof':await loadProf();if(state.profile)await boot();else render();break;
+case 'force-logout':{try{await sb.auth.signOut()}catch(e){}state.user=null;state.profile=null;state.authErr='';render();break}
 case 'logout':signOut();break;
 case 'delete-account':await deleteAccount();break;
 case 'tab':state.tab=el.dataset.tab;state.chatId=null;state.chat=null;render();break;
@@ -435,7 +505,15 @@ if(e.key==='Enter'&&e.target.id==='twofa-code'){e.preventDefault();document.quer
 });
 
 window.addEventListener('beforeunload',()=>{if(state.recording){try{state.mediaRecorder?.stop()}catch(e){}cleanRec()}if(sigPollTimer)clearInterval(sigPollTimer);if(heartbeatTimer)clearInterval(heartbeatTimer);if(refreshInterval)clearInterval(refreshInterval)});
-sb.auth.onAuthStateChange(async(ev,ss)=>{if(ev==='SIGNED_OUT'){state.user=null;state.profile=null;render()}if(ev==='TOKEN_REFRESHED'&&ss?.user)state.user=ss.user});
+sb.auth.onAuthStateChange(async(ev,ss)=>{
+  if(ev==='SIGNED_OUT'){
+    const wasLoggedIn=!!state.user;
+    state.user=null;state.profile=null;
+    if(wasLoggedIn)render();
+  }
+  if(ev==='TOKEN_REFRESHED'&&ss?.user)state.user=ss.user;
+  if(ev==='SIGNED_IN'&&ss?.user&&!state.user)state.user=ss.user;
+});
 
 (async()=>{try{await loadSess();if(state.user)await loadProf();if(state.user&&state.profile)await boot();else render()}catch(e){console.error('BOOT',e);fatal('Ошибка',String(e.message||e),'F12 → Console')}})();
 })();
