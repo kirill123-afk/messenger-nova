@@ -6,8 +6,6 @@
 <title>Nova Messenger</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#6366f1">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Nova">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,"SF Pro Display","Segoe UI",Roboto,sans-serif}
 :root{--accent:#6366f1;--accent-2:#8b5cf6;--accent-grad:linear-gradient(135deg,#6366f1 0%,#8b5cf6 100%);--bg:#0a0b10;--bg-2:#0f1117;--card:#151822;--card-2:#1c2030;--text:#f0f2f8;--muted:#7c8599;--line:#252a3a;--fs:1;--online:#10b981;--danger:#ef4444}
@@ -33,7 +31,7 @@ input:focus,textarea:focus,select:focus{border-color:var(--accent);background:va
 .btn.wide{width:100%}
 .icon{padding:10px;border-radius:12px;font-size:18px;display:grid;place-items:center;transition:background .2s}
 .auth-wrap{flex:1;display:grid;place-items:center;padding:20px;overflow-y:auto}
-.auth-card{width:100%;max-width:420px;background:var(--card);border:1px solid var(--line);border-radius:24px;padding:32px 24px;display:flex;flex-direction:column;gap:14px;box-shadow:var(--shadow-lg)}
+.auth-card{width:100%;max-width:420px;background:var(--card);border:1px solid var(--line);border-radius:24px;padding:32px 24px;display:flex;flex-direction:column;gap:14px;box-shadow:0 12px 40px rgba(0,0,0,.6)}
 .logo{font-size:32px;font-weight:900;letter-spacing:-.5px;background:var(--accent-grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;text-align:center;margin-bottom:8px}
 .err{color:var(--danger);font-size:13px;min-height:18px}
 .top{display:flex;align-items:center;gap:12px;padding:14px 18px;background:rgba(21,24,34,.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--line);position:relative;z-index:10}
@@ -509,262 +507,262 @@ render();
 }
 function subProfiles(){if(profilesChannel){sb.removeChannel(profilesChannel);profilesChannel=null}profilesChannel=sb.channel('profiles_updates').on('postgres_changes',{event:'UPDATE',schema:'public',table:'profiles'},(p)=>{if(p.new&&state.profiles[p.new.id])state.profiles[p.new.id]={...state.profiles[p.new.id],...p.new};if(p.new&&state.profile&&p.new.id===state.profile.id)state.profile={...state.profile,...p.new};if(!state.chatId)render()}).subscribe()}
 function startRingTimeout(callId){
-  stopRingTimeout();
-  ringTimeout=setTimeout(async()=>{
-    if(state.incoming&&state.incoming.id===callId){
-      try{await sb.from('calls').update({status:'missed'}).eq('id',callId)}catch(e){}
-      state.incoming=null;stopRing();
-      toast(t('missedCall'),'#ef4444');
-      await loadMissedCalls();await loadAllCalls();render();
-    }
-  },RING_TIMEOUT);
+stopRingTimeout();
+ringTimeout=setTimeout(async()=>{
+if(state.incoming&&state.incoming.id===callId){
+try{await sb.from('calls').update({status:'missed'}).eq('id',callId)}catch(e){}
+state.incoming=null;stopRing();
+toast(t('missedCall'),'#ef4444');
+await loadMissedCalls();await loadAllCalls();render();
+}
+},RING_TIMEOUT);
 }
 function stopRingTimeout(){if(ringTimeout){clearTimeout(ringTimeout);ringTimeout=null}}
 function startCallerTimeout(callId){
-  if(callerTimeout){clearTimeout(callerTimeout);callerTimeout=null}
-  callerTimeout=setTimeout(async()=>{
-    if(state.call&&state.call.id===callId&&!state.call.activeAt){
-      try{await sb.from('calls').update({status:'missed'}).eq('id',callId)}catch(e){}
-      cleanupCall();toast(t('noAnswer'),'#ef4444');
-      await loadAllCalls();
-    }
-  },RING_TIMEOUT);
+if(callerTimeout){clearTimeout(callerTimeout);callerTimeout=null}
+callerTimeout=setTimeout(async()=>{
+if(state.call&&state.call.id===callId&&!state.call.activeAt){
+try{await sb.from('calls').update({status:'missed'}).eq('id',callId)}catch(e){}
+cleanupCall();toast(t('noAnswer'),'#ef4444');
+await loadAllCalls();
+}
+},RING_TIMEOUT);
 }
 function startCallPoll(){
-  stopCallPoll();
-  callPollTimer=setInterval(async()=>{
-    if(!state.call&&!state.incoming)return;
-    try{
-      if(state.incoming){
-        const {data}=await sb.from('calls').select('status,created_at').eq('id',state.incoming.id).single();
-        if(!data||data.status!=='ringing'){
-          stopRingTimeout();stopRing();state.incoming=null;render();
-        }else if(Date.now()-new Date(data.created_at).getTime()>RING_TIMEOUT){
-          await sb.from('calls').update({status:'missed'}).eq('id',state.incoming.id);
-          stopRingTimeout();stopRing();state.incoming=null;
-          loadMissedCalls();loadAllCalls();render();
-        }
-      }
-      if(state.call&&!state.call.activeAt){
-        const {data}=await sb.from('calls').select('status').eq('id',state.call.id).single();
-        if(!data||(data.status!=='ringing'&&data.status!=='active')){
-          cleanupCall();loadAllCalls();
-        }
-      }
-    }catch(e){}
-  },3000);
+stopCallPoll();
+callPollTimer=setInterval(async()=>{
+if(!state.call&&!state.incoming)return;
+try{
+if(state.incoming){
+const {data}=await sb.from('calls').select('status,created_at').eq('id',state.incoming.id).single();
+if(!data||data.status!=='ringing'){
+stopRingTimeout();stopRing();state.incoming=null;render();
+}else if(Date.now()-new Date(data.created_at).getTime()>RING_TIMEOUT){
+await sb.from('calls').update({status:'missed'}).eq('id',state.incoming.id);
+stopRingTimeout();stopRing();state.incoming=null;
+loadMissedCalls();loadAllCalls();render();
+}
+}
+if(state.call&&!state.call.activeAt){
+const {data}=await sb.from('calls').select('status').eq('id',state.call.id).single();
+if(!data||(data.status!=='ringing'&&data.status!=='active')){
+cleanupCall();loadAllCalls();
+}
+}
+}catch(e){}
+},3000);
 }
 function stopCallPoll(){if(callPollTimer){clearInterval(callPollTimer);callPollTimer=null}}
 function subCalls(){
-  if(callsChannel){sb.removeChannel(callsChannel);callsChannel=null}
-  if(callsListChannel){sb.removeChannel(callsListChannel);callsListChannel=null}
-  callsChannel=sb.channel('calls_'+state.user.id).on('postgres_changes',{event:'INSERT',schema:'public',table:'calls',filter:`callee_id=eq.${state.user.id}`},async(p)=>{
-    if(p.new.status==='ringing'){
-      await loadProfs([p.new.caller_id]);
-      state.incoming=p.new;startRing();
-      startRingTimeout(p.new.id);
-      const caller=state.profiles[p.new.caller_id];
-      notify('📞 '+t('inCall'),(caller?.display_name||'Кто-то')+' звонит','call_'+p.new.id,true);
-      flashTitle('📞 '+(caller?.display_name||''));
-      render();
-    }
-  }).on('postgres_changes',{event:'UPDATE',schema:'public',table:'calls'},async(p)=>{
-    if(state.call&&p.new.id===state.call.id){
-      if(p.new.status==='active'&&!state.call.activeAt){state.call.activeAt=new Date(p.new.accepted_at||Date.now()).getTime();stopAll();pConn();setupWebRTC();render()}
-      else if(p.new.status==='ended'||p.new.status==='declined'||p.new.status==='missed')cleanupCall();
-    }
-    if(state.incoming&&p.new.id===state.incoming.id&&p.new.status!=='ringing'){
-      state.incoming=null;stopRing();stopRingTimeout();
-      if(p.new.status==='missed'){loadMissedCalls();loadAllCalls();toast(t('missedCall'),'#ef4444')}
-      render();
-    }
-    if(p.new.status==='ended'||p.new.status==='missed'||p.new.status==='declined')loadAllCalls();
-  }).subscribe();
-  callsListChannel=sb.channel('calls_list_'+state.user.id).on('postgres_changes',{event:'INSERT',schema:'public',table:'calls',filter:`caller_id=eq.${state.user.id}`},()=>{loadAllCalls()}).subscribe();
+if(callsChannel){sb.removeChannel(callsChannel);callsChannel=null}
+if(callsListChannel){sb.removeChannel(callsListChannel);callsListChannel=null}
+callsChannel=sb.channel('calls_'+state.user.id).on('postgres_changes',{event:'INSERT',schema:'public',table:'calls',filter:`callee_id=eq.${state.user.id}`},async(p)=>{
+if(p.new.status==='ringing'){
+await loadProfs([p.new.caller_id]);
+state.incoming=p.new;startRing();
+startRingTimeout(p.new.id);
+const caller=state.profiles[p.new.caller_id];
+notify('📞 '+t('inCall'),(caller?.display_name||'Кто-то')+' звонит','call_'+p.new.id,true);
+flashTitle('📞 '+(caller?.display_name||''));
+render();
+}
+}).on('postgres_changes',{event:'UPDATE',schema:'public',table:'calls'},async(p)=>{
+if(state.call&&p.new.id===state.call.id){
+if(p.new.status==='active'&&!state.call.activeAt){state.call.activeAt=new Date(p.new.accepted_at||Date.now()).getTime();stopAll();pConn();setupWebRTC();render()}
+else if(p.new.status==='ended'||p.new.status==='declined'||p.new.status==='missed')cleanupCall();
+}
+if(state.incoming&&p.new.id===state.incoming.id&&p.new.status!=='ringing'){
+state.incoming=null;stopRing();stopRingTimeout();
+if(p.new.status==='missed'){loadMissedCalls();loadAllCalls();toast(t('missedCall'),'#ef4444')}
+render();
+}
+if(p.new.status==='ended'||p.new.status==='missed'||p.new.status==='declined')loadAllCalls();
+}).subscribe();
+callsListChannel=sb.channel('calls_list_'+state.user.id).on('postgres_changes',{event:'INSERT',schema:'public',table:'calls',filter:`caller_id=eq.${state.user.id}`},()=>{loadAllCalls()}).subscribe();
 }
 async function ensureMic(){if(state.stream)return state.stream;try{state.stream=await navigator.mediaDevices.getUserMedia({audio:{echoCancellation:true,noiseSuppression:true,autoGainControl:true}})}catch(e){toast('Микрофон: '+e.message)}return state.stream}
 function stopMic(){state.stream?.getTracks().forEach(t=>t.stop());state.stream=null}
 function cleanMedia(){cameraTrack?.stop();cameraTrack=null;screenTrack?.stop();screenTrack=null;state.cameraOn=false;state.screenOn=false}
 async function startCall(cid){
-  if(state.call||state.incoming)return;
-  try{const {data}=await sb.rpc('is_blocked_by',{target_user:cid});if(data){toast('Пользователь вас заблокировал');return}}catch(e){}
-  await ensureMic();
-  const {data,error}=await sb.from('calls').insert({caller_id:state.user.id,callee_id:cid,status:'ringing'}).select().single();
-  if(error){toast(error.message);return}
-  state.call={...data,outbound:true,activeAt:null};
-  startDial();state.modal=null;
-  startCallerTimeout(data.id);
-  startCallPoll();
-  render();
+if(state.call||state.incoming)return;
+try{const {data}=await sb.rpc('is_blocked_by',{target_user:cid});if(data){toast('Пользователь вас заблокировал');return}}catch(e){}
+await ensureMic();
+const {data,error}=await sb.from('calls').insert({caller_id:state.user.id,callee_id:cid,status:'ringing'}).select().single();
+if(error){toast(error.message);return}
+state.call={...data,outbound:true,activeAt:null};
+startDial();state.modal=null;
+startCallerTimeout(data.id);
+startCallPoll();
+render();
 }
 async function acceptCall(){
-  if(!state.incoming)return;
-  stopRingTimeout();
-  await ensureMic();
-  const {data}=await sb.from('calls').update({status:'active',accepted_at:new Date().toISOString()}).eq('id',state.incoming.id).select().single();
-  state.call={...data,outbound:false,activeAt:Date.now()};
-  state.incoming=null;stopAll();pConn();setupWebRTC();startCallPoll();render();
+if(!state.incoming)return;
+stopRingTimeout();
+await ensureMic();
+const {data}=await sb.from('calls').update({status:'active',accepted_at:new Date().toISOString()}).eq('id',state.incoming.id).select().single();
+state.call={...data,outbound:false,activeAt:Date.now()};
+state.incoming=null;stopAll();pConn();setupWebRTC();startCallPoll();render();
 }
 async function declineCall(){
-  if(!state.incoming)return;
-  stopRingTimeout();
-  await sb.from('calls').update({status:'declined'}).eq('id',state.incoming.id);
-  state.incoming=null;stopRing();render();
+if(!state.incoming)return;
+stopRingTimeout();
+await sb.from('calls').update({status:'declined'}).eq('id',state.incoming.id);
+state.incoming=null;stopRing();render();
 }
 async function endCall(){
-  if(!state.call)return;
-  if(callerTimeout){clearTimeout(callerTimeout);callerTimeout=null}
-  const d=state.call.activeAt?Math.floor((Date.now()-state.call.activeAt)/1000):0;
-  await sb.from('calls').update({status:'ended',ended_at:new Date().toISOString(),duration:d}).eq('id',state.call.id);
-  cleanupCall();loadAllCalls();
+if(!state.call)return;
+if(callerTimeout){clearTimeout(callerTimeout);callerTimeout=null}
+const d=state.call.activeAt?Math.floor((Date.now()-state.call.activeAt)/1000):0;
+await sb.from('calls').update({status:'ended',ended_at:new Date().toISOString(),duration:d}).eq('id',state.call.id);
+cleanupCall();loadAllCalls();
 }
 function cleanupCall(){
-  stopAll();stopCallPoll();
-  if(ringTimeout){clearTimeout(ringTimeout);ringTimeout=null}
-  if(callerTimeout){clearTimeout(callerTimeout);callerTimeout=null}
-  clearInterval(callTimer);callTimer=null;
-  if(sigPollTimer){clearInterval(sigPollTimer);sigPollTimer=null}
-  stopMic();cleanMedia();
-  if(dummyDrawTimer){clearInterval(dummyDrawTimer);dummyDrawTimer=null}
-  if(dummyVideoTrack){try{dummyVideoTrack.stop()}catch(e){}dummyVideoTrack=null}
-  dummyCanvas=null;
-  if(pc){try{pc.close()}catch(e){}pc=null}
-  state.call=null;state.muted=false;state.cameraOn=false;state.screenOn=false;state.callMinimized=false;remoteStream=null;
-  processed=new Set();pendingSignals=[];
-  if(sigChannel){sb.removeChannel(sigChannel);sigChannel=null}
-  if(callReactChannel){sb.removeChannel(callReactChannel);callReactChannel=null}
-  state.callReactions=[];
-  document.getElementById('unmute-btn')?.remove();
-  const a=document.getElementById('remote-audio');if(a){a.srcObject=null;a.remove()}
-  pEnd();render();
+stopAll();stopCallPoll();
+if(ringTimeout){clearTimeout(ringTimeout);ringTimeout=null}
+if(callerTimeout){clearTimeout(callerTimeout);callerTimeout=null}
+clearInterval(callTimer);callTimer=null;
+if(sigPollTimer){clearInterval(sigPollTimer);sigPollTimer=null}
+stopMic();cleanMedia();
+if(dummyDrawTimer){clearInterval(dummyDrawTimer);dummyDrawTimer=null}
+if(dummyVideoTrack){try{dummyVideoTrack.stop()}catch(e){}dummyVideoTrack=null}
+dummyCanvas=null;
+if(pc){try{pc.close()}catch(e){}pc=null}
+state.call=null;state.muted=false;state.cameraOn=false;state.screenOn=false;state.callMinimized=false;remoteStream=null;
+processed=new Set();pendingSignals=[];
+if(sigChannel){sb.removeChannel(sigChannel);sigChannel=null}
+if(callReactChannel){sb.removeChannel(callReactChannel);callReactChannel=null}
+state.callReactions=[];
+document.getElementById('unmute-btn')?.remove();
+const a=document.getElementById('remote-audio');if(a){a.srcObject=null;a.remove()}
+pEnd();render();
 }
 function createDummyVT(){
-  try{
-    if(!dummyCanvas){dummyCanvas=document.createElement('canvas');dummyCanvas.width=640;dummyCanvas.height=480;}
-    const draw=()=>{
-      const ctx=dummyCanvas.getContext('2d');
-      ctx.fillStyle='#1a1a1a';ctx.fillRect(0,0,640,480);
-      ctx.fillStyle='#666';ctx.font='bold 32px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
-      ctx.fillText('📷 Камера выключена',320,240);
-    };
-    draw();
-    if(dummyDrawTimer){clearInterval(dummyDrawTimer)}
-    dummyDrawTimer=setInterval(draw,500);
-    const stream=dummyCanvas.captureStream(5);
-    return stream.getVideoTracks()[0];
-  }catch(e){console.warn('dummy',e);return null}
+try{
+if(!dummyCanvas){dummyCanvas=document.createElement('canvas');dummyCanvas.width=640;dummyCanvas.height=480;}
+const draw=()=>{
+const ctx=dummyCanvas.getContext('2d');
+ctx.fillStyle='#1a1a1a';ctx.fillRect(0,0,640,480);
+ctx.fillStyle='#666';ctx.font='bold 32px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+ctx.fillText('📷 Камера выключена',320,240);
+};
+draw();
+if(dummyDrawTimer){clearInterval(dummyDrawTimer)}
+dummyDrawTimer=setInterval(draw,500);
+const stream=dummyCanvas.captureStream(5);
+return stream.getVideoTracks()[0];
+}catch(e){console.warn('dummy',e);return null}
 }
 function setupWebRTC(){
-  if(!state.call||pc||!state.stream)return;
-  pc=new RTCPeerConnection({iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]});
-  state.stream.getTracks().forEach(t=>pc.addTrack(t,state.stream));
-  dummyVideoTrack=createDummyVT();
-  if(dummyVideoTrack){
-    const tr=pc.addTransceiver(dummyVideoTrack,{direction:'sendrecv'});
-    videoSender=tr.sender;
-  }else{
-    const tr=pc.addTransceiver('video',{direction:'sendrecv'});
-    videoSender=tr.sender;
-  }
-  pc.ontrack=e=>{
-    if(e.track.kind==='audio'){
-      let a=document.getElementById('remote-audio');
-      if(!a){a=document.createElement('audio');a.id='remote-audio';a.autoplay=true;a.playsInline=true;document.body.appendChild(a)}
-      a.srcObject=e.streams[0]||new MediaStream([e.track]);
-      a.play().catch(()=>{});
-    }else if(e.track.kind==='video'){
-      remoteStream=e.streams[0]||new MediaStream([e.track]);
-      e.track.onunmute=()=>attachRemote();
-      attachRemote();
-    }
-  };
-  pc.onicecandidate=e=>{if(e.candidate)sendSig('ice',{candidate:e.candidate.toJSON()})};
-  pc.onconnectionstatechange=()=>{
-    const el=document.getElementById('call-status');
-    if(el)el.textContent=pc.connectionState==='connected'?t('connected'):pc.connectionState;
-  };
-  subSigs(state.call.id);startSigPoll(state.call.id);
-  if(callReactChannel){sb.removeChannel(callReactChannel);callReactChannel=null}
-  callReactChannel=sb.channel('call_react_'+state.call.id).on('postgres_changes',{event:'INSERT',schema:'public',table:'call_reactions',filter:`call_id=eq.${state.call.id}`},(p)=>{
-    if(p.new.user_id===state.user.id)return;
-    state.callReactions.push(p.new);render();
-    setTimeout(()=>{state.callReactions=state.callReactions.filter(r=>r.id!==p.new.id);render()},2000);
-  }).subscribe();
-  if(state.call.outbound){
-    pc.createOffer().then(o=>pc.setLocalDescription(o)).then(()=>sendSig('offer',{sdp:pc.localDescription.toJSON()})).catch(e=>console.warn('offer',e));
-  }
-  if(pendingSignals.length){pendingSignals.forEach(s=>procSig(s));pendingSignals=[]}
+if(!state.call||pc||!state.stream)return;
+pc=new RTCPeerConnection({iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]});
+state.stream.getTracks().forEach(t=>pc.addTrack(t,state.stream));
+dummyVideoTrack=createDummyVT();
+if(dummyVideoTrack){
+const tr=pc.addTransceiver(dummyVideoTrack,{direction:'sendrecv'});
+videoSender=tr.sender;
+}else{
+const tr=pc.addTransceiver('video',{direction:'sendrecv'});
+videoSender=tr.sender;
+}
+pc.ontrack=e=>{
+if(e.track.kind==='audio'){
+let a=document.getElementById('remote-audio');
+if(!a){a=document.createElement('audio');a.id='remote-audio';a.autoplay=true;a.playsInline=true;document.body.appendChild(a)}
+a.srcObject=e.streams[0]||new MediaStream([e.track]);
+a.play().catch(()=>{});
+}else if(e.track.kind==='video'){
+remoteStream=e.streams[0]||new MediaStream([e.track]);
+e.track.onunmute=()=>attachRemote();
+attachRemote();
+}
+};
+pc.onicecandidate=e=>{if(e.candidate)sendSig('ice',{candidate:e.candidate.toJSON()})};
+pc.onconnectionstatechange=()=>{
+const el=document.getElementById('call-status');
+if(el)el.textContent=pc.connectionState==='connected'?t('connected'):pc.connectionState;
+};
+subSigs(state.call.id);startSigPoll(state.call.id);
+if(callReactChannel){sb.removeChannel(callReactChannel);callReactChannel=null}
+callReactChannel=sb.channel('call_react_'+state.call.id).on('postgres_changes',{event:'INSERT',schema:'public',table:'call_reactions',filter:`call_id=eq.${state.call.id}`},(p)=>{
+if(p.new.user_id===state.user.id)return;
+state.callReactions.push(p.new);render();
+setTimeout(()=>{state.callReactions=state.callReactions.filter(r=>r.id!==p.new.id);render()},2000);
+}).subscribe();
+if(state.call.outbound){
+pc.createOffer().then(o=>pc.setLocalDescription(o)).then(()=>sendSig('offer',{sdp:pc.localDescription.toJSON()})).catch(e=>console.warn('offer',e));
+}
+if(pendingSignals.length){pendingSignals.forEach(s=>procSig(s));pendingSignals=[]}
 }
 function subSigs(cid){if(sigChannel)sb.removeChannel(sigChannel);sigChannel=sb.channel('sig_'+cid).on('postgres_changes',{event:'INSERT',schema:'public',table:'call_signals',filter:`call_id=eq.${cid}`},p=>{if(p.new.sender_id===state.user.id)return;if(processed.has(p.new.id))return;processed.add(p.new.id);procSig(p.new)}).subscribe()}
 function startSigPoll(cid){if(sigPollTimer)clearInterval(sigPollTimer);sigPollTimer=setInterval(async()=>{if(!state.call||state.call.id!==cid)return;try{const {data}=await sb.from('call_signals').select('*').eq('call_id',cid).order('created_at');for(const s of data||[]){if(processed.has(s.id))continue;if(s.sender_id===state.user.id)continue;processed.add(s.id);await procSig(s)}}catch(e){}},900)}
 async function sendSig(type,payload){if(!state.call)return;await sb.from('call_signals').insert({call_id:state.call.id,sender_id:state.user.id,type,payload})}
 async function procSig(s){
-  if(!pc){pendingSignals.push(s);return}
-  try{
-    if(s.type==='offer'){
-      await pc.setRemoteDescription(new RTCSessionDescription(s.payload.sdp));
-      const a=await pc.createAnswer();await pc.setLocalDescription(a);
-      await sendSig('answer',{sdp:pc.localDescription.toJSON()});
-    }else if(s.type==='answer'){await pc.setRemoteDescription(new RTCSessionDescription(s.payload.sdp))}
-    else if(s.type==='ice'){await pc.addIceCandidate(new RTCIceCandidate(s.payload.candidate)).catch(()=>{})}
-  }catch(e){console.warn('sig',e)}
+if(!pc){pendingSignals.push(s);return}
+try{
+if(s.type==='offer'){
+await pc.setRemoteDescription(new RTCSessionDescription(s.payload.sdp));
+const a=await pc.createAnswer();await pc.setLocalDescription(a);
+await sendSig('answer',{sdp:pc.localDescription.toJSON()});
+}else if(s.type==='answer'){await pc.setRemoteDescription(new RTCSessionDescription(s.payload.sdp))}
+else if(s.type==='ice'){await pc.addIceCandidate(new RTCIceCandidate(s.payload.candidate)).catch(()=>{})}
+}catch(e){console.warn('sig',e)}
 }
 async function updVS(){
-  let tr=screenTrack||cameraTrack;
-  if(!tr){
-    if(!dummyVideoTrack||dummyVideoTrack.readyState==='ended'){dummyVideoTrack=createDummyVT()}
-    tr=dummyVideoTrack;
-  }
-  if(videoSender&&tr){
-    try{await videoSender.replaceTrack(tr)}catch(e){console.error('replaceTrack fail',e)}
-  }
-  attLocal();
+let tr=screenTrack||cameraTrack;
+if(!tr){
+if(!dummyVideoTrack||dummyVideoTrack.readyState==='ended'){dummyVideoTrack=createDummyVT()}
+tr=dummyVideoTrack;
+}
+if(videoSender&&tr){
+try{await videoSender.replaceTrack(tr)}catch(e){console.error('replaceTrack fail',e)}
+}
+attLocal();
 }
 async function tMute(){
-  if(!state.stream)return;
-  const tr=state.stream.getAudioTracks()[0];if(!tr)return;
-  tr.enabled=!tr.enabled;state.muted=!tr.enabled;pMute(!state.muted);
-  document.querySelectorAll('[data-act="t-mute"]').forEach(b=>{b.className='call-btn'+(state.muted?' off':'');b.textContent=state.muted?'🔇':'🎤'});
+if(!state.stream)return;
+const tr=state.stream.getAudioTracks()[0];if(!tr)return;
+tr.enabled=!tr.enabled;state.muted=!tr.enabled;pMute(!state.muted);
+document.querySelectorAll('[data-act="t-mute"]').forEach(b=>{b.className='call-btn'+(state.muted?' off':'');b.textContent=state.muted?'🔇':'🎤'});
 }
 async function tCam(){
-  if(state.cameraOn){
-    cameraTrack?.stop();cameraTrack=null;state.cameraOn=false;
-    await updVS();pCam(false);
-  }else{
-    try{
-      const st=await navigator.mediaDevices.getUserMedia({video:{width:{ideal:640},height:{ideal:480},facingMode:'user'}});
-      cameraTrack=st.getVideoTracks()[0];state.cameraOn=true;
-      await updVS();pCam(true);
-    }catch(e){toast('Камера: '+e.message);return}
-  }
-  document.querySelectorAll('[data-act="t-cam"]').forEach(b=>b.className='call-btn'+(state.cameraOn?' on':''));
+if(state.cameraOn){
+cameraTrack?.stop();cameraTrack=null;state.cameraOn=false;
+await updVS();pCam(false);
+}else{
+try{
+const st=await navigator.mediaDevices.getUserMedia({video:{width:{ideal:640},height:{ideal:480},facingMode:'user'}});
+cameraTrack=st.getVideoTracks()[0];state.cameraOn=true;
+await updVS();pCam(true);
+}catch(e){toast('Камера: '+e.message);return}
+}
+document.querySelectorAll('[data-act="t-cam"]').forEach(b=>b.className='call-btn'+(state.cameraOn?' on':''));
 }
 async function tScreen(){
-  if(state.screenOn){
-    screenTrack?.stop();screenTrack=null;state.screenOn=false;
-    await updVS();pScreen(false);
-  }else{
-    try{
-      const st=await navigator.mediaDevices.getDisplayMedia({video:true});
-      screenTrack=st.getVideoTracks()[0];
-      screenTrack.onended=()=>{screenTrack=null;state.screenOn=false;updVS();document.querySelectorAll('[data-act="t-scr"]').forEach(b=>b.className='call-btn')};
-      state.screenOn=true;
-      await updVS();pScreen(true);
-    }catch(e){return}
-  }
-  document.querySelectorAll('[data-act="t-scr"]').forEach(b=>b.className='call-btn'+(state.screenOn?' on':''));
+if(state.screenOn){
+screenTrack?.stop();screenTrack=null;state.screenOn=false;
+await updVS();pScreen(false);
+}else{
+try{
+const st=await navigator.mediaDevices.getDisplayMedia({video:true});
+screenTrack=st.getVideoTracks()[0];
+screenTrack.onended=()=>{screenTrack=null;state.screenOn=false;updVS();document.querySelectorAll('[data-act="t-scr"]').forEach(b=>b.className='call-btn')};
+state.screenOn=true;
+await updVS();pScreen(true);
+}catch(e){return}
+}
+document.querySelectorAll('[data-act="t-scr"]').forEach(b=>b.className='call-btn'+(state.screenOn?' on':''));
 }
 function attLocal(){
-  const v=document.getElementById('local-video');if(!v)return;
-  const tr=screenTrack||cameraTrack;
-  if(tr){v.style.display='block';if(!v.srcObject||v.srcObject.getVideoTracks()[0]!==tr){v.srcObject=new MediaStream([tr])}v.muted=true;v.playsInline=true;v.play().catch(()=>{})}
-  else{v.style.display='none';v.srcObject=null}
+const v=document.getElementById('local-video');if(!v)return;
+const tr=screenTrack||cameraTrack;
+if(tr){v.style.display='block';if(!v.srcObject||v.srcObject.getVideoTracks()[0]!==tr){v.srcObject=new MediaStream([tr])}v.muted=true;v.playsInline=true;v.play().catch(()=>{})}
+else{v.style.display='none';v.srcObject=null}
 }
 function attachRemote(){
-  const v=document.getElementById('remote-video');if(!v||!remoteStream)return;
-  if(v.srcObject!==remoteStream)v.srcObject=remoteStream;
-  v.muted=true;v.playsInline=true;
-  v.play().catch(e=>{console.warn('rv play fail',e);setTimeout(()=>v.play().catch(()=>{}),500)});
+const v=document.getElementById('remote-video');if(!v||!remoteStream)return;
+if(v.srcObject!==remoteStream)v.srcObject=remoteStream;
+v.muted=true;v.playsInline=true;
+v.play().catch(e=>{console.warn('rv play fail',e);setTimeout(()=>v.play().catch(()=>{}),500)});
 }
 async function createGroup(n,ids){const {data,error}=await sb.rpc('create_group',{group_name:n,member_ids:ids});if(error){toast(error.message);return null}await new Promise(r=>setTimeout(r,400));await refresh();return data}
 async function startDM(oid){const {data,error}=await sb.rpc('get_or_create_dm',{other_id:oid});if(error){toast(error.message);return null}await refresh();return data}
@@ -784,23 +782,23 @@ async function blockUser(uid2){const p=state.profiles[uid2];if(!confirm(`Заб�
 async function unblockUser(uid2){await sb.from('blocks').delete().eq('user_id',state.user.id).eq('blocked_id',uid2);await loadBlocks();render()}
 async function searchUsers(q){if(!q.trim()){state.searchResults=[];return}try{const {data,error}=await sb.rpc('search_users',{q:q.trim()});if(error)throw error;state.searchResults=data||[];state.searchResults.forEach(p=>state.profiles[p.id]={...state.profiles[p.id],...p})}catch(e){toast(e.message);state.searchResults=[]}}
 function isReadByOthers(m){
-  if(!m||m.sender_id!==state.user.id)return false;
-  const c=state.chat;if(!c)return false;
-  const members=state.members[c.id]||[];
-  const others=members.filter(x=>x.user_id!==state.user.id);
-  if(!others.length)return false;
-  return others.every(o=>{
-    const lr=state.chatReads?.[o.user_id];
-    if(!lr)return false;
-    return new Date(lr)>=new Date(m.created_at);
-  });
+if(!m||m.sender_id!==state.user.id)return false;
+const c=state.chat;if(!c)return false;
+const members=state.members[c.id]||[];
+const others=members.filter(x=>x.user_id!==state.user.id);
+if(!others.length)return false;
+return others.every(o=>{
+const lr=state.chatReads?.[o.user_id];
+if(!lr)return false;
+return new Date(lr)>=new Date(m.created_at);
+});
 }
 function msgTs(m){
-  const ts=tm(m.created_at);
-  if(m.sender_id!==state.user.id)return `<div class="ts">${ts}</div>`;
-  const read=isReadByOthers(m);
-  const check=read?'<span class="check read">✓✓</span>':'<span class="check">✓</span>';
-  return `<div class="ts">${ts} ${check}</div>`;
+const ts=tm(m.created_at);
+if(m.sender_id!==state.user.id)return `<div class="ts">${ts}</div>`;
+const read=isReadByOthers(m);
+const check=read?'<span class="check read">✓✓</span>':'<span class="check">✓</span>';
+return `<div class="ts">${ts} ${check}</div>`;
 }
 async function startRec(){if(state.recording||!state.chatId)return;if(!navigator.mediaDevices||!window.MediaRecorder){toast('Не поддерживается');return}try{const st=await navigator.mediaDevices.getUserMedia({audio:true});state.recordStream=st;const mc=['audio/webm;codecs=opus','audio/webm','audio/ogg;codecs=opus','audio/mp4','audio/ogg'];let mime='';for(const m of mc){if(window.MediaRecorder.isTypeSupported&&MediaRecorder.isTypeSupported(m)){mime=m;break}}const r=new MediaRecorder(st,mime?{mimeType:mime}:undefined);state.mediaRecorder=r;state.recordedChunks=[];r.ondataavailable=e=>{if(e.data&&e.data.size>0)state.recordedChunks.push(e.data)};r.onstop=async()=>{const b=new Blob(state.recordedChunks,{type:r.mimeType||'audio/webm'});state.recordedChunks=[];cleanRec();if(b.size<512)return;if(b.size>MAX){toast('Большая');return}await upAudio(b)};r.start();state.recording=true;state.recordStart=Date.now();pRecStart();render();state.recordInterval=setInterval(()=>{const el=document.getElementById('rec-time');if(el)el.textContent=fmtD((Date.now()-state.recordStart)/1000)},250)}catch(e){toast('Микрофон: '+e.message);cleanRec();render()}}
 function stopRec(send=true){if(!state.recording||!state.mediaRecorder)return;try{if(state.mediaRecorder.state!=='inactive'){if(!send)state.recordedChunks=[];state.mediaRecorder.stop()}}catch(e){}state.recording=false;if(!send)cleanRec();pRecStop();render()}
@@ -811,112 +809,112 @@ function loadAI(){try{state.aiMessages=JSON.parse(localStorage.getItem('nova_ai'
 function saveAI(){try{localStorage.setItem('nova_ai',JSON.stringify(state.aiMessages.slice(-60)))}catch(e){}}
 loadAI();
 async function sendAI(){
-  const i=document.getElementById('ai-input');const x=i.value.trim();
-  if(!x||state.aiLoading)return;
-  i.value='';state.aiMessages.push({role:'user',content:x});state.aiLoading=true;saveAI();render();
-  const sys=S.lang==='en'?'You are a helpful AI assistant.':'Ты полезный AI-ассистент. Отвечай кратко.';
-  const msgs=[{role:'system',content:sys},...state.aiMessages.slice(-20).map(m=>({role:m.role,content:m.content||''}))];
-  let attempts=0,lastErr=null;
-  while(attempts<3){
-    try{
-      const r=await fetch('https://text.pollinations.ai/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:msgs,model:'openai',referrer:'nova-messenger'})});
-      if(r.status===402){attempts++;lastErr='AI перегружен, попробуйте через минуту';if(attempts<3){await new Promise(res=>setTimeout(res,3000*attempts));continue}break}
-      if(!r.ok)throw new Error('HTTP '+r.status);
-      const a=(await r.text()).trim();
-      state.aiMessages.push({role:'assistant',content:a||'...'});
-      lastErr=null;break;
-    }catch(e){lastErr=e.message;attempts++;if(attempts<3)await new Promise(res=>setTimeout(res,2000*attempts))}
-  }
-  if(lastErr)state.aiMessages.push({role:'assistant',content:'⚠ '+lastErr});
-  state.aiLoading=false;saveAI();render();
-  setTimeout(()=>{const m=document.getElementById('ai-messages');if(m)m.scrollTop=m.scrollHeight},50);
+const i=document.getElementById('ai-input');const x=i.value.trim();
+if(!x||state.aiLoading)return;
+i.value='';state.aiMessages.push({role:'user',content:x});state.aiLoading=true;saveAI();render();
+const sys=S.lang==='en'?'You are a helpful AI assistant.':'Ты полезный AI-ассистент. Отвечай кратко.';
+const msgs=[{role:'system',content:sys},...state.aiMessages.slice(-20).map(m=>({role:m.role,content:m.content||''}))];
+let attempts=0,lastErr=null;
+while(attempts<3){
+try{
+const r=await fetch('https://text.pollinations.ai/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:msgs,model:'openai',referrer:'nova-messenger'})});
+if(r.status===402){attempts++;lastErr='AI перегружен, попробуйте через минуту';if(attempts<3){await new Promise(res=>setTimeout(res,3000*attempts));continue}break}
+if(!r.ok)throw new Error('HTTP '+r.status);
+const a=(await r.text()).trim();
+state.aiMessages.push({role:'assistant',content:a||'...'});
+lastErr=null;break;
+}catch(e){lastErr=e.message;attempts++;if(attempts<3)await new Promise(res=>setTimeout(res,2000*attempts))}
+}
+if(lastErr)state.aiMessages.push({role:'assistant',content:'⚠ '+lastErr});
+state.aiLoading=false;saveAI();render();
+setTimeout(()=>{const m=document.getElementById('ai-messages');if(m)m.scrollTop=m.scrollHeight},50);
 }
 async function genImg(){const i=document.getElementById('ai-image-prompt');if(!i)return;const pr=i.value.trim();if(!pr)return;const r=document.getElementById('ai-image-result');r.innerHTML=`<div class="muted small" style="text-align:center;padding:20px">⏳ ${t('improving')}</div>`;try{const tr=await fetch('https://text.pollinations.ai/'+encodeURIComponent(`Translate to English and enrich. Return ONLY prompt: "${pr}"`));let en=(await tr.text()).trim().replace(/^["'`]|["'`]$/g,'').split('\n')[0].slice(0,220);if(!en||en.length<5)en=pr;r.innerHTML=`<div class="muted small" style="text-align:center;padding:20px">🎨 ${t('generating')}</div>`;const sd=Math.floor(Math.random()*1000000);const u=`https://image.pollinations.ai/prompt/${encodeURIComponent(en)}?width=1024&height=1024&nologo=true&seed=${sd}&model=flux&referrer=nova-messenger`;const im=new Image();im.onload=()=>{r.innerHTML=`<img src="${u}" style="max-width:100%;border-radius:12px;margin-top:10px" data-act="open-ai-lb" data-src="${u}"><div class="row" style="margin-top:10px;gap:8px"><button class="btn ghost grow" data-act="ai-dl" data-src="${u}">${t('download')}</button><button class="btn primary grow" data-act="ai-to" data-src="${u}">${t('toChat')}</button></div>`};im.onerror=()=>{r.innerHTML='<div class="small" style="color:#ef4444;text-align:center;padding:14px">Ошибка</div>'};im.src=u}catch(e){r.innerHTML=`<div class="small" style="color:#ef4444;padding:14px">${esc(e.message)}</div>`}}
 async function reactStory(sid,em){const {data:ex}=await sb.from('story_reactions').select('*').eq('story_id',sid).eq('user_id',state.user.id).maybeSingle();if(ex){await sb.from('story_reactions').delete().eq('id',ex.id)}else{await sb.from('story_reactions').upsert({story_id:sid,user_id:state.user.id,emoji:em})}await loadStories();render()}
 async function replyStory(sid){const s=state.stories.find(x=>x.id===sid);if(!s)return;const x=prompt(t('replyTo')+':');if(!x||!x.trim())return;await sb.from('story_replies').insert({story_id:sid,user_id:state.user.id,content:x.trim()});const cid=await startDM(s.user_id);if(cid){await sb.from('messages').insert({chat_id:cid,sender_id:state.user.id,content:`↩️ ${t('replyTo')}: ${x.trim()}`});toast('Отправлен','#10b981')}}
 async function deleteStory(sid){if(!confirm(t('storyDeleteConfirm')))return;await sb.from('stories').delete().eq('id',sid).eq('user_id',state.user.id);state.viewStory=null;await loadStories();render()}
 function render(){
-  document.documentElement.style.setProperty('--accent',state.profile?.accent_color||'#6366f1');
-  document.body.classList.toggle('light',state.profile?.theme==='light');
-  const app=document.getElementById('app');
-  if(!state.user){app.innerHTML=renderAuth();return}
-  if(!state.profile){app.innerHTML=renderProfLoad();return}
-  const mi=document.getElementById('msg-input');const mv=mi?mi.value:null;
-  const saveIds=['a-login','a-user','a-name','a-pass','twofa-code','search-input','pick-search','msg-search-input','contacts-search','p-name','p-bio','p-phone'];
-  const saved={};let focusId=null;
-  saveIds.forEach(fid=>{const el=document.getElementById(fid);if(el){saved[fid]=el.value;if(document.activeElement===el)focusId=fid}});
-  app.innerHTML=renderApp();
-  const nm=document.getElementById('msg-input');if(nm&&mv!==null){nm.value=mv;if(document.activeElement===mi)nm.focus()}
-  saveIds.forEach(fid=>{const el=document.getElementById(fid);if(el&&saved[fid]!==undefined)el.value=saved[fid]});
-  if(focusId){const el=document.getElementById(focusId);if(el)el.focus()}
-  if(state.chatId){
-    const m=document.getElementById('msgs');
-    if(m){
-      if(state.scrollAtBottom)m.scrollTop=m.scrollHeight;
-      m.onscroll=()=>{
-        const near=m.scrollHeight-m.scrollTop-m.clientHeight<80;
-        if(near!==state.scrollAtBottom){
-          state.scrollAtBottom=near;
-          if(near)state.newMsgsBadge=0;
-          updateScrollBtn();
-        }
-      };
-    }
-    updateScrollBtn();
-  }
-  attLocal();attachRemote();
-  updateTypingIndicator();
-  if(state.call&&state.call.activeAt&&!callTimer){callTimer=setInterval(()=>{
-    document.querySelectorAll('#call-timer').forEach(el=>{
-      if(!state.call?.activeAt)return;
-      const s=Math.floor((Date.now()-state.call.activeAt)/1000);
-      el.textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
-    });
-  },500)}
+document.documentElement.style.setProperty('--accent',state.profile?.accent_color||'#6366f1');
+document.body.classList.toggle('light',state.profile?.theme==='light');
+const app=document.getElementById('app');
+if(!state.user){app.innerHTML=renderAuth();return}
+if(!state.profile){app.innerHTML=renderProfLoad();return}
+const mi=document.getElementById('msg-input');const mv=mi?mi.value:null;
+const saveIds=['a-login','a-user','a-name','a-pass','twofa-code','search-input','pick-search','msg-search-input','contacts-search','p-name','p-bio','p-phone'];
+const saved={};let focusId=null;
+saveIds.forEach(fid=>{const el=document.getElementById(fid);if(el){saved[fid]=el.value;if(document.activeElement===el)focusId=fid}});
+app.innerHTML=renderApp();
+const nm=document.getElementById('msg-input');if(nm&&mv!==null){nm.value=mv;if(document.activeElement===mi)nm.focus()}
+saveIds.forEach(fid=>{const el=document.getElementById(fid);if(el&&saved[fid]!==undefined)el.value=saved[fid]});
+if(focusId){const el=document.getElementById(focusId);if(el)el.focus()}
+if(state.chatId){
+const m=document.getElementById('msgs');
+if(m){
+if(state.scrollAtBottom)m.scrollTop=m.scrollHeight;
+m.onscroll=()=>{
+const near=m.scrollHeight-m.scrollTop-m.clientHeight<80;
+if(near!==state.scrollAtBottom){
+state.scrollAtBottom=near;
+if(near)state.newMsgsBadge=0;
+updateScrollBtn();
+}
+};
+}
+updateScrollBtn();
+}
+attLocal();attachRemote();
+updateTypingIndicator();
+if(state.call&&state.call.activeAt&&!callTimer){callTimer=setInterval(()=>{
+document.querySelectorAll('#call-timer').forEach(el=>{
+if(!state.call?.activeAt)return;
+const s=Math.floor((Date.now()-state.call.activeAt)/1000);
+el.textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+});
+},500)}
 }
 function renderProfLoad(){return `<div class="boot"><div class="ring"></div><div class="msg">Загрузка профиля…</div><div class="hint">Если висит долго — проверьте, что Confirm email отключён в Supabase.</div><button class="btn primary" data-act="retry-prof" style="margin-top:14px">Повторить</button><button class="btn ghost" data-act="force-logout" style="margin-top:8px">← Назад</button></div>`}
 function renderAuth(){if(state.pending2FA)return `<div class="auth-wrap"><div class="auth-card"><div class="logo">🔐 2FA</div><div class="muted small">${t('twofaHint')}: <b>${esc(state.pending2FA.email)}</b></div><input id="twofa-code" placeholder="${t('twofaCode')}" maxlength="6" style="text-align:center;font-size:22px;letter-spacing:6px"><button class="btn primary" data-act="verify-2fa">${t('verify')}</button><button class="btn ghost" data-act="cancel-2fa">${t('back')}</button><div class="err">${esc(state.authErr)}</div></div></div>`;const reg=state.authMode==='register';return `<div class="auth-wrap"><div class="auth-card"><div class="logo">◈ Nova</div><div class="muted small" style="text-align:center;margin-bottom:8px">${reg?t('createAcc'):t('login')}</div>${reg?`<input id="a-user" placeholder="${t('username')}"><input id="a-name" placeholder="${t('displayName')}">`:''}<input id="a-login" placeholder="${t('email')}"><input id="a-pass" type="password" placeholder="${t('password')}"><button class="btn primary wide" data-act="do-auth" style="margin-top:6px">${reg?t('register'):t('login')}</button><button class="btn ghost wide" data-act="toggle-auth">${reg?t('haveAcc'):t('createAcc')}</button><div class="err" style="text-align:center">${esc(state.authErr)}</div></div></div>`}
 function renderApp(){
-  const u=state.profile;
-  const tabs=[['chats','💬',t('chats')],['calls','📞',t('calls')],['contacts','👥',t('contacts')],['profile','⚙️',t('settings')]];
-  const totalUnread=Object.values(state.unreadCounts).reduce((a,b)=>a+b,0);
-  const missedCount=state.missedCalls.length;
-  let ex='';
-  if(state.showAI)ex+=renderAI();
-  if(state.showBlocked)ex+=renderBlocked();
-  if(state.aiModal==='image')ex+=renderImgModal();
-  const showTop=!state.chatId;
-  return `<header class="top"><div class="grow"><div class="top-title">◈ Nova</div></div>${showTop&&state.tab==='chats'?`<button class="icon" data-act="open-stories" title="${t('storiesTitle')}">✨</button>`:''}${showTop?`<button class="icon" data-act="theme-quick">${u.theme==='light'?'🌙':'☀️'}</button>`:''}${showTop?`<button class="icon" data-act="logout" title="${t('logout')}">🚪</button>`:''}</header><main class="content ${state.chatId?'chat':''}">${state.chatId?renderChat():renderTab()}</main>${state.chatId?'':`<nav class="tabs">${tabs.map(([k,l,label])=>{let badge='';if(k==='chats'&&totalUnread>0)badge=`<span class="tab-badge">${totalUnread>99?'99+':totalUnread}</span>`;if(k==='calls'&&missedCount>0)badge=`<span class="tab-badge">${missedCount>99?'99+':missedCount}</span>`;return `<button class="tab ${state.tab===k?'on':''}" data-act="tab" data-tab="${k}"><span class="tab-icon">${l}</span>${label}${badge}</button>`}).join('')}</nav>`}${state.tab==='chats'&&!state.chatId?`<button class="floating-ai" data-act="open-ai">🤖</button>`:''}${state.modal==='pick'?renderPick():''}${state.modal==='search'?renderSearchModal():''}${state.createGroup?renderCreate():''}${state.viewMembers?renderMembers():''}${state.groupSettings?renderGroupSet():''}${state.storyCompose?renderStoryComp():''}${state.showStories?renderStoriesPage():''}${state.msgMenu?renderMsgMenu():''}${state.viewStory?renderStoryView():''}${state.viewProfile?renderProfileView():''}${state.incoming?renderIncoming():''}${state.call?renderCall():''}${state.lightbox?`<div class="lightbox" data-act="close-lb"><img src="${state.lightbox}"></div>`:''}${state.searchMsgs!==null?renderSearchMsgs():''}${state.showEmoji?renderEmojiPicker():''}${ex}`;
+const u=state.profile;
+const tabs=[['chats','💬',t('chats')],['calls','📞',t('calls')],['contacts','👥',t('contacts')],['profile','⚙️',t('settings')]];
+const totalUnread=Object.values(state.unreadCounts).reduce((a,b)=>a+b,0);
+const missedCount=state.missedCalls.length;
+let ex='';
+if(state.showAI)ex+=renderAI();
+if(state.showBlocked)ex+=renderBlocked();
+if(state.aiModal==='image')ex+=renderImgModal();
+const showTop=!state.chatId;
+return `<header class="top"><div class="grow"><div class="top-title">◈ Nova</div></div>${showTop&&state.tab==='chats'?`<button class="icon" data-act="open-stories" title="${t('storiesTitle')}">✨</button>`:''}${showTop?`<button class="icon" data-act="theme-quick">${u.theme==='light'?'🌙':'☀️'}</button>`:''}${showTop?`<button class="icon" data-act="logout" title="${t('logout')}">🚪</button>`:''}</header><main class="content ${state.chatId?'chat':''}">${state.chatId?renderChat():renderTab()}</main>${state.chatId?'':`<nav class="tabs">${tabs.map(([k,l,label])=>{let badge='';if(k==='chats'&&totalUnread>0)badge=`<span class="tab-badge">${totalUnread>99?'99+':totalUnread}</span>`;if(k==='calls'&&missedCount>0)badge=`<span class="tab-badge">${missedCount>99?'99+':missedCount}</span>`;return `<button class="tab ${state.tab===k?'on':''}" data-act="tab" data-tab="${k}"><span class="tab-icon">${l}</span>${label}${badge}</button>`}).join('')}</nav>`}${state.tab==='chats'&&!state.chatId?`<button class="floating-ai" data-act="open-ai">🤖</button>`:''}${state.modal==='pick'?renderPick():''}${state.modal==='search'?renderSearchModal():''}${state.createGroup?renderCreate():''}${state.viewMembers?renderMembers():''}${state.groupSettings?renderGroupSet():''}${state.storyCompose?renderStoryComp():''}${state.showStories?renderStoriesPage():''}${state.msgMenu?renderMsgMenu():''}${state.viewStory?renderStoryView():''}${state.viewProfile?renderProfileView():''}${state.incoming?renderIncoming():''}${state.call?renderCall():''}${state.lightbox?`<div class="lightbox" data-act="close-lb"><img src="${state.lightbox}"></div>`:''}${state.searchMsgs!==null?renderSearchMsgs():''}${state.showEmoji?renderEmojiPicker():''}${ex}`;
 }
 function renderTab(){if(state.tab==='calls')return renderCallsTab();if(state.tab==='contacts')return renderContactsTab();if(state.tab==='profile')return renderProfile();return renderChats()}
 function renderChats(){
-  const seen=new Set();
-  const list=state.chats.filter(c=>{if(!c||seen.has(c.id))return false;seen.add(c.id);return true});
-  let h=`<div class="row between" style="margin-bottom:4px"><h2 style="font-size:20px;font-weight:800;letter-spacing:-.4px">${t('chats')}</h2><div class="row"><button class="btn small ghost" data-act="new-group">👥 ${t('newGroup').replace('👥 ','')}</button><button class="btn small primary" data-act="new-chat">${t('newChat')}</button></div></div>`;
-  const storiesAlive=state.stories.filter(s=>{const au=state.profiles[s.user_id];const ttl=au?.story_ttl_hours||24;return Date.now()-new Date(s.created_at).getTime()<ttl*3600*1000});
-  if(storiesAlive.length){
-    h+=`<div class="stories-row">`;
-    for(const s of storiesAlive.slice(0,15)){
-      const au=state.profiles[s.user_id];if(!au)continue;
-      const bg=s.media_url?`background-image:url(${s.media_url});background-size:cover;background-position:center`:`background:${s.background_color||'#6366f1'}`;
-      h+=`<div class="story" data-act="view-story" data-id="${s.id}" style="${bg}">${aHtml(au,'xs','background:rgba(0,0,0,.35);')}<div><div>${esc(au.display_name)}</div><div class="small" style="opacity:.8">${tm(s.created_at)}</div></div></div>`;
-    }
-    h+=`</div>`;
-  }
-  if(!list.length)h+=`<div class="empty">${t('noChats')}<br><br><button class="btn primary" data-act="new-chat">${t('newChat')}</button></div>`;
-  h+='<div class="list">';
-  for(const c of list){
-    const m=state.members[c.id]||[];
-    const o=m.find(x=>x.user_id!==state.user.id);
-    if(o&&isBlocked(o.user_id))continue;
-    const op=o?state.profiles[o.user_id]:null;
-    const ti=c.is_group?c.name:(op?.display_name||'Чат');
-    const av=c.is_group?{avatar_url:c.avatar_url||null,accent_color:'#f59e0b',display_name:c.name}:(op||{});
-    const ls=!c.is_group&&op?fLastSeen(op):'';
-    const unread=state.unreadCounts[c.id]||0;
-    h+=`<div class="item ${unread>0?'unread':''}" data-act="open-chat" data-id="${c.id}">${aHtml(av)}<div class="grow"><b style="font-size:15px">${esc(ti)}</b><div class="muted small" style="margin-top:2px">${c.is_group?`${m.length} ${t('members').toLowerCase()}`:(ls||'@'+esc(op?.username||'—'))}</div></div>${unread>0?`<span class="item-badge">${unread>99?'99+':unread}</span>`:''}</div>`;
-  }
-  return h+'</div>';
+const seen=new Set();
+const list=state.chats.filter(c=>{if(!c||seen.has(c.id))return false;seen.add(c.id);return true});
+let h=`<div class="row between" style="margin-bottom:4px"><h2 style="font-size:20px;font-weight:800;letter-spacing:-.4px">${t('chats')}</h2><div class="row"><button class="btn small ghost" data-act="new-group">👥 ${t('newGroup').replace('👥 ','')}</button><button class="btn small primary" data-act="new-chat">${t('newChat')}</button></div></div>`;
+const storiesAlive=state.stories.filter(s=>{const au=state.profiles[s.user_id];const ttl=au?.story_ttl_hours||24;return Date.now()-new Date(s.created_at).getTime()<ttl*3600*1000});
+if(storiesAlive.length){
+h+=`<div class="stories-row">`;
+for(const s of storiesAlive.slice(0,15)){
+const au=state.profiles[s.user_id];if(!au)continue;
+const bg=s.media_url?`background-image:url(${s.media_url});background-size:cover;background-position:center`:`background:${s.background_color||'#6366f1'}`;
+h+=`<div class="story" data-act="view-story" data-id="${s.id}" style="${bg}">${aHtml(au,'xs','background:rgba(0,0,0,.35);')}<div><div>${esc(au.display_name)}</div><div class="small" style="opacity:.8">${tm(s.created_at)}</div></div></div>`;
+}
+h+=`</div>`;
+}
+if(!list.length)h+=`<div class="empty">${t('noChats')}<br><br><button class="btn primary" data-act="new-chat">${t('newChat')}</button></div>`;
+h+='<div class="list">';
+for(const c of list){
+const m=state.members[c.id]||[];
+const o=m.find(x=>x.user_id!==state.user.id);
+if(o&&isBlocked(o.user_id))continue;
+const op=o?state.profiles[o.user_id]:null;
+const ti=c.is_group?c.name:(op?.display_name||'Чат');
+const av=c.is_group?{avatar_url:c.avatar_url||null,accent_color:'#f59e0b',display_name:c.name}:(op||{});
+const ls=!c.is_group&&op?fLastSeen(op):'';
+const unread=state.unreadCounts[c.id]||0;
+h+=`<div class="item ${unread>0?'unread':''}" data-act="open-chat" data-id="${c.id}">${aHtml(av)}<div class="grow"><b style="font-size:15px">${esc(ti)}</b><div class="muted small" style="margin-top:2px">${c.is_group?`${m.length} ${t('members').toLowerCase()}`:(ls||'@'+esc(op?.username||'—'))}</div></div>${unread>0?`<span class="item-badge">${unread>99?'99+':unread}</span>`:''}</div>`;
+}
+return h+'</div>';
 }
 function renderCallsTab(){let h=`<div class="row between" style="margin-bottom:8px"><h2 style="font-size:20px;font-weight:800;letter-spacing:-.4px">${t('calls')}</h2></div>`;if(!state.allCalls.length){h+=`<div class="empty">${t('noCalls')}</div>`;return h}h+='<div class="list">';for(const c of state.allCalls){const out=c.caller_id===state.user.id;const otherId=out?c.callee_id:c.caller_id;const p=state.profiles[otherId];if(!p)continue;const missed=c.status==='missed';const icon=missed?'📵':(out?'📤':'📥');let status;if(c.status==='missed')status=t('missedCall');else if(c.status==='declined')status='Отклонён';else if(c.status==='ended')status=`${c.duration||0} сек`;else if(c.status==='active')status='Идёт';else status=c.status;h+=`<div class="call-item ${missed?'missed':''}" data-act="callback" data-id="${otherId}">${aHtml(p)}<div class="grow"><b style="font-size:15px">${esc(p.display_name||p.username)}</b><div class="muted small" style="margin-top:2px">${out?t('outgoing'):t('incoming')} · ${status} · ${tm(c.created_at)}</div></div><span class="call-icon ${missed?'missed':''}">${icon}</span></div>`}return h+'</div>'}
 function renderContactsTab(){const mc=state.contacts.map(c=>state.profiles[c.contact_id]).filter(Boolean);const q=(state.contactsSearchQuery||'').toLowerCase().trim();const filtered=q?mc.filter(p=>(p.display_name||'').toLowerCase().includes(q)||(p.username||'').toLowerCase().includes(q)||(p.phone||'').includes(q)||(p.email||'').toLowerCase().includes(q)):mc;let h=`<div class="row between" style="margin-bottom:8px"><h2 style="font-size:20px;font-weight:800;letter-spacing:-.4px">${t('contacts')} <span class="muted small" style="font-weight:400">(${mc.length})</span></h2><button class="btn small primary" data-act="search-friends">🔍 ${t('searchFriends')}</button></div>`;h+=`<input id="contacts-search" placeholder="${t('searchContacts')}" value="${esc(state.contactsSearchQuery)}" data-act="contacts-search-input" style="margin-bottom:8px">`;if(!filtered.length)h+=`<div class="empty">${q?t('noResults'):t('noContacts')}</div>`;h+='<div class="list">';for(const p of filtered){const ls=fLastSeen(p);h+=`<div class="item" data-act="open-contact-chat" data-id="${p.id}">${aHtml(p)}<div class="grow"><b style="font-size:15px">${esc(p.display_name||p.username)}</b><div class="muted small" style="margin-top:2px">${ls||('@'+esc(p.username))}</div></div><button class="icon" data-act="rm-contact" data-id="${p.id}">✕</button></div>`}return h+'</div>'}
@@ -929,21 +927,22 @@ function renderEmojiPicker(){return `<div class="overlay" data-act="close-emoji-
 function renderSearchMsgs(){if(state.searchMsgs===null)return '';const q=(state.searchMsgsQuery||'').toLowerCase();const res=q?state.messages.filter(m=>m.content&&m.content.toLowerCase().includes(q)):state.messages;return `<div class="overlay"><div class="card modal"><div class="row between"><b>🔍 ${t('searchMsgs')}</b><button class="icon" data-act="close-msg-search">✕</button></div><input id="msg-search-input" placeholder="${t('search')}" value="${esc(state.searchMsgsQuery)}" data-act="msg-search-input" autofocus><div class="list" style="max-height:50vh;overflow:auto">${res.length?res.map(m=>`<div class="item" data-act="jump-to-msg" data-id="${m.id}"><div class="grow"><b>${esc(state.profiles[m.sender_id]?.display_name||'?')}</b><div class="muted small">${esc((m.content||'').slice(0,100))}</div><div class="small">${tm(m.created_at)}</div></div></div>`).join(''):`<div class="empty">${t('noResults')}</div>`}</div></div></div>`}
 function renderMsgBody(m){let o='';if(m.reply_to_id){const parent=state.messages.find(x=>x.id===m.reply_to_id);if(parent){const psnd=state.profiles[parent.sender_id];o+=`<div class="reply-quote" data-act="scroll-to" data-id="${parent.id}"><div class="reply-name">${esc(psnd?.display_name||'?')}</div><div class="reply-text">${esc((parent.content||'📎').slice(0,80))}</div></div>`}}const u=m.media_url||'';const n=m.media_name||'file';const s=m.media_size?fSize(m.media_size):'';if(u&&m.media_type==='image')o+=`<img class="msg-image" src="${u}" data-act="open-lb" data-src="${u}">`;else if(u&&m.media_type==='audio')o+=`<audio controls preload="metadata" src="${u}"></audio>`;else if(u&&m.media_type==='video')o+=`<video controls preload="metadata" src="${u}"></video>`;else if(u&&m.media_type==='file')o+=`<a class="file-link" href="${u}" target="_blank" download="${esc(n)}"><span class="file-icon">📎</span><span class="file-info"><span class="file-name">${esc(n)}</span><span class="file-size">${s}</span></span></a>`;if(m.content)o+=`<div>${linkify(m.content)}${m.edited_at?'<span class="edited-mark">(изм.)</span>':''}</div>`;else if(m.edited_at)o+=`<span class="edited-mark">(изм.)</span>`;return o}
 function renderChat(){
-  const c=state.chat;if(!c)return '';
-  const m=state.members[c.id]||[];
-  const o=m.find(x=>x.user_id!==state.user.id);
-  const op=o?state.profiles[o.user_id]:null;
-  const ti=c.is_group?c.name:(op?.display_name||'Чат');
-  const av=c.is_group?{avatar_url:c.avatar_url||null,accent_color:'#f59e0b',display_name:c.name}:(op||{});
-  const mm=(m.find(x=>x.user_id===state.user.id)||{}).muted;
-  const msgs=state.messages;const u=state.user;
-  let bn='';
-  if(!c.is_group&&o&&!isContact(o.user_id)&&!isBlocked(o.user_id)){const om=msgs.find(x=>x.sender_id===o.user_id);if(om)bn=`<div class="banner"><div><b>${t('addToContacts')}</b></div><div class="row"><button class="btn small success grow" data-act="bn-add" data-id="${o.user_id}">${t('add')}</button><button class="btn small danger grow" data-act="bn-block" data-id="${o.user_id}">${t('block')}</button></div></div>`}
-  if(!c.is_group&&o&&isBlocked(o.user_id)){bn=`<div class="banner"><div class="muted">${t('youBlocked')} ${esc(op?.display_name||'?')}</div><button class="btn small ghost" data-act="unblock" data-id="${o.user_id}">${t('unblock')}</button></div>`}
-  const pinned=msgs.filter(x=>x.pinned);let pinBar='';
-  if(pinned.length){const p=pinned[pinned.length-1];const snd=state.profiles[p.sender_id];pinBar=`<div class="pinned-bar" data-act="scroll-to" data-id="${p.id}"><b>📌</b><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><b>${esc(snd?.display_name||'?')}:</b> ${esc((p.content||'📎').slice(0,80))}</span></div>`}
-  const replyPre=state.replyTo?`<div class="reply-preview"><b>↩️</b><span class="grow" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(state.messages.find(m=>m.id===state.replyTo)?.content||'')}</span><button class="icon" data-act="cancel-reply">✕</button></div>`:'';
-  const comp=state.recording?`<div class="rec-bar"><span>●</span><span class="time" id="rec-time">00:00</span><div class="grow"></div><button class="btn small ghost" data-act="cancel-rec" style="color:#fff;border-color:rgba(255,255,255,.4)">Отмена</button><button class="btn small" data-act="stop-rec" style="background:#fff;color:#ef4444;border-color:#fff">Стоп</button></div>`:`<button class="icon-btn" data-act="emoji-toggle">😀</button><button class="icon-btn" data-act="attach-file">📎</button><input type="file" id="chat-file" accept="*/*" style="display:none"><input id="msg-input" placeholder="${mm?t('mutedByAdmin'):t('typeMessage')}" ${mm?'disabled':''}><button class="icon-btn" data-act="start-rec" ${mm?'disabled':''}>🎤</button><button class="btn primary" data-act="send" ${mm?'disabled':''} style="padding:12px 18px">➤</button>`;
+const c=state.chat;if(!c)return '';
+const m=state.members[c.id]||[];
+const o=m.find(x=>x.user_id!==state.user.id);
+const op=o?state.profiles[o.user_id]:null;
+const ti=c.is_group?c.name:(op?.display_name||'Чат');
+const av=c.is_group?{avatar_url:c.avatar_url||null,accent_color:'#f59e0b',display_name:c.name}:(op||{});
+const mm=(m.find(x=>x.user_id===state.user.id)||{}).muted;
+const msgs=state.messages;const u=state.user;
+let bn='';
+if(!c.is_group&&o&&!isContact(o.user_id)&&!isBlocked(o.user_id)){const om=msgs.find(x=>x.sender_id===o.user_id);if(om)bn=`<div class="banner"><div><b>${t('addToContacts')}</b></div><div class="row"><button class="btn small success grow" data-act="bn-add" data-id="${o.user_id}">${t('add')}</button><button class="btn small danger grow" data-act="bn-block" data-id="${o.user_id}">${t('block')}</button></div></div>`}
+if(!c.is_group&&o&&isBlocked(o.user_id)){bn=`<div class="banner"><div class="muted">${t('youBlocked')} ${esc(op?.display_name||'?')}</div><button class="btn small ghost" data-act="unblock" data-id="${o.user_id}">${t('unblock')}</button></div>`}
+const pinned=msgs.filter(x=>x.pinned);let pinBar='';
+if(pinned.length){const p=pinned[pinned.length-1];const snd=state.profiles[p.sender_id];pinBar=`<div class="pinned-bar" data-act="scroll-to" data-id="${p.id}"><b>📌</b><span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap"><b>${esc(snd?.display_name||'?')}:</b> ${esc((p.content||'📎').slice(0,80))}</span></div>`}
+const replyPre=state.replyTo?`<div class="reply-preview"><b>↩️</b><span class="grow" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(state.messages.find(m=>m.id===state.replyTo)?.content||'')}</span><button class="icon" data-act="cancel-reply">✕</button></div>`:'';
+const comp=state.recording?`<div class="rec-bar"><span>●</span><span class="time" id="rec-time">00:00</span><div class="grow"></div><button class="btn small ghost" data-act="cancel-rec" style="color:#fff;border-color:rgba(255,255,255,.4)">Отмена</button><button class="btn small" data-act="stop-rec" style="background:#fff;color:#ef4444;border-color:#fff">Стоп</button></div>`:`<button class="icon-btn" data-act="emoji-toggle">😀</button><button class="icon-btn" data-act="attach-file">📎</button><input type="file" id="chat-file" accept="*/*" style="display:none"><input id="msg-input" placeholder="${mm?t('mutedByAdmin'):t('typeMessage')}" ${mm?'disabled':''}><button class="icon-btn" data-act="start-rec" ${mm?'disabled':''}>🎤</button><button
+ class="btn primary" data-act="send" ${mm?'disabled':''} style="padding:12px 18px">➤</button>`;
   const ab=c.is_group?`<span data-act="open-gs" style="cursor:pointer">${aHtml(av,'sm')}</span>`:`<span data-act="view-prof" data-id="${o?.user_id||''}" style="cursor:pointer">${aHtml(av,'sm')}</span>`;
   const sb2=c.is_group?`${m.length} ${t('members').toLowerCase()}`:(op?fLastSeen(op)||('@'+esc(op.username)):'—');
   const eb=c.is_group&&isAdmin(c.id)?`<button class="icon" data-act="open-gs">⚙️</button>`:'';
@@ -969,8 +968,8 @@ function renderProfile(){
   const notifState=('Notification' in window)?Notification.permission:'denied';
   const s=state.settingsSection||null;
   const sec=(icon,title,body)=>`
-    <div class="settings-section" style="padding:0">
-      <div class="settings-header" data-act="settings-toggle" data-v="${title}">
+    <div class="settings-section" style="padding:0;overflow:hidden">
+      <div class="settings-header" data-act="settings-toggle" data-v="${title}" style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px;cursor:pointer;user-select:none">
         <div class="settings-title"><span class="settings-icon">${icon}</span><span>${title}</span></div>
         <span style="color:var(--muted)">${s===title?'▲':'▼'}</span>
       </div>
@@ -1122,7 +1121,11 @@ case 'logout':signOut();break;
 case 'delete-account':await deleteAccount();break;
 case 'allow-notif':{if('Notification' in window){try{const p=await Notification.requestPermission();if(p==='granted'){toast('Включены','#10b981');notify('Nova','Уведомления работают','test',true)}else toast('Заблокированы','#ef4444')}catch(e){toast(e.message)}}render();break}
 case 'callback':await startCall(id);break;
-case 'tab':state.tab=el.dataset.tab;state.chatId=null;state.chat=null;state.settingsSection=null;state.showStories=false;render();break;
+case 'tab':
+  state.tab=el.dataset.tab;state.chatId=null;state.chat=null;state.settingsSection=null;state.showStories=false;
+  if(state.tab==='calls'){state.missedCalls=[];}
+  render();
+  break;
 case 'open-stories':state.showStories=true;state.tab='chats';render();break;
 case 'close-stories':state.showStories=false;render();break;
 case 'open-chat':await openChat(id);break;
@@ -1163,7 +1166,7 @@ case 'jump-to-msg':{state.searchMsgs=null;render();setTimeout(()=>{const m=docum
 case 'add-story':state.storyCompose=true;state.storyMedia=null;render();break;
 case 'pick-story-media':document.getElementById('story-file')?.click();break;
 case 'rm-story-media':state.storyMedia=null;render();break;
-case 'publish-story':{const x=document.getElementById('story-text').value.trim();if(!x&&!state.storyMedia)return;let mu=null;if(state.storyMedia){try{const b=d2b(state.storyMedia);const p=`stories/${state.user.id}/${uid()}.jpg`;const {error:ue}=await sb.storage.from('media').upload(p,b,{contentType:'image/jpeg'});if(ue){toast(ue.message);return}const {data:ud}=sb.storage.from('media').getPublicUrl(p);mu=ud?.publicUrl}catch(err){toast(err.message);return}}await sb.from('stories').insert({user_id:state.user.id,content:x,media_url:mu,background_color:state.storyBg});state.storyCompose=false;state.storyMedia=null;await loadStories();state.showStories=true;state.tab='chats';render();break}
+case 'publish-story':{const x=document.getElementById('story-text').value.trim();if(!x&&!state.storyMedia)return;let mu=null;if(state.storyMedia){try{const b=d2b(state.storyMedia);const p=`stories/${state.user.id}/${uid()}.jpg`;const u=await upMedia(p,b,'image/jpeg');mu=u}catch(err){toast(err.message);return}}await sb.from('stories').insert({user_id:state.user.id,content:x,media_url:mu,background_color:state.storyBg});state.storyCompose=false;state.storyMedia=null;await loadStories();state.showStories=true;state.tab='chats';render();break}
 case 'view-story':state.viewStory=id;render();break;
 case 'close-story':if(e.target.closest('img,button,audio,video'))return;state.viewStory=null;render();break;
 case 'react-story':await reactStory(id,v);break;
@@ -1238,8 +1241,8 @@ case 'cancel-2fa':state.pending2FA=null;render();break;
 }
 });
 document.addEventListener('change',async e=>{
-if(e.target.id==='avatar-file'){const f=e.target.files[0];if(!f)return;try{const d=await rImg(f,300,0.85);const b=d2b(d);const p=`avatars/${state.user.id}.jpg`;const {error:ue}=await sb.storage.from('media').upload(p,b,{upsert:true,contentType:'image/jpeg'});if(ue){toast(ue.message);return}const {data:ud}=sb.storage.from('media').getPublicUrl(p);await sb.from('profiles').update({avatar_url:ud.publicUrl+'?t='+Date.now()}).eq('id',state.user.id);await loadProf();render()}catch(err){toast(err.message)}e.target.value=''}
-if(e.target.id==='group-avatar-file'){const f=e.target.files[0];if(!f||!state.groupSettings)return;try{const d=await rImg(f,300,0.85);const b=d2b(d);const p=`groups/${state.groupSettings}.jpg`;const {error:ue}=await sb.storage.from('media').upload(p,b,{upsert:true,contentType:'image/jpeg'});if(ue){toast(ue.message);return}const {data:ud}=sb.storage.from('media').getPublicUrl(p);await sb.from('chats').update({avatar_url:ud.publicUrl+'?t='+Date.now()}).eq('id',state.groupSettings);await refresh();render()}catch(err){toast(err.message)}e.target.value=''}
+if(e.target.id==='avatar-file'){const f=e.target.files[0];if(!f)return;try{const d=await rImg(f,300,0.85);const b=d2b(d);const p=`avatars/${state.user.id}.jpg`;const u=await upMedia(p,b,'image/jpeg');await sb.from('profiles').update({avatar_url:u+'?t='+Date.now()}).eq('id',state.user.id);await loadProf();render()}catch(err){toast(err.message)}e.target.value=''}
+if(e.target.id==='group-avatar-file'){const f=e.target.files[0];if(!f||!state.groupSettings)return;try{const d=await rImg(f,300,0.85);const b=d2b(d);const p=`groups/${state.groupSettings}.jpg`;const u=await upMedia(p,b,'image/jpeg');await sb.from('chats').update({avatar_url:u+'?t='+Date.now()}).eq('id',state.groupSettings);await refresh();render()}catch(err){toast(err.message)}e.target.value=''}
 if(e.target.id==='story-file'){const f=e.target.files[0];if(!f)return;try{state.storyMedia=await rImg(f,800,0.75);render()}catch(err){toast(err.message)}e.target.value=''}
 if(e.target.id==='chat-file'){const f=e.target.files[0];if(!f)return;await sendFile(f);e.target.value=''}
 if(e.target.dataset.act==='set-priv-ls'){await sb.from('profiles').update({privacy_last_seen:e.target.value}).eq('id',state.user.id);await loadProf();render()}
