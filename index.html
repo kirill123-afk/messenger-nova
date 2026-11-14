@@ -36,7 +36,8 @@ input:focus,textarea:focus,select:focus{border-color:var(--accent);background:va
 .logo{font-size:32px;font-weight:900;letter-spacing:-.5px;background:var(--accent-grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;text-align:center;margin-bottom:8px}
 .err{color:var(--danger);font-size:13px;min-height:18px}
 .top{display:flex;align-items:center;gap:12px;padding:14px 18px;background:rgba(21,24,34,.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--line);position:relative;z-index:10}
-.top-title{font-size:22px;font-weight:800;letter-spacing:-.5px;background:var(--accent-grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.top-title{font-size:22px;font-weight:800;letter-spacing:-.5px;background:var(--accent-grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;cursor:pointer;user-select:none;transition:transform .2s}
+.top-title:active{transform:scale(.94)}
 .ava{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;font-size:20px;flex:none;background-size:cover;background-position:center;overflow:hidden;position:relative}
 .ava.sm{width:36px;height:36px;font-size:17px;border-radius:12px}
 .ava.big{width:88px;height:88px;font-size:42px;border-radius:28px;cursor:pointer}
@@ -181,9 +182,17 @@ input:focus,textarea:focus,select:focus{border-color:var(--accent);background:va
 @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
 .profile-hero{animation:floaty 4s ease-in-out infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.stories-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:14px;padding:8px 0}
-.story-user{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer}
-.story-user .name{font-size:12px;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:84px}
+/* Story thumbnails grid */
+.stories-grid-thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:12px;padding:8px 0;max-height:60vh;overflow-y:auto}
+.story-thumb{display:flex;flex-direction:column;gap:6px;cursor:pointer;transition:transform .15s}
+.story-thumb:hover{transform:scale(1.03)}
+.story-thumb-media{aspect-ratio:9/14;border-radius:12px;overflow:hidden;background:var(--bg-2);position:relative;border:2px solid transparent;transition:border-color .2s}
+.story-thumb.story-thumb-unviewed .story-thumb-media{border-color:var(--accent)}
+.story-thumb.story-thumb-viewed .story-thumb-media{border-color:#444}
+.story-thumb-author{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);overflow:hidden}
+.story-thumb-author span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* Easter egg */
+@keyframes ee-fall{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}
 </style>
 </head>
 <body>
@@ -521,6 +530,31 @@ render();
 }
 }
 /* ============ END STORIES helpers ============ */
+
+/* ============ EASTER EGG ============ */
+function runEasterEgg(){
+if(document.getElementById('easter-egg-container'))return;
+const emojis=['🎉','✨','🎊','⭐','💫','🌟','🎈','🎁','🥳','💥','🎯','🚀'];
+const container=document.createElement('div');
+container.id='easter-egg-container';
+container.style.cssText='position:fixed;inset:0;pointer-events:none;z-index:99999;overflow:hidden';
+for(let i=0;i<50;i++){
+const el=document.createElement('div');
+el.textContent=emojis[Math.floor(Math.random()*emojis.length)];
+el.style.cssText=`position:absolute;left:${Math.random()*100}%;top:-40px;font-size:${20+Math.random()*24}px;animation:ee-fall ${2+Math.random()*2}s linear forwards;animation-delay:${Math.random()*1.2}s;`;
+container.appendChild(el);
+}
+document.body.appendChild(container);
+const title=document.querySelector('.top-title');
+const orig=title?title.textContent:'';
+const messages=['🎉 Nova!','✨ Магия!','🚀 Поехали!','◈ Пасхалка!','👋 Привет, Кирилл!','🎊 Ура!','💜 Nova любит тебя','🌟 Ты нашёл секрет!'];
+if(title)title.textContent=messages[Math.floor(Math.random()*messages.length)];
+setTimeout(()=>{
+if(title)title.textContent=orig;
+container.remove();
+},3200);
+}
+/* ============ END EASTER EGG ============ */
 
 function notify(title,body,tag,isCall){
 if(!S.notifications)return;
@@ -1044,7 +1078,7 @@ if(state.showBlocked)ex+=renderBlocked();
 if(state.aiModal==='image')ex+=renderImgModal();
 if(state.storyViewersModal)ex+=renderStoryViewers();
 const showTop=!state.chatId;
-return `<header class="top"><div class="grow"><div class="top-title">◈ Nova</div></div>${showTop&&state.tab==='chats'?`<button class="icon" data-act="open-stories" title="${t('storiesTitle')}">✨</button>`:''}${showTop?`<button class="icon" data-act="theme-quick">${u.theme==='light'?'🌙':'☀️'}</button>`:''}${showTop?`<button class="icon" data-act="logout" title="${t('logout')}">🚪</button>`:''}</header><main class="content ${state.chatId?'chat':''}">${state.chatId?renderChat():renderTab()}</main>${state.chatId?'':`<nav class="tabs">${tabs.map(([k,l,label])=>{let badge='';if(k==='chats'&&totalUnread>0)badge=`<span class="tab-badge">${totalUnread>99?'99+':totalUnread}</span>`;if(k==='calls'&&missedCount>0)badge=`<span class="tab-badge">${missedCount>99?'99+':missedCount}</span>`;return `<button class="tab ${state.tab===k?'on':''}" data-act="tab" data-tab="${k}"><span class="tab-icon">${l}</span>${label}${badge}</button>`}).join('')}</nav>`}${state.tab==='chats'&&!state.chatId?`<button class="floating-ai" data-act="open-ai">🤖</button>`:''}${state.modal==='pick'?renderPick():''}${state.modal==='search'?renderSearchModal():''}${state.createGroup?renderCreate():''}${state.viewMembers?renderMembers():''}${state.groupSettings?renderGroupSet():''}${state.storyCompose?renderStoryComp():''}${state.showStories?renderStoriesPage():''}${state.storyPlayer?renderStoryPlayer():''}${state.msgMenu?renderMsgMenu():''}${state.viewProfile?renderProfileView():''}${state.incoming?renderIncoming():''}${state.call?renderCall():''}${state.lightbox?`<div class="lightbox" data-act="close-lb"><img src="${state.lightbox}"></div>`:''}${state.searchMsgs!==null?renderSearchMsgs():''}${state.showEmoji?renderEmojiPicker():''}${ex}`;
+return `<header class="top"><div class="grow"><div class="top-title" data-act="logo-easter-egg">◈ Nova</div></div>${showTop&&state.tab==='chats'?`<button class="icon" data-act="open-stories" title="${t('storiesTitle')}">✨</button>`:''}${showTop?`<button class="icon" data-act="theme-quick">${u.theme==='light'?'🌙':'☀️'}</button>`:''}${showTop?`<button class="icon" data-act="logout" title="${t('logout')}">🚪</button>`:''}</header><main class="content ${state.chatId?'chat':''}">${state.chatId?renderChat():renderTab()}</main>${state.chatId?'':`<nav class="tabs">${tabs.map(([k,l,label])=>{let badge='';if(k==='chats'&&totalUnread>0)badge=`<span class="tab-badge">${totalUnread>99?'99+':totalUnread}</span>`;if(k==='calls'&&missedCount>0)badge=`<span class="tab-badge">${missedCount>99?'99+':missedCount}</span>`;return `<button class="tab ${state.tab===k?'on':''}" data-act="tab" data-tab="${k}"><span class="tab-icon">${l}</span>${label}${badge}</button>`}).join('')}</nav>`}${state.tab==='chats'&&!state.chatId?`<button class="floating-ai" data-act="open-ai">🤖</button>`:''}${state.modal==='pick'?renderPick():''}${state.modal==='search'?renderSearchModal():''}${state.createGroup?renderCreate():''}${state.viewMembers?renderMembers():''}${state.groupSettings?renderGroupSet():''}${state.showStories?renderStoriesPage():''}${state.storyCompose?renderStoryComp():''}${state.storyPlayer?renderStoryPlayer():''}${state.msgMenu?renderMsgMenu():''}${state.viewProfile?renderProfileView():''}${state.incoming?renderIncoming():''}${state.call?renderCall():''}${state.lightbox?`<div class="lightbox" data-act="close-lb"><img src="${state.lightbox}"></div>`:''}${state.searchMsgs!==null?renderSearchMsgs():''}${state.showEmoji?renderEmojiPicker():''}${ex}`;
 }
 function renderTab(){if(state.tab==='calls')return renderCallsTab();if(state.tab==='contacts')return renderContactsTab();if(state.tab==='profile')return renderProfile();return renderChats()}
 function renderChats(){
@@ -1147,37 +1181,50 @@ const badge=state.newMsgsBadge>0?`<span class="badge">${state.newMsgsBadge}</spa
 return `<div class="chat-head"><button class="icon" data-act="back">←</button>${ab}<div class="grow"><b style="font-size:15px">${esc(ti)}</b><div class="muted small" style="margin-top:1px">${sb2}</div></div><button class="icon" data-act="msg-search">🔍</button>${eb}${!c.is_group&&o?`<button class="icon" data-act="call" data-id="${o.user_id}">📞</button>`:''}</div>${pinBar}${bn}<div class="messages-wrap"><div class="messages" id="msgs">${msgs.length?msgs.map(m=>{const out=m.sender_id===u.id;const snd=state.profiles[m.sender_id];const r=m.reactions||{};const rH=Object.entries(r).length?`<div class="reactions">${Object.entries(r).map(([e,a])=>`<button class="reaction-chip ${a.includes(u.id)?'mine':''}" data-act="react-msg" data-id="${m.id}" data-v="${e}">${e} ${a.length}</button>`).join('')}</div>`:'';return `<div class="msg-row ${out?'out':'in'}" data-msg-id="${m.id}"><div class="msg ${out?'out':'in'}">${c.is_group&&!out?`<div class="sender-name">${esc(snd?.display_name||'?')}</div>`:''}<div class="bubble">${renderMsgBody(m)}</div>${rH}${msgTs(m)}</div><button class="msg-menu-btn" data-act="msg-menu" data-id="${m.id}">⋯</button></div>`}).join(''):'<div class="empty">👋</div>'}</div><button class="scroll-down-btn ${state.scrollAtBottom?'':'show'}" id="scroll-down-btn" data-act="scroll-down">↓${badge}</button></div><div id="typing-indicator" class="typing-indicator"></div>${mm?`<div class="muted small" style="text-align:center;padding:8px">${t('mutedByAdmin')}</div>`:''}${replyPre}<div class="composer">${comp}</div>`;
 }
 function renderStoriesPage(){
-const byUser={};
+// Собираем ВСЕ живые истории от всех пользователей (не группируем)
+const alive=[];
 for(const s of state.stories){
 const au=state.profiles[s.user_id];
 if(!au)continue;
 const ttl=au.story_ttl_hours||24;
 if(Date.now()-new Date(s.created_at).getTime()>=ttl*3600*1000)continue;
-if(!byUser[s.user_id])byUser[s.user_id]=[];
-byUser[s.user_id].push(s);
+alive.push(s);
 }
-const users=Object.keys(byUser).map(id=>state.profiles[id]).filter(Boolean);
-users.sort((a,b)=>{
-const aUnv=hasUnviewedStories(a.id)?0:1;
-const bUnv=hasUnviewedStories(b.id)?0:1;
-if(aUnv!==bUnv)return aUnv-bUnv;
-const aLast=Math.max(...byUser[a.id].map(s=>new Date(s.created_at).getTime()));
-const bLast=Math.max(...byUser[b.id].map(s=>new Date(s.created_at).getTime()));
-return bLast-aLast;
+// Сортировка: сначала непросмотренные, потом просмотренные; внутри — новые сверху
+alive.sort((a,b)=>{
+const aV=isStoryViewed(a.id)?1:0;
+const bV=isStoryViewed(b.id)?1:0;
+if(aV!==bV)return aV-bV;
+return new Date(b.created_at)-new Date(a.created_at);
 });
-let h=`<div class="overlay" data-act="close-stories-bg"><div class="card modal" style="max-width:520px">
+let h=`<div class="overlay" data-act="close-stories-bg"><div class="card modal" style="max-width:560px">
 <div class="row between"><b>✨ ${t('storiesTitle')}</b><button class="icon" data-act="close-stories">✕</button></div>
 <button class="btn primary wide" data-act="add-story">+ ${t('addStory').replace('+ ','')}</button>`;
-if(!users.length){
+if(!alive.length){
 h+=`<div class="empty">${t('noStories')}</div>`;
 }else{
-h+=`<div class="stories-grid">`;
-for(const u of users){
-const ring=hasUnviewedStories(u.id)?'story-ring-unviewed':'story-ring-viewed';
-const isMe=u.id===state.user.id;
-h+=`<div class="story-user" data-act="open-user-stories" data-id="${u.id}">
-<div class="ava ${ring}" style="${aStyle(u)};width:64px;height:64px;font-size:26px;border-radius:20px">${u.avatar_url?'':esc(u.display_name?.[0]?.toUpperCase()||'?')}</div>
-<div class="name">${esc(isMe?t('you'):(u.display_name||u.username))}</div>
+h+=`<div class="stories-grid-thumbs">`;
+for(const s of alive){
+const au=state.profiles[s.user_id];
+const viewed=isStoryViewed(s.id);
+const isVid=/\.(mp4|webm|mov|ogv)(\?|$)/i.test(s.media_url||'');
+const cls='story-thumb '+(viewed?'story-thumb-viewed':'story-thumb-unviewed');
+let mediaHtml='';
+if(s.media_url){
+if(isVid){
+mediaHtml=`<video src="${s.media_url}" muted playsinline preload="metadata" style="width:100%;height:100%;object-fit:cover;border-radius:10px"></video><div style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.6);color:#fff;padding:2px 6px;border-radius:8px;font-size:11px;font-weight:700">▶</div>`;
+}else{
+mediaHtml=`<img src="${s.media_url}" style="width:100%;height:100%;object-fit:cover;border-radius:10px">`;
+}
+}else{
+mediaHtml=`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:${s.background_color||'var(--accent)'};border-radius:10px;color:#fff;font-weight:600;font-size:12px;padding:8px;text-align:center;overflow:hidden">${esc((s.content||'').slice(0,60))}</div>`;
+}
+h+=`<div class="${cls}" data-act="open-story-from-thumb" data-uid="${s.user_id}" data-sid="${s.id}">
+<div class="story-thumb-media">${mediaHtml}</div>
+<div class="story-thumb-author">
+<div class="ava" style="${aStyle(au)};width:18px;height:18px;font-size:9px;border-radius:5px;flex:none">${au.avatar_url?'':esc(au.display_name?.[0]?.toUpperCase()||'?')}</div>
+<span>${esc(s.user_id===state.user.id?t('you'):(au.display_name||au.username))}</span>
+</div>
 </div>`;
 }
 h+=`</div>`;
@@ -1332,7 +1379,7 @@ pr = isVid
 ? `<div style="position:relative"><video class="preview-media" src="${state.storyMedia}" controls muted playsinline></video><button class="btn small danger" data-act="rm-story-media" style="position:absolute;top:6px;right:6px">✕</button></div>`
 : `<div style="position:relative"><img class="preview-media" src="${state.storyMedia}"><button class="btn small danger" data-act="rm-story-media" style="position:absolute;top:6px;right:6px">✕</button></div>`;
 }
-return `<div class="overlay"><div class="card modal"><div class="row between"><b>${t('newStory')}</b><button class="icon" data-act="close-modal">✕</button></div>${pr}<textarea id="story-text" rows="3" placeholder="${t('caption')}" style="resize:none"></textarea><button class="btn ghost" data-act="pick-story-media">${t('photo')} / 🎬</button><input type="file" id="story-file" accept="image/*,video/*" style="display:none"><button class="btn primary wide" data-act="publish-story">${t('publish')}</button></div></div>`;
+return `<div class="overlay" style="z-index:55" data-act="close-modal"><div class="card modal"><div class="row between"><b>${t('newStory')}</b><button class="icon" data-act="close-modal">✕</button></div>${pr}<textarea id="story-text" rows="3" placeholder="${t('caption')}" style="resize:none"></textarea><button class="btn ghost" data-act="pick-story-media">${t('photo')} / 🎬</button><input type="file" id="story-file" accept="image/*,video/*" style="display:none"><button class="btn primary wide" data-act="publish-story">${t('publish')}</button></div></div>`;
 }
 function renderMsgMenu(){const m=state.messages.find(x=>x.id===state.msgMenu);if(!m)return '';const mine=m.sender_id===state.user.id;return `<div class="overlay"><div class="card modal"><div class="row between"><b>${t('reaction')}</b><button class="icon" data-act="close-mm">✕</button></div><div class="chips" style="font-size:22px">${EMOJI.map(e=>`<button class="chip" data-act="react-msg" data-id="${m.id}" data-v="${e}">${e}</button>`).join('')}</div><button class="btn ghost wide" data-act="reply-msg" data-id="${m.id}">↩️ ${t('reply')}</button>${m.pinned?`<button class="btn ghost wide" data-act="unpin-msg" data-id="${m.id}">${t('unpinMsg')}</button>`:`<button class="btn ghost wide" data-act="pin-msg" data-id="${m.id}">${t('pinMsg')}</button>`}${mine&&m.content?`<button class="btn ghost wide" data-act="edit-msg" data-id="${m.id}">✏️ ${t('edit')}</button>`:''}${mine?`<button class="btn danger wide" data-act="del-msg" data-id="${m.id}">🗑️ ${t('del')}</button>`:''}</div></div>`}
 function renderCall(){
@@ -1446,6 +1493,7 @@ document.addEventListener('click',async e=>{
 const el=e.target.closest('[data-act]');if(!el)return;
 const a=el.dataset.act,v=el.dataset.v,id=el.dataset.id;
 switch(a){
+case 'logo-easter-egg':runEasterEgg();break;
 case 'settings-toggle':state.settingsSection=(state.settingsSection===v)?null:v;render();break;
 case 'toggle-auth':state.authMode=state.authMode==='login'?'register':'login';state.authErr='';render();break;
 case 'do-auth':doAuth();break;
@@ -1466,6 +1514,7 @@ case 'open-stories':state.showStories=true;state.tab='chats';render();break;
 case 'close-stories':state.showStories=false;render();break;
 case 'close-stories-bg':if(e.target.closest('.card'))return;state.showStories=false;render();break;
 case 'open-user-stories':if(id&&getUserStoriesWithMine(id).length){openUserStories(id)}break;
+case 'open-story-from-thumb':{const uid2=el.dataset.uid;const sid=el.dataset.sid;if(uid2&&sid)openUserStories(uid2,sid);break}
 case 'open-story-from-msg':{const sid=el.dataset.sid;if(id){const sts=getUserStoriesWithMine(id);if(sts.length){openUserStories(id,sid)}else{toast(t('storyUnavailable'))}}break}
 case 'story-prev':prevStory();break;
 case 'story-next':nextStory();break;
