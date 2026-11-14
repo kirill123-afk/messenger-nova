@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
-<title>◈Nova</title>
+<title>Nova Messenger</title>
 <link rel="manifest" href="manifest.json">
-<link rel="icon" type="image/svg+xml" href="icon.svg">
+<link rel="icon" href="data:,">
 <meta name="theme-color" content="#6366f1">
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,"SF Pro Display","Segoe UI",Roboto,sans-serif}
@@ -42,6 +42,8 @@ input:focus,textarea:focus,select:focus{border-color:var(--accent);background:va
 .ava.big{width:88px;height:88px;font-size:42px;border-radius:28px;cursor:pointer}
 .ava.xs{width:28px;height:28px;font-size:14px;border-radius:10px}
 .ava.huge{width:120px;height:120px;font-size:56px;border-radius:40px}
+.ava.story-ring-unviewed{box-shadow:0 0 0 3px var(--accent)}
+.ava.story-ring-viewed{box-shadow:0 0 0 3px #555}
 .ava-online::after{content:'';position:absolute;bottom:0;right:0;width:12px;height:12px;background:var(--online);border:2.5px solid var(--card);border-radius:50%}
 .content{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:14px;min-height:0;-webkit-overflow-scrolling:touch;touch-action:pan-y}
 .content.chat{padding:0;gap:0;overflow:hidden;display:flex;flex-direction:column}
@@ -108,9 +110,6 @@ input:focus,textarea:focus,select:focus{border-color:var(--accent);background:va
 .typing-dot:nth-child(2){animation-delay:.2s}
 .typing-dot:nth-child(3){animation-delay:.4s}
 @keyframes tb{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-6px);opacity:1}}
-.stories-row{display:flex;gap:10px;overflow-x:auto;padding:4px 0 8px;scrollbar-width:none}
-.stories-row::-webkit-scrollbar{display:none}
-.story{min-width:104px;height:160px;border-radius:20px;padding:12px;display:flex;flex-direction:column;justify-content:space-between;color:#fff;font-weight:600;font-size:13px;cursor:pointer;background-size:cover;background-position:center;position:relative;overflow:hidden}
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);display:grid;place-items:center;padding:20px;z-index:50}
 .card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:20px;display:flex;flex-direction:column;gap:14px}
 .modal{width:100%;max-width:480px;max-height:85vh;overflow:auto;position:relative}
@@ -138,7 +137,7 @@ input:focus,textarea:focus,select:focus{border-color:var(--accent);background:va
 .dot.on{border-color:var(--text);box-shadow:0 0 12px currentColor}
 .lbl{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin-top:8px;font-weight:600}
 .empty{color:var(--muted);text-align:center;padding:40px 10px;font-size:14px}
-.story-full{position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;justify-content:space-between;padding:20px;color:#fff;font-size:18px;font-weight:600}
+.story-full{position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;color:#fff;font-size:16px;font-weight:600;background:#000}
 .preview-media{width:100%;max-height:200px;object-fit:cover;border-radius:14px;display:block}
 .badge{font-size:10px;padding:3px 8px;border-radius:8px;background:var(--line);color:var(--text);font-weight:600}
 .badge.admin{background:#f59e0b;color:#000}
@@ -182,6 +181,9 @@ input:focus,textarea:focus,select:focus{border-color:var(--accent);background:va
 @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-3px)}}
 .profile-hero{animation:floaty 4s ease-in-out infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
+.stories-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:14px;padding:8px 0}
+.story-user{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer}
+.story-user .name{font-size:12px;text-align:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:84px}
 </style>
 </head>
 <body>
@@ -201,11 +203,11 @@ let S={sounds:true,notifications:true,fontScale:1,lang:'ru'};
 function loadS(){try{const s=JSON.parse(localStorage.getItem('nova_settings')||'null');if(s)S={...S,...s}}catch(e){}document.documentElement.style.setProperty('--fs',S.fontScale)}
 function saveS(){try{localStorage.setItem('nova_settings',JSON.stringify(S))}catch(e){}document.documentElement.style.setProperty('--fs',S.fontScale)}
 loadS();
-const L={ru:{chats:'Чаты',calls:'Звонки',memory:'Память',contacts:'Контакты',settings:'Настройки',login:'Войти',register:'Зарегистрироваться',createAcc:'Создать аккаунт',haveAcc:'У меня есть аккаунт',email:'Email или телефон',usernameOrEmail:'Логин, email или телефон',password:'Пароль',username:'Логин',displayName:'Имя',online:'в сети',wasOnline:'был(а)',yesterday:'вчера',daysAgo:'дн.назад',members:'Участники',leaveGroup:'Выйти',deleteGroup:'Удалить группу',kick:'Исключить',groupName:'Название',groupDesc:'Описание',groupAvatar:'Аватар группы',save:'Сохранить',newChat:'+ Чат',newGroup:'👥 Группа',create:'Создать',soundsOn:'🔔 Звуки: вкл',soundsOff:'🔕 Звуки: выкл',notifOn:'🔔 Уведомления: вкл',notifOff:'🔕 Уведомления: выкл',lang:'🌐 Язык',privacy:'Приватность',appearance:'Внешний вид',theme:'🎨 Тема',lastSeenPrivacy:'Кто видит «в сети»',messagesPrivacy:'Кто может писать',groupsPrivacy:'Кто может добавлять в группы',everyone:'Все',contacts:'Контакты',nobody:'Никто',aiGreeting:'Привет! Я AI-ассистент.',aiThinking:'AI думает…',aiPlaceholder:'Спросите что угодно...',aiClear:'Очистить',describeImage:'Опишите картинку...',generate:'Сгенерировать',improving:'Улучшаю промпт…',generating:'Генерирую…',download:'Скачать',toChat:'В AI-чат',leaveConfirm:'Выйти?',back:'Назад',close:'Закрыть',noChats:'Пока нет чатов.',commonChats:'Общие чаты',noCommon:'Нет общих чатов',write:'Написать',bio:'О себе...',noUsers:'Нет пользователей',pickMembers:'Выберите из контактов',cache:'Очистить кэш',logout:'Выйти',saveProfile:'Сохранить профиль',accent:'Акцентный цвет',addStory:'+ Добавить',noStories:'Историй нет',newStory:'Новая история',caption:'Подпись...',publish:'Опубликовать',photo:'📷 Фото',edit:'Редактировать',del:'Удалить',reaction:'Реакция',voice:'Голосовое',acceptCall:'Принять',declineCall:'Отклонить',inCall:'входящий звонок…',calling:'звонок…',connected:'✓ Соединено',typeMessage:'Сообщение...',mutedByAdmin:'🔇 Заглушены',addToContacts:'Добавить в контакты?',add:'Добавить',block:'Заблокировать',blocked:'Заблокированные',unblock:'Разблокировать',noContacts:'Нет контактов',search:'Поиск',searchFriends:'Найти',twofa:'2FA',twofaOn:'2FA включена',twofaOff:'2FA выключена',twofaHint:'Введите код из письма',twofaCode:'Код',verify:'Подтвердить',storyTtl:'Время жизни историй',hours:'ч',reply:'Ответить',storyDeleteConfirm:'Удалить историю?',youBlocked:'Вы заблокировали',settingsGroup:'Настройки группы',contactAdd:'Добавить',contactRemove:'Убрать',searchEmpty:'Введите имя, логин или телефон',noResults:'Ничего не найдено',profileView:'Профиль',deleteAcc:'Удалить аккаунт',missedCall:'Пропущенный',missedCalls:'Пропущенные',callBack:'Перезвонить',notification:'Уведомления',allowNotif:'Разрешить уведомления',notifBlocked:'Заблокированы',outgoing:'Исходящий',incoming:'Входящий',noCalls:'Нет звонков',searchMsgs:'Поиск по сообщениям',pinMsg:'📌 Закрепить',unpinMsg:'📌 Открепить',searchContacts:'Поиск по контактам',searchAll:'Введите имя, логин или телефон',noAnswer:'Нет ответа',minimize:'Свернуть',secAppearance:'🎨 Внешний вид',secPrivacy:'🔒 Приватность',secNotif:'🔔 Уведомления',secTwofa:'🔐 Безопасность',secMemory:'💾 Память и хранилище',secDanger:'⚠️ Опасная зона',storiesTitle:'Истории',memoryTitle:'Память и хранилище',cacheSize:'Размер кэша',messagesCount:'Сообщений в кэше',storiesCount:'Историй в кэше',clearCache:'Очистить кэш приложения',clearOld:'Удалить старые сообщения (30+ дней)',clearStories:'Удалить все прочитанные истории',tapPhoto:'Нажмите на фото, чтобы изменить',scrollDown:'Вниз'},en:{chats:'Chats',calls:'Calls',memory:'Memory',contacts:'Contacts',settings:'Settings',login:'Log in',register:'Sign up',createAcc:'Create',haveAcc:'Have account',email:'Email or phone',usernameOrEmail:'Username, email or phone',password:'Password',username:'Username',displayName:'Name',online:'online',wasOnline:'last seen',yesterday:'yesterday',daysAgo:'days ago',members:'Members',leaveGroup:'Leave',deleteGroup:'Delete',kick:'Kick',groupName:'Name',groupDesc:'Description',groupAvatar:'Avatar',save:'Save',newChat:'+ Chat',newGroup:'👥 Group',create:'Create',soundsOn:'🔔 Sounds on',soundsOff:'🔕 Sounds off',notifOn:'🔔 Notif on',notifOff:'🔕 Notif off',lang:'🌐 Lang',privacy:'Privacy',appearance:'Appearance',theme:'🎨 Theme',lastSeenPrivacy:'Last seen',messagesPrivacy:'Who can message',groupsPrivacy:'Who can add to groups',everyone:'Everyone',contacts:'Contacts',nobody:'Nobody',aiGreeting:'Hi!',aiThinking:'AI…',aiPlaceholder:'Ask...',aiClear:'Clear',describeImage:'Describe...',generate:'Generate',improving:'Improving…',generating:'Generating…',download:'Download',toChat:'To chat',leaveConfirm:'Leave?',back:'Back',close:'Close',noChats:'No chats',commonChats:'Common',noCommon:'No common',write:'Write',bio:'About...',noUsers:'No users',pickMembers:'Select contacts',cache:'Clear cache',logout:'Logout',saveProfile:'Save',accent:'Accent',addStory:'+ Add',noStories:'No stories',newStory:'New',caption:'Caption...',publish:'Publish',photo:'📷 Photo',edit:'Edit',del:'Delete',reaction:'Reaction',voice:'Voice',acceptCall:'Accept',declineCall:'Decline',inCall:'incoming…',calling:'calling…',connected:'✓ Connected',typeMessage:'Message...',mutedByAdmin:'🔇 Muted',addToContacts:'Add to contacts?',add:'Add',block:'Block',blocked:'Blocked',unblock:'Unblock',noContacts:'No contacts',search:'Search',searchFriends:'Find',twofa:'2FA',twofaOn:'2FA on',twofaOff:'2FA off',twofaHint:'Enter code from email',twofaCode:'Code',verify:'Verify',storyTtl:'Story lifetime',hours:'h',reply:'Reply',storyDeleteConfirm:'Delete?',youBlocked:'You blocked',settingsGroup:'Group settings',contactAdd:'Add',contactRemove:'Remove',searchEmpty:'Enter name, username or phone',noResults:'Nothing found',profileView:'Profile',deleteAcc:'Delete',missedCall:'Missed',missedCalls:'Missed',callBack:'Call back',notification:'Notifications',allowNotif:'Allow',notifBlocked:'Blocked',outgoing:'Outgoing',incoming:'Incoming',noCalls:'No calls',searchMsgs:'Search messages',pinMsg:'📌 Pin',unpinMsg:'📌 Unpin',searchContacts:'Search contacts',searchAll:'Enter name, username or phone',noAnswer:'No answer',minimize:'Minimize',secAppearance:'🎨 Appearance',secPrivacy:'🔒 Privacy',secNotif:'🔔 Notifications',secTwofa:'🔐 Security',secMemory:'💾 Memory & storage',secDanger:'⚠️ Danger zone',storiesTitle:'Stories',memoryTitle:'Memory & storage',cacheSize:'Cache size',messagesCount:'Messages in cache',storiesCount:'Stories in cache',clearCache:'Clear app cache',clearOld:'Delete old messages (30+ days)',clearStories:'Delete read stories',tapPhoto:'Tap photo to change',scrollDown:'Down'}};
+const L={ru:{chats:'Чаты',calls:'Звонки',memory:'Память',contacts:'Контакты',settings:'Настройки',login:'Войти',register:'Зарегистрироваться',createAcc:'Создать аккаунт',haveAcc:'У меня есть аккаунт',email:'Email или телефон',usernameOrEmail:'Логин, email или телефон',password:'Пароль',username:'Логин',displayName:'Имя',online:'в сети',wasOnline:'был(а)',yesterday:'вчера',daysAgo:'дн.назад',members:'Участники',leaveGroup:'Выйти',deleteGroup:'Удалить группу',kick:'Исключить',groupName:'Название',groupDesc:'Описание',groupAvatar:'Аватар группы',save:'Сохранить',newChat:'+ Чат',newGroup:'👥 Группа',create:'Создать',soundsOn:'🔔 Звуки: вкл',soundsOff:'🔕 Звуки: выкл',notifOn:'🔔 Уведомления: вкл',notifOff:'🔕 Уведомления: выкл',lang:'🌐 Язык',privacy:'Приватность',appearance:'Внешний вид',theme:'🎨 Тема',lastSeenPrivacy:'Кто видит «в сети»',messagesPrivacy:'Кто может писать',groupsPrivacy:'Кто может добавлять в группы',everyone:'Все',contacts:'Контакты',nobody:'Никто',aiGreeting:'Привет! Я AI-ассистент.',aiThinking:'AI думает…',aiPlaceholder:'Спросите что угодно...',aiClear:'Очистить',describeImage:'Опишите картинку...',generate:'Сгенерировать',improving:'Улучшаю промпт…',generating:'Генерирую…',download:'Скачать',toChat:'В AI-чат',leaveConfirm:'Выйти?',back:'Назад',close:'Закрыть',noChats:'Пока нет чатов.',commonChats:'Общие чаты',noCommon:'Нет общих чатов',write:'Написать',bio:'О себе...',noUsers:'Нет пользователей',pickMembers:'Выберите из контактов',cache:'Очистить кэш',logout:'Выйти',saveProfile:'Сохранить профиль',accent:'Акцентный цвет',addStory:'+ Добавить',noStories:'Историй нет',newStory:'Новая история',caption:'Подпись...',publish:'Опубликовать',photo:'📷 Фото',edit:'Редактировать',del:'Удалить',reaction:'Реакция',voice:'Голосовое',acceptCall:'Принять',declineCall:'Отклонить',inCall:'входящий звонок…',calling:'звонок…',connected:'✓ Соединено',typeMessage:'Сообщение...',mutedByAdmin:'🔇 Заглушены',addToContacts:'Добавить в контакты?',add:'Добавить',block:'Заблокировать',blocked:'Заблокированные',unblock:'Разблокировать',noContacts:'Нет контактов',search:'Поиск',searchFriends:'Найти',twofa:'2FA',twofaOn:'2FA включена',twofaOff:'2FA выключена',twofaHint:'Введите код из письма',twofaCode:'Код',verify:'Подтвердить',storyTtl:'Время жизни историй',hours:'ч',reply:'Ответить',storyDeleteConfirm:'Удалить историю?',youBlocked:'Вы заблокировали',settingsGroup:'Настройки группы',contactAdd:'Добавить',contactRemove:'Убрать',searchEmpty:'Введите имя, логин или телефон',noResults:'Ничего не найдено',profileView:'Профиль',deleteAcc:'Удалить аккаунт',missedCall:'Пропущенный',missedCalls:'Пропущенные',callBack:'Перезвонить',notification:'Уведомления',allowNotif:'Разрешить уведомления',notifBlocked:'Заблокированы',outgoing:'Исходящий',incoming:'Входящий',noCalls:'Нет звонков',searchMsgs:'Поиск по сообщениям',pinMsg:'📌 Закрепить',unpinMsg:'📌 Открепить',searchContacts:'Поиск по контактам',searchAll:'Введите имя, логин или телефон',noAnswer:'Нет ответа',minimize:'Свернуть',secAppearance:'🎨 Внешний вид',secPrivacy:'🔒 Приватность',secNotif:'🔔 Уведомления',secTwofa:'🔐 Безопасность',secMemory:'💾 Память и хранилище',secDanger:'⚠️ Опасная зона',storiesTitle:'Истории',story:'История',storyUnavailable:'История недоступна',viewedBy:'Просмотрели',noViews:'Пока никто не смотрел',memoryTitle:'Память и хранилище',cacheSize:'Размер кэша',messagesCount:'Сообщений в кэше',storiesCount:'Историй в кэше',clearCache:'Очистить кэш приложения',clearOld:'Удалить старые сообщения (30+ дней)',clearStories:'Удалить все прочитанные истории',tapPhoto:'Нажмите на фото, чтобы изменить',scrollDown:'Вниз',you:'Вы'},en:{chats:'Chats',calls:'Calls',memory:'Memory',contacts:'Contacts',settings:'Settings',login:'Log in',register:'Sign up',createAcc:'Create',haveAcc:'Have account',email:'Email or phone',usernameOrEmail:'Username, email or phone',password:'Password',username:'Username',displayName:'Name',online:'online',wasOnline:'last seen',yesterday:'yesterday',daysAgo:'days ago',members:'Members',leaveGroup:'Leave',deleteGroup:'Delete',kick:'Kick',groupName:'Name',groupDesc:'Description',groupAvatar:'Avatar',save:'Save',newChat:'+ Chat',newGroup:'👥 Group',create:'Create',soundsOn:'🔔 Sounds on',soundsOff:'🔕 Sounds off',notifOn:'🔔 Notif on',notifOff:'🔕 Notif off',lang:'🌐 Lang',privacy:'Privacy',appearance:'Appearance',theme:'🎨 Theme',lastSeenPrivacy:'Last seen',messagesPrivacy:'Who can message',groupsPrivacy:'Who can add to groups',everyone:'Everyone',contacts:'Contacts',nobody:'Nobody',aiGreeting:'Hi!',aiThinking:'AI…',aiPlaceholder:'Ask...',aiClear:'Clear',describeImage:'Describe...',generate:'Generate',improving:'Improving…',generating:'Generating…',download:'Download',toChat:'To chat',leaveConfirm:'Leave?',back:'Back',close:'Close',noChats:'No chats',commonChats:'Common',noCommon:'No common',write:'Write',bio:'About...',noUsers:'No users',pickMembers:'Select contacts',cache:'Clear cache',logout:'Logout',saveProfile:'Save',accent:'Accent',addStory:'+ Add',noStories:'No stories',newStory:'New',caption:'Caption...',publish:'Publish',photo:'📷 Photo',edit:'Edit',del:'Delete',reaction:'Reaction',voice:'Voice',acceptCall:'Accept',declineCall:'Decline',inCall:'incoming…',calling:'calling…',connected:'✓ Connected',typeMessage:'Message...',mutedByAdmin:'🔇 Muted',addToContacts:'Add to contacts?',add:'Add',block:'Block',blocked:'Blocked',unblock:'Unblock',noContacts:'No contacts',search:'Search',searchFriends:'Find',twofa:'2FA',twofaOn:'2FA on',twofaOff:'2FA off',twofaHint:'Enter code from email',twofaCode:'Code',verify:'Verify',storyTtl:'Story lifetime',hours:'h',reply:'Reply',storyDeleteConfirm:'Delete?',youBlocked:'You blocked',settingsGroup:'Group settings',contactAdd:'Add',contactRemove:'Remove',searchEmpty:'Enter name, username or phone',noResults:'Nothing found',profileView:'Profile',deleteAcc:'Delete',missedCall:'Missed',missedCalls:'Missed',callBack:'Call back',notification:'Notifications',allowNotif:'Allow',notifBlocked:'Blocked',outgoing:'Outgoing',incoming:'Incoming',noCalls:'No calls',searchMsgs:'Search messages',pinMsg:'📌 Pin',unpinMsg:'📌 Unpin',searchContacts:'Search contacts',searchAll:'Enter name, username or phone',noAnswer:'No answer',minimize:'Minimize',secAppearance:'🎨 Appearance',secPrivacy:'🔒 Privacy',secNotif:'🔔 Notifications',secTwofa:'🔐 Security',secMemory:'💾 Memory & storage',secDanger:'⚠️ Danger zone',storiesTitle:'Stories',story:'Story',storyUnavailable:'Story unavailable',viewedBy:'Viewed by',noViews:'No views yet',memoryTitle:'Memory & storage',cacheSize:'Cache size',messagesCount:'Messages in cache',storiesCount:'Stories in cache',clearCache:'Clear app cache',clearOld:'Delete old messages (30+ days)',clearStories:'Delete read stories',tapPhoto:'Tap photo to change',scrollDown:'Down',you:'You'}};
 function t(k){return (L[S.lang]||L.ru)[k]||k}
 const EMOJI=['❤️','😂','👍','😮','😢','🔥'];
 const ALL_EMOJI=['😀','😁','😂','🤣','😃','😄','😅','😆','😉','😊','😋','😎','😍','😘','🥰','😗','😙','😚','🙂','🤗','🤩','🤔','🤨','😐','😑','😶','🙄','😏','😣','😥','😮','🤐','😯','😪','😫','🥱','😴','😌','😛','😜','😝','🤤','😒','😓','😔','😕','🙃','🤑','😲','🙁','😖','😞','😟','😤','😢','😭','😦','😧','😨','😩','🤯','😬','😰','😱','🥵','🥶','😳','🤪','😵','🥴','😠','😡','🤬','😷','🤒','🤕','🤢','🤮','🤧','😇','🥳','🥺','🤠','🤡','🤥','🤫','🤭','🧐','🤓','👻','💀','👽','🤖','💩','❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','💔','👍','👎','👌','✌️','🤞','🤟','🤘','🤙','👏','🙌','🤝','💪','🔥','✨','⭐','🌟','💫','💥','💯','🎉','🎊','🎁','🎂'];
-const state={user:null,profile:null,tab:'chats',chatId:null,chat:null,chats:[],messages:[],stories:[],profiles:{},members:{},contacts:[],blocks:[],unreadCounts:{},missedCalls:[],allCalls:[],chatReads:{},typingUsers:{},modal:null,pickMode:'chat',createGroup:false,groupName:'',groupMembers:[],searchQuery:'',searchResults:null,contactsSearchQuery:'',viewMembers:false,storyCompose:false,storyMedia:null,storyBg:'#6366f1',viewStory:null,incoming:null,call:null,callMinimized:false,muted:false,cameraOn:false,screenOn:false,msgMenu:null,authMode:'login',authErr:'',recording:false,recordStart:0,recordInterval:null,mediaRecorder:null,recordedChunks:[],recordStream:null,lightbox:null,aiMessages:[],aiLoading:false,aiModal:null,viewProfile:null,groupSettings:null,showAI:false,showBlocked:false,pending2FA:null,replyTo:null,searchMsgs:null,searchMsgsQuery:'',showEmoji:false,callReactions:[],settingsSection:null,showStories:false,scrollAtBottom:true,newMsgsBadge:0,stream:null};
+const state={user:null,profile:null,tab:'chats',chatId:null,chat:null,chats:[],messages:[],stories:[],profiles:{},members:{},contacts:[],blocks:[],unreadCounts:{},missedCalls:[],allCalls:[],chatReads:{},typingUsers:{},modal:null,pickMode:'chat',createGroup:false,groupName:'',groupMembers:[],searchQuery:'',searchResults:null,contactsSearchQuery:'',viewMembers:false,storyCompose:false,storyMedia:null,storyMediaFile:null,storyMediaType:'image',storyBg:'#6366f1',storyPlayer:null,storyViewers:{},storyViewersModal:null,incoming:null,call:null,callMinimized:false,muted:false,cameraOn:false,screenOn:false,msgMenu:null,authMode:'login',authErr:'',recording:false,recordStart:0,recordInterval:null,mediaRecorder:null,recordedChunks:[],recordStream:null,lightbox:null,aiMessages:[],aiLoading:false,aiModal:null,viewProfile:null,groupSettings:null,showAI:false,showBlocked:false,pending2FA:null,replyTo:null,searchMsgs:null,searchMsgsQuery:'',showEmoji:false,callReactions:[],settingsSection:null,showStories:false,scrollAtBottom:true,newMsgsBadge:0,stream:null};
 let callTimer=null,ringInterval=null,dialInterval=null,ringTimeout=null,callerTimeout=null,pc=null,cameraTrack=null,screenTrack=null,videoSender=null,remoteStream=null,makingOffer=false,ignoreOffer=false;
 let msgChannel=null,globalMsgChannel=null,callsChannel=null,sigChannel=null,sigPollTimer=null,heartbeatTimer=null,profilesChannel=null,refreshInterval=null,typingChannel=null,typingTimer=null,callReactChannel=null,callsListChannel=null,callPollTimer=null;
 let pendingSignals=[],processed=new Set();
@@ -247,7 +249,6 @@ function d2b(d){const p=d.split(',');const m=(p[0]||'').match(/:(.*?);/);const m
 async function loadSess(){try{const {data:{session},error}=await sb.auth.getSession();if(error)return;if(session?.user)state.user=session.user}catch(e){}}
 async function loadProf(retries=3){if(!state.user)return;for(let i=0;i<retries;i++){try{const {data,error}=await sb.from('profiles').select('*').eq('id',state.user.id).single();if(!error&&data){state.profile=data;state.profiles[data.id]=data;return}if(error&&error.code!=='PGRST116'){await new Promise(r=>setTimeout(r,1000*(i+1)));continue}return}catch(e){await new Promise(r=>setTimeout(r,1000))}}}
 async function signUp(e,p,un,dn){const {data,error}=await sb.auth.signUp({email:e,password:p,options:{data:{username:un,display_name:dn}}});if(error)throw error;return data}
-async function signIn(e,p){const {error}=await sb.auth.signInWithPassword({email:e,password:p});if(error)throw error}
 async function signOut(){
 try{if(msgChannel)sb.removeChannel(msgChannel)}catch(e){}
 try{if(globalMsgChannel)sb.removeChannel(globalMsgChannel)}catch(e){}
@@ -263,8 +264,9 @@ if(heartbeatTimer){clearInterval(heartbeatTimer);heartbeatTimer=null}
 if(ringTimeout){clearTimeout(ringTimeout);ringTimeout=null}
 if(callerTimeout){clearTimeout(callerTimeout);callerTimeout=null}
 if(callPollTimer){clearInterval(callPollTimer);callPollTimer=null}
+stopStoryTimer();
 await sb.auth.signOut();
-state.user=null;state.profile=null;state.chats=[];state.messages=[];state.contacts=[];state.blocks=[];state.unreadCounts={};state.missedCalls=[];state.allCalls=[];state.authErr='';state.settingsSection=null;
+state.user=null;state.profile=null;state.chats=[];state.messages=[];state.contacts=[];state.blocks=[];state.unreadCounts={};state.missedCalls=[];state.allCalls=[];state.authErr='';state.settingsSection=null;state.storyPlayer=null;state.storyViewers={};state.storyViewersModal=null;
 render();
 }
 function startHeartbeat(){if(heartbeatTimer)clearInterval(heartbeatTimer);const b=async()=>{if(!state.user)return;try{await sb.from('profiles').update({last_seen:new Date().toISOString()}).eq('id',state.user.id)}catch(e){}};b();heartbeatTimer=setInterval(b,30000)}
@@ -388,9 +390,138 @@ state.chatReads={};(mem||[]).forEach(m=>state.chatReads[m.user_id]=m.last_read_a
 const sids=[...new Set(state.messages.map(m=>m.sender_id))];await loadProfs(sids);
 if(state.messages.length){const {data:rx}=await sb.from('reactions').select('*').in('message_id',state.messages.map(m=>m.id));const map={};(rx||[]).forEach(r=>{if(!map[r.message_id])map[r.message_id]={};if(!map[r.message_id][r.emoji])map[r.message_id][r.emoji]=[];map[r.message_id][r.emoji].push(r.user_id)});state.messages.forEach(m=>m.reactions=map[m.id]||{})}
 }
-async function loadStories(){const since=new Date(Date.now()-7*24*3600*1000).toISOString();const {data}=await sb.from('stories').select('*').gte('created_at',since).order('created_at',{ascending:false});const uids=[...new Set((data||[]).map(s=>s.user_id))];await loadProfs(uids);state.stories=(data||[]).filter(s=>{const au=state.profiles[s.user_id];const ttl=au?.story_ttl_hours||24;return Date.now()-new Date(s.created_at).getTime()<ttl*3600*1000});if(state.stories.length){const {data:rx}=await sb.from('story_reactions').select('*').in('story_id',state.stories.map(s=>s.id));const map={};(rx||[]).forEach(r=>{if(!map[r.story_id])map[r.story_id]={};if(!map[r.story_id][r.emoji])map[r.story_id][r.emoji]=[];map[r.story_id][r.emoji].push(r.user_id)});state.stories.forEach(s=>s.reactions=map[s.id]||{})}}
+async function loadStories(){
+const since=new Date(Date.now()-7*24*3600*1000).toISOString();
+const {data}=await sb.from('stories').select('*').gte('created_at',since).order('created_at',{ascending:false});
+const uids=[...new Set((data||[]).map(s=>s.user_id))];
+await loadProfs(uids);
+state.stories=(data||[]).filter(s=>{const au=state.profiles[s.user_id];const ttl=au?.story_ttl_hours||24;return Date.now()-new Date(s.created_at).getTime()<ttl*3600*1000});
+if(state.stories.length){
+const {data:rx}=await sb.from('story_reactions').select('*').in('story_id',state.stories.map(s=>s.id));
+const map={};(rx||[]).forEach(r=>{if(!map[r.story_id])map[r.story_id]={};if(!map[r.story_id][r.emoji])map[r.story_id][r.emoji]=[];map[r.story_id][r.emoji].push(r.user_id)});
+state.stories.forEach(s=>s.reactions=map[s.id]||{});
+}
+}
 async function refresh(){await loadChats();await loadUnread();if(state.chatId){const c=state.chats.find(x=>x.id===state.chatId);if(!c){state.chatId=null;state.chat=null}else state.chat=c}}
 async function upMedia(path,blob,ct){if(blob.size>MAX)throw new Error('Файл больше '+fSize(MAX));const {error}=await sb.storage.from('media').upload(path,blob,{upsert:false,contentType:ct});if(error)throw new Error(error.message);const {data}=sb.storage.from('media').getPublicUrl(path);if(!data?.publicUrl)throw new Error('Bucket не публичный');return data.publicUrl}
+
+/* ============ STORIES helpers ============ */
+function getViewedStories(){try{const a=JSON.parse(localStorage.getItem('nova_viewed_stories')||'[]');return Array.isArray(a)?a:[]}catch(e){return []}}
+function saveViewedStories(arr){try{if(arr.length>1000)arr=arr.slice(-1000);localStorage.setItem('nova_viewed_stories',JSON.stringify(arr))}catch(e){}}
+function isStoryViewed(id){return getViewedStories().includes(id)}
+function markStoryViewed(id){const a=getViewedStories();if(!a.includes(id)){a.push(id);saveViewedStories(a)}}
+function getUserStoriesWithMine(userId){return state.stories.filter(s=>s.user_id===userId).slice().sort((a,b)=>new Date(a.created_at)-new Date(b.created_at))}
+function hasUnviewedStories(userId){const stories=getUserStoriesWithMine(userId);if(!stories.length)return false;return stories.some(s=>!isStoryViewed(s.id))}
+function storyRing(userId){if(!getUserStoriesWithMine(userId).length)return '';return hasUnviewedStories(userId)?'story-ring-unviewed':'story-ring-viewed'}
+function openUserStories(userId, specificStoryId){
+const stories=getUserStoriesWithMine(userId);
+if(!stories.length)return;
+let startIdx=0;
+if(specificStoryId){
+const idx=stories.findIndex(s=>s.id===specificStoryId);
+startIdx = idx>=0 ? idx : 0;
+}else{
+for(let i=0;i<stories.length;i++){if(!isStoryViewed(stories[i].id)){startIdx=i;break}}
+}
+state.storyPlayer={userId,stories,index:startIdx,progress:0,timer:null,timer2:null,startedAt:0};
+render();
+startStoryTimer();
+if(userId === state.user.id){ loadStoryViewers(stories.map(s=>s.id)); }
+}
+function stopStoryTimer(){const p=state.storyPlayer;if(!p)return;if(p.timer){clearTimeout(p.timer);p.timer=null}if(p.timer2){clearInterval(p.timer2);p.timer2=null}}
+function closeStoryPlayer(){stopStoryTimer();state.storyPlayer=null;state.storyViewersModal=null;render()}
+function nextStory(){const p=state.storyPlayer;if(!p)return;stopStoryTimer();if(p.index<p.stories.length-1){p.index++;p.progress=0;render();startStoryTimer()}else{closeStoryPlayer()}}
+function prevStory(){const p=state.storyPlayer;if(!p)return;stopStoryTimer();if(p.index>0){p.index--;p.progress=0;render();startStoryTimer()}else{p.progress=0;startStoryTimer()}}
+function updateStoryProgressUI(){
+const p=state.storyPlayer;
+if(!p)return;
+const bars=document.querySelectorAll('#story-progress-bars .story-progress-fill');
+bars.forEach((bar,i)=>{
+if(i<p.index)bar.style.width='100%';
+else if(i===p.index)bar.style.width=p.progress+'%';
+else bar.style.width='0%';
+});
+}
+async function recordStoryView(storyId, ownerId){
+if(!state.user || ownerId === state.user.id) return;
+try{
+await sb.from('story_views').upsert(
+{story_id: storyId, viewer_id: state.user.id},
+{onConflict: 'story_id,viewer_id', ignoreDuplicates: true}
+);
+}catch(e){}
+}
+async function loadStoryViewers(storyIds){
+if(!storyIds.length) return;
+try{
+const {data} = await sb.from('story_views').select('*').in('story_id', storyIds);
+const map = {};
+(data||[]).forEach(v => {
+if(!map[v.story_id]) map[v.story_id] = [];
+map[v.story_id].push(v);
+});
+const viewerIds = [...new Set((data||[]).map(v => v.viewer_id))];
+await loadProfs(viewerIds);
+state.storyViewers = {...state.storyViewers, ...map};
+render();
+}catch(e){ console.warn('viewers', e); }
+}
+function startStoryTimer(){
+const p=state.storyPlayer;
+if(!p)return;
+stopStoryTimer();
+const s=p.stories[p.index];
+if(!s)return;
+markStoryViewed(s.id);
+recordStoryView(s.id, s.user_id);
+p.startedAt=Date.now();
+p.progress=0;
+updateStoryProgressUI();
+const isVideo=/\.(mp4|webm|mov|ogv)(\?|$)/i.test(s.media_url||'');
+if(isVideo){
+const v=document.getElementById('story-video-player');
+if(v){
+v.currentTime=0;
+v.play().catch(()=>{});
+v.onended=()=>{nextStory()};
+v.ontimeupdate=()=>{
+if(v.duration&&isFinite(v.duration)){
+p.progress=Math.min(100,(v.currentTime/v.duration)*100);
+updateStoryProgressUI();
+}
+};
+p.timer=setTimeout(()=>{nextStory()},15000);
+}else{
+p.timer=setTimeout(()=>{nextStory()},5000);
+}
+}else{
+const DURATION=5000;
+p.timer=setTimeout(()=>{nextStory()},DURATION);
+p.timer2=setInterval(()=>{
+const elapsed=Date.now()-p.startedAt;
+p.progress=Math.min(100,(elapsed/DURATION)*100);
+updateStoryProgressUI();
+},50);
+}
+}
+async function deleteStoryPlayer(sid){
+if(!confirm(t('storyDeleteConfirm')))return;
+await sb.from('stories').delete().eq('id',sid).eq('user_id',state.user.id);
+await loadStories();
+const p=state.storyPlayer;
+if(p){
+p.stories=getUserStoriesWithMine(p.userId);
+if(!p.stories.length){closeStoryPlayer();return}
+if(p.index>=p.stories.length)p.index=p.stories.length-1;
+p.progress=0;
+render();
+startStoryTimer();
+}else{
+render();
+}
+}
+/* ============ END STORIES helpers ============ */
+
 function notify(title,body,tag,isCall){
 if(!S.notifications)return;
 if(!('Notification' in window))return;
@@ -848,9 +979,19 @@ state.aiLoading=false;saveAI();render();
 setTimeout(()=>{const m=document.getElementById('ai-messages');if(m)m.scrollTop=m.scrollHeight},50);
 }
 async function genImg(){const i=document.getElementById('ai-image-prompt');if(!i)return;const pr=i.value.trim();if(!pr)return;const r=document.getElementById('ai-image-result');r.innerHTML=`<div class="muted small" style="text-align:center;padding:20px">⏳ ${t('improving')}</div>`;try{const tr=await fetch('https://text.pollinations.ai/'+encodeURIComponent(`Translate to English and enrich. Return ONLY prompt: "${pr}"`));let en=(await tr.text()).trim().replace(/^["'`]|["'`]$/g,'').split('\n')[0].slice(0,220);if(!en||en.length<5)en=pr;r.innerHTML=`<div class="muted small" style="text-align:center;padding:20px">🎨 ${t('generating')}</div>`;const sd=Math.floor(Math.random()*1000000);const u=`https://image.pollinations.ai/prompt/${encodeURIComponent(en)}?width=1024&height=1024&nologo=true&seed=${sd}&model=flux&referrer=nova-messenger`;const im=new Image();im.onload=()=>{r.innerHTML=`<img src="${u}" style="max-width:100%;border-radius:12px;margin-top:10px" data-act="open-ai-lb" data-src="${u}"><div class="row" style="margin-top:10px;gap:8px"><button class="btn ghost grow" data-act="ai-dl" data-src="${u}">${t('download')}</button><button class="btn primary grow" data-act="ai-to" data-src="${u}">${t('toChat')}</button></div>`};im.onerror=()=>{r.innerHTML='<div class="small" style="color:#ef4444;text-align:center;padding:14px">Ошибка</div>'};im.src=u}catch(e){r.innerHTML=`<div class="small" style="color:#ef4444;padding:14px">${esc(e.message)}</div>`}}
-async function reactStory(sid,em){const {data:ex}=await sb.from('story_reactions').select('*').eq('story_id',sid).eq('user_id',state.user.id).maybeSingle();if(ex){await sb.from('story_reactions').delete().eq('id',ex.id)}else{await sb.from('story_reactions').upsert({story_id:sid,user_id:state.user.id,emoji:em})}await loadStories();render()}
-async function replyStory(sid){const s=state.stories.find(x=>x.id===sid);if(!s)return;const x=prompt(t('replyTo')+':');if(!x||!x.trim())return;await sb.from('story_replies').insert({story_id:sid,user_id:state.user.id,content:x.trim()});const cid=await startDM(s.user_id);if(cid){await sb.from('messages').insert({chat_id:cid,sender_id:state.user.id,content:`↩️ ${t('replyTo')}: ${x.trim()}`});toast('Отправлен','#10b981')}}
-async function deleteStory(sid){if(!confirm(t('storyDeleteConfirm')))return;await sb.from('stories').delete().eq('id',sid).eq('user_id',state.user.id);state.viewStory=null;await loadStories();render()}
+async function reactStory(sid,em){const {data:ex}=await sb.from('story_reactions').select('*').eq('story_id',sid).eq('user_id',state.user.id).maybeSingle();if(ex){await sb.from('story_reactions').delete().eq('id',ex.id)}else{await sb.from('story_reactions').upsert({story_id:sid,user_id:state.user.id,emoji:em})}await loadStories();render();if(state.storyPlayer)startStoryTimer()}
+async function replyStory(sid){
+const s=state.stories.find(x=>x.id===sid);
+if(!s)return;
+const x=prompt(t('reply')+':');
+if(!x||!x.trim())return;
+try{ await sb.from('story_replies').insert({story_id:sid,user_id:state.user.id,content:x.trim()}); }catch(e){}
+const cid=await startDM(s.user_id);
+if(!cid)return;
+const marker=`[[story:${sid}:${s.user_id}]]`;
+await sb.from('messages').insert({chat_id:cid,sender_id:state.user.id,content:marker+x.trim()});
+toast('Отправлен','#10b981');
+}
 function render(){
 document.documentElement.style.setProperty('--accent',state.profile?.accent_color||'#6366f1');
 document.body.classList.toggle('light',state.profile?.theme==='light');
@@ -901,24 +1042,15 @@ let ex='';
 if(state.showAI)ex+=renderAI();
 if(state.showBlocked)ex+=renderBlocked();
 if(state.aiModal==='image')ex+=renderImgModal();
+if(state.storyViewersModal)ex+=renderStoryViewers();
 const showTop=!state.chatId;
-return `<header class="top"><div class="grow"><div class="top-title">◈ Nova</div></div>${showTop&&state.tab==='chats'?`<button class="icon" data-act="open-stories" title="${t('storiesTitle')}">✨</button>`:''}${showTop?`<button class="icon" data-act="theme-quick">${u.theme==='light'?'🌙':'☀️'}</button>`:''}${showTop?`<button class="icon" data-act="logout" title="${t('logout')}">🚪</button>`:''}</header><main class="content ${state.chatId?'chat':''}">${state.chatId?renderChat():renderTab()}</main>${state.chatId?'':`<nav class="tabs">${tabs.map(([k,l,label])=>{let badge='';if(k==='chats'&&totalUnread>0)badge=`<span class="tab-badge">${totalUnread>99?'99+':totalUnread}</span>`;if(k==='calls'&&missedCount>0)badge=`<span class="tab-badge">${missedCount>99?'99+':missedCount}</span>`;return `<button class="tab ${state.tab===k?'on':''}" data-act="tab" data-tab="${k}"><span class="tab-icon">${l}</span>${label}${badge}</button>`}).join('')}</nav>`}${state.tab==='chats'&&!state.chatId?`<button class="floating-ai" data-act="open-ai">🤖</button>`:''}${state.modal==='pick'?renderPick():''}${state.modal==='search'?renderSearchModal():''}${state.createGroup?renderCreate():''}${state.viewMembers?renderMembers():''}${state.groupSettings?renderGroupSet():''}${state.storyCompose?renderStoryComp():''}${state.showStories?renderStoriesPage():''}${state.msgMenu?renderMsgMenu():''}${state.viewStory?renderStoryView():''}${state.viewProfile?renderProfileView():''}${state.incoming?renderIncoming():''}${state.call?renderCall():''}${state.lightbox?`<div class="lightbox" data-act="close-lb"><img src="${state.lightbox}"></div>`:''}${state.searchMsgs!==null?renderSearchMsgs():''}${state.showEmoji?renderEmojiPicker():''}${ex}`;
+return `<header class="top"><div class="grow"><div class="top-title">◈ Nova</div></div>${showTop&&state.tab==='chats'?`<button class="icon" data-act="open-stories" title="${t('storiesTitle')}">✨</button>`:''}${showTop?`<button class="icon" data-act="theme-quick">${u.theme==='light'?'🌙':'☀️'}</button>`:''}${showTop?`<button class="icon" data-act="logout" title="${t('logout')}">🚪</button>`:''}</header><main class="content ${state.chatId?'chat':''}">${state.chatId?renderChat():renderTab()}</main>${state.chatId?'':`<nav class="tabs">${tabs.map(([k,l,label])=>{let badge='';if(k==='chats'&&totalUnread>0)badge=`<span class="tab-badge">${totalUnread>99?'99+':totalUnread}</span>`;if(k==='calls'&&missedCount>0)badge=`<span class="tab-badge">${missedCount>99?'99+':missedCount}</span>`;return `<button class="tab ${state.tab===k?'on':''}" data-act="tab" data-tab="${k}"><span class="tab-icon">${l}</span>${label}${badge}</button>`}).join('')}</nav>`}${state.tab==='chats'&&!state.chatId?`<button class="floating-ai" data-act="open-ai">🤖</button>`:''}${state.modal==='pick'?renderPick():''}${state.modal==='search'?renderSearchModal():''}${state.createGroup?renderCreate():''}${state.viewMembers?renderMembers():''}${state.groupSettings?renderGroupSet():''}${state.storyCompose?renderStoryComp():''}${state.showStories?renderStoriesPage():''}${state.storyPlayer?renderStoryPlayer():''}${state.msgMenu?renderMsgMenu():''}${state.viewProfile?renderProfileView():''}${state.incoming?renderIncoming():''}${state.call?renderCall():''}${state.lightbox?`<div class="lightbox" data-act="close-lb"><img src="${state.lightbox}"></div>`:''}${state.searchMsgs!==null?renderSearchMsgs():''}${state.showEmoji?renderEmojiPicker():''}${ex}`;
 }
 function renderTab(){if(state.tab==='calls')return renderCallsTab();if(state.tab==='contacts')return renderContactsTab();if(state.tab==='profile')return renderProfile();return renderChats()}
 function renderChats(){
 const seen=new Set();
 const list=state.chats.filter(c=>{if(!c||seen.has(c.id))return false;seen.add(c.id);return true});
 let h=`<div class="row between" style="margin-bottom:4px"><h2 style="font-size:20px;font-weight:800;letter-spacing:-.4px">${t('chats')}</h2><div class="row"><button class="btn small ghost" data-act="new-group">👥 ${t('newGroup').replace('👥 ','')}</button><button class="btn small primary" data-act="new-chat">${t('newChat')}</button></div></div>`;
-const storiesAlive=state.stories.filter(s=>{const au=state.profiles[s.user_id];const ttl=au?.story_ttl_hours||24;return Date.now()-new Date(s.created_at).getTime()<ttl*3600*1000});
-if(storiesAlive.length){
-h+=`<div class="stories-row">`;
-for(const s of storiesAlive.slice(0,15)){
-const au=state.profiles[s.user_id];if(!au)continue;
-const bg=s.media_url?`background-image:url(${s.media_url});background-size:cover;background-position:center`:`background:${s.background_color||'#6366f1'}`;
-h+=`<div class="story" data-act="view-story" data-id="${s.id}" style="${bg}">${aHtml(au,'xs','background:rgba(0,0,0,.35);')}<div><div>${esc(au.display_name)}</div><div class="small" style="opacity:.8">${tm(s.created_at)}</div></div></div>`;
-}
-h+=`</div>`;
-}
 if(!list.length)h+=`<div class="empty">${t('noChats')}<br><br><button class="btn primary" data-act="new-chat">${t('newChat')}</button></div>`;
 h+='<div class="list">';
 for(const c of list){
@@ -930,12 +1062,14 @@ const ti=c.is_group?c.name:(op?.display_name||'Чат');
 const av=c.is_group?{avatar_url:c.avatar_url||null,accent_color:'#f59e0b',display_name:c.name}:(op||{});
 const ls=!c.is_group&&op?fLastSeen(op):'';
 const unread=state.unreadCounts[c.id]||0;
-h+=`<div class="item ${unread>0?'unread':''}" data-act="open-chat" data-id="${c.id}">${aHtml(av)}<div class="grow"><b style="font-size:15px">${esc(ti)}</b><div class="muted small" style="margin-top:2px">${c.is_group?`${m.length} ${t('members').toLowerCase()}`:(ls||'@'+esc(op?.username||'—'))}</div></div>${unread>0?`<span class="item-badge">${unread>99?'99+':unread}</span>`:''}</div>`;
+const ringClass=op?storyRing(op.id):'';
+const avaHtml=ringClass?`<span data-act="open-user-stories" data-id="${op.id}" style="cursor:pointer;display:inline-flex">${aHtml(av,ringClass)}</span>`:aHtml(av);
+h+=`<div class="item ${unread>0?'unread':''}" data-act="open-chat" data-id="${c.id}">${avaHtml}<div class="grow"><b style="font-size:15px">${esc(ti)}</b><div class="muted small" style="margin-top:2px">${c.is_group?`${m.length} ${t('members').toLowerCase()}`:(ls||'@'+esc(op?.username||'—'))}</div></div>${unread>0?`<span class="item-badge">${unread>99?'99+':unread}</span>`:''}</div>`;
 }
 return h+'</div>';
 }
 function renderCallsTab(){let h=`<div class="row between" style="margin-bottom:8px"><h2 style="font-size:20px;font-weight:800;letter-spacing:-.4px">${t('calls')}</h2></div>`;if(!state.allCalls.length){h+=`<div class="empty">${t('noCalls')}</div>`;return h}h+='<div class="list">';for(const c of state.allCalls){const out=c.caller_id===state.user.id;const otherId=out?c.callee_id:c.caller_id;const p=state.profiles[otherId];if(!p)continue;const missed=c.status==='missed';const icon=missed?'📵':(out?'📤':'📥');let status;if(c.status==='missed')status=t('missedCall');else if(c.status==='declined')status='Отклонён';else if(c.status==='ended')status=`${c.duration||0} сек`;else if(c.status==='active')status='Идёт';else status=c.status;h+=`<div class="call-item ${missed?'missed':''}" data-act="callback" data-id="${otherId}">${aHtml(p)}<div class="grow"><b style="font-size:15px">${esc(p.display_name||p.username)}</b><div class="muted small" style="margin-top:2px">${out?t('outgoing'):t('incoming')} · ${status} · ${tm(c.created_at)}</div></div><span class="call-icon ${missed?'missed':''}">${icon}</span></div>`}return h+'</div>'}
-function renderContactsTab(){const mc=state.contacts.map(c=>state.profiles[c.contact_id]).filter(Boolean);const q=(state.contactsSearchQuery||'').toLowerCase().trim();const filtered=q?mc.filter(p=>(p.display_name||'').toLowerCase().includes(q)||(p.username||'').toLowerCase().includes(q)||(p.phone||'').includes(q)||(p.email||'').toLowerCase().includes(q)):mc;let h=`<div class="row between" style="margin-bottom:8px"><h2 style="font-size:20px;font-weight:800;letter-spacing:-.4px">${t('contacts')} <span class="muted small" style="font-weight:400">(${mc.length})</span></h2><button class="btn small primary" data-act="search-friends">🔍 ${t('searchFriends')}</button></div>`;h+=`<input id="contacts-search" placeholder="${t('searchContacts')}" value="${esc(state.contactsSearchQuery)}" data-act="contacts-search-input" style="margin-bottom:8px">`;if(!filtered.length)h+=`<div class="empty">${q?t('noResults'):t('noContacts')}</div>`;h+='<div class="list">';for(const p of filtered){const ls=fLastSeen(p);h+=`<div class="item" data-act="open-contact-chat" data-id="${p.id}">${aHtml(p)}<div class="grow"><b style="font-size:15px">${esc(p.display_name||p.username)}</b><div class="muted small" style="margin-top:2px">${ls||('@'+esc(p.username))}</div></div><button class="icon" data-act="rm-contact" data-id="${p.id}">✕</button></div>`}return h+'</div>'}
+function renderContactsTab(){const mc=state.contacts.map(c=>state.profiles[c.contact_id]).filter(Boolean);const q=(state.contactsSearchQuery||'').toLowerCase().trim();const filtered=q?mc.filter(p=>(p.display_name||'').toLowerCase().includes(q)||(p.username||'').toLowerCase().includes(q)||(p.phone||'').includes(q)||(p.email||'').toLowerCase().includes(q)):mc;let h=`<div class="row between" style="margin-bottom:8px"><h2 style="font-size:20px;font-weight:800;letter-spacing:-.4px">${t('contacts')} <span class="muted small" style="font-weight:400">(${mc.length})</span></h2><button class="btn small primary" data-act="search-friends">🔍 ${t('searchFriends')}</button></div>`;h+=`<input id="contacts-search" placeholder="${t('searchContacts')}" value="${esc(state.contactsSearchQuery)}" data-act="contacts-search-input" style="margin-bottom:8px">`;if(!filtered.length)h+=`<div class="empty">${q?t('noResults'):t('noContacts')}</div>`;h+='<div class="list">';for(const p of filtered){const ls=fLastSeen(p);const ringClass=storyRing(p.id);const avaHtml=ringClass?`<span data-act="open-user-stories" data-id="${p.id}" style="cursor:pointer;display:inline-flex">${aHtml(p,ringClass)}</span>`:aHtml(p);h+=`<div class="item" data-act="open-contact-chat" data-id="${p.id}">${avaHtml}<div class="grow"><b style="font-size:15px">${esc(p.display_name||p.username)}</b><div class="muted small" style="margin-top:2px">${ls||('@'+esc(p.username))}</div></div><button class="icon" data-act="rm-contact" data-id="${p.id}">✕</button></div>`}return h+'</div>'}
 function renderSearchModal(){return `<div class="overlay"><div class="card modal"><div class="row between"><b>${t('searchFriends')}</b><button class="icon" data-act="close-modal">✕</button></div><input id="search-input" placeholder="${t('searchEmpty')}" value="${esc(state.searchQuery||'')}" data-act="search-input" autofocus><div id="search-results">${renderSearchResults()}</div></div></div>`}
 function renderSearchResults(){const r=state.searchResults;if(r===null||r===undefined)return `<div class="empty">${t('searchEmpty')}</div>`;if(!r.length)return `<div class="empty">${t('noResults')}</div>`;return '<div class="list">'+r.map(p=>`<div class="item" data-act="open-contact-chat" data-id="${p.id}">${aHtml(p)}<div class="grow"><b>${esc(p.display_name||p.username)}</b><div class="muted small">@${esc(p.username)}${p.phone?' · '+esc(p.phone):''}</div></div>${isContact(p.id)?'':`<button class="btn small success" data-act="add-contact" data-id="${p.id}">${t('add')}</button>`}</div>`).join('')+'</div>'}
 function renderAI(){return `<div class="overlay"><div class="card modal" style="max-width:600px"><div class="row between"><b>🤖 AI</b><button class="icon" data-act="close-ai">✕</button></div><div class="ai-chat"><div class="ai-messages" id="ai-messages">${state.aiMessages.length===0?`<div class="empty">${esc(t('aiGreeting')).replace(/\n/g,'<br>')}</div>`:''}${state.aiMessages.map(m=>`<div class="ai-msg ${m.role}">${m.image?`<img src="${m.image}">`:''}${esc(m.content||'').replace(/\n/g,'<br>')}</div>`).join('')}${state.aiLoading?`<div class="ai-msg assistant"><span class="muted">${t('aiThinking')}</span></div>`:''}</div><div class="ai-composer"><button class="icon" data-act="ai-image">🎨</button><button class="icon" data-act="ai-clear">🧹</button><input id="ai-input" placeholder="${t('aiPlaceholder')}"><button class="btn primary" data-act="ai-send" style="padding:10px 16px">➤</button></div></div></div></div>`}
@@ -943,7 +1077,41 @@ function renderImgModal(){return `<div class="overlay"><div class="card modal"><
 function renderBlocked(){const bl=state.blocks.map(b=>state.profiles[b.blocked_id]).filter(Boolean);return `<div class="overlay"><div class="card modal"><div class="row between"><b>${t('blocked')} (${bl.length})</b><button class="icon" data-act="close-blocked">✕</button></div>${bl.length?bl.map(p=>`<div class="member-row">${aHtml(p,'sm')}<div class="grow"><b>${esc(p.display_name||p.username)}</b></div><button class="btn small ghost" data-act="unblock" data-id="${p.id}">${t('unblock')}</button></div>`).join(''):`<div class="empty">${t('noUsers')}</div>`}</div></div>`}
 function renderEmojiPicker(){return `<div class="overlay" data-act="close-emoji-bg"><div class="card modal" style="max-width:400px" onclick="event.stopPropagation()"><div class="row between"><b>😀</b><button class="icon" data-act="close-emoji">✕</button></div><div class="emoji-grid">${ALL_EMOJI.map(em=>`<button class="chip" style="padding:4px;font-size:22px" data-act="insert-emoji" data-v="${em}">${em}</button>`).join('')}</div></div></div>`}
 function renderSearchMsgs(){if(state.searchMsgs===null)return '';const q=(state.searchMsgsQuery||'').toLowerCase();const res=q?state.messages.filter(m=>m.content&&m.content.toLowerCase().includes(q)):state.messages;return `<div class="overlay"><div class="card modal"><div class="row between"><b>🔍 ${t('searchMsgs')}</b><button class="icon" data-act="close-msg-search">✕</button></div><input id="msg-search-input" placeholder="${t('search')}" value="${esc(state.searchMsgsQuery)}" data-act="msg-search-input" autofocus><div class="list" style="max-height:50vh;overflow:auto">${res.length?res.map(m=>`<div class="item" data-act="jump-to-msg" data-id="${m.id}"><div class="grow"><b>${esc(state.profiles[m.sender_id]?.display_name||'?')}</b><div class="muted small">${esc((m.content||'').slice(0,100))}</div><div class="small">${tm(m.created_at)}</div></div></div>`).join(''):`<div class="empty">${t('noResults')}</div>`}</div></div></div>`}
-function renderMsgBody(m){let o='';if(m.reply_to_id){const parent=state.messages.find(x=>x.id===m.reply_to_id);if(parent){const psnd=state.profiles[parent.sender_id];o+=`<div class="reply-quote" data-act="scroll-to" data-id="${parent.id}"><div class="reply-name">${esc(psnd?.display_name||'?')}</div><div class="reply-text">${esc((parent.content||'📎').slice(0,80))}</div></div>`}}const u=m.media_url||'';const n=m.media_name||'file';const s=m.media_size?fSize(m.media_size):'';if(u&&m.media_type==='image')o+=`<img class="msg-image" src="${u}" data-act="open-lb" data-src="${u}">`;else if(u&&m.media_type==='audio')o+=`<audio controls preload="metadata" src="${u}"></audio>`;else if(u&&m.media_type==='video')o+=`<video controls preload="metadata" src="${u}"></video>`;else if(u&&m.media_type==='file')o+=`<a class="file-link" href="${u}" target="_blank" download="${esc(n)}"><span class="file-icon">📎</span><span class="file-info"><span class="file-name">${esc(n)}</span><span class="file-size">${s}</span></span></a>`;if(m.content)o+=`<div>${linkify(m.content)}${m.edited_at?'<span class="edited-mark">(изм.)</span>':''}</div>`;else if(m.edited_at)o+=`<span class="edited-mark">(изм.)</span>`;return o}
+function renderMsgBody(m){
+let o='';
+let textContent = m.content || '';
+const storyMatch = textContent.match(/^\[\[story:([a-f0-9-]+):([a-f0-9-]+)\]\]/i);
+if(storyMatch){
+const sid=storyMatch[1], ownerId=storyMatch[2];
+textContent = textContent.slice(storyMatch[0].length);
+const st = state.stories.find(x=>x.id===sid);
+const owner = state.profiles[ownerId];
+const isVid = st && /\.(mp4|webm|mov|ogv)(\?|$)/i.test(st.media_url||'');
+const preview = st && st.media_url
+? (isVid
+? `<video src="${st.media_url}" muted playsinline style="width:40px;height:52px;object-fit:cover;border-radius:6px;flex:none;background:#000"></video>`
+: `<img src="${st.media_url}" style="width:40px;height:52px;object-fit:cover;border-radius:6px;flex:none">`)
+: `<div style="width:40px;height:52px;background:${st?.background_color||'var(--accent)'};border-radius:6px;flex:none"></div>`;
+o+=`<div class="reply-quote" style="display:flex;gap:8px;align-items:center;cursor:pointer" data-act="open-story-from-msg" data-id="${ownerId}" data-sid="${sid}">${preview}<div style="min-width:0;flex:1"><div class="reply-name">✨ ${t('story')}${owner?' · '+esc(owner.display_name||owner.username):''}</div><div class="reply-text">${st?esc((st.content||'').slice(0,60)):t('storyUnavailable')}</div></div></div>`;
+}
+if(m.reply_to_id){
+const parent=state.messages.find(x=>x.id===m.reply_to_id);
+if(parent){
+const psnd=state.profiles[parent.sender_id];
+o+=`<div class="reply-quote" data-act="scroll-to" data-id="${parent.id}"><div class="reply-name">${esc(psnd?.display_name||'?')}</div><div class="reply-text">${esc((parent.content||'📎').slice(0,80))}</div></div>`;
+}
+}
+const u=m.media_url||'';
+const n=m.media_name||'file';
+const s=m.media_size?fSize(m.media_size):'';
+if(u&&m.media_type==='image')o+=`<img class="msg-image" src="${u}" data-act="open-lb" data-src="${u}">`;
+else if(u&&m.media_type==='audio')o+=`<audio controls preload="metadata" src="${u}"></audio>`;
+else if(u&&m.media_type==='video')o+=`<video controls preload="metadata" src="${u}"></video>`;
+else if(u&&m.media_type==='file')o+=`<a class="file-link" href="${u}" target="_blank" download="${esc(n)}"><span class="file-icon">📎</span><span class="file-info"><span class="file-name">${esc(n)}</span><span class="file-size">${s}</span></span></a>`;
+if(textContent)o+=`<div>${linkify(textContent)}${m.edited_at?'<span class="edited-mark">(изм.)</span>':''}</div>`;
+else if(m.edited_at)o+=`<span class="edited-mark">(изм.)</span>`;
+return o;
+}
 function renderChat(){
 const c=state.chat;if(!c)return '';
 const m=state.members[c.id]||[];
@@ -962,23 +1130,115 @@ const replySrc=state.messages.find(m=>m.id===state.replyTo);
 const replyPre=state.replyTo?`<div class="reply-preview"><b>↩️</b><span class="grow" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(replySrc?(replySrc.content||'📎'):'Сообщение удалено')}</span><button class="icon" data-act="cancel-reply">✕</button></div>`:'';
 const comp=state.recording?`<div class="rec-bar"><span>●</span><span class="time" id="rec-time">00:00</span><div class="grow"></div><button class="btn small ghost" data-act="cancel-rec" style="color:#fff;border-color:rgba(255,255,255,.4)">Отмена</button><button class="btn small" data-act="stop-rec" style="background:#fff;color:#ef4444;border-color:#fff">Стоп</button></div>`:`<button class="icon-btn" data-act="emoji-toggle">😀</button><button class="icon-btn" data-act="attach-file">📎</button><input type="file" id="chat-file" accept="*/*" style="display:none"><input id="msg-input" placeholder="${mm?t('mutedByAdmin'):t('typeMessage')}" ${mm?'disabled':''}><button class="icon-btn" data-act="start-rec" ${mm?'disabled':''}>🎤</button><button
  class="btn primary" data-act="send" ${mm?'disabled':''} style="padding:12px 18px">➤</button>`;
-  const ab=c.is_group?`<span data-act="open-gs" style="cursor:pointer">${aHtml(av,'sm')}</span>`:`<span data-act="view-prof" data-id="${o?.user_id||''}" style="cursor:pointer">${aHtml(av,'sm')}</span>`;
-  const sb2=c.is_group?`${m.length} ${t('members').toLowerCase()}`:(op?fLastSeen(op)||('@'+esc(op.username)):'—');
-  const eb=c.is_group&&isAdmin(c.id)?`<button class="icon" data-act="open-gs">⚙️</button>`:'';
-  const badge=state.newMsgsBadge>0?`<span class="badge">${state.newMsgsBadge}</span>`:'';
-  return `<div class="chat-head"><button class="icon" data-act="back">←</button>${ab}<div class="grow"><b style="font-size:15px">${esc(ti)}</b><div class="muted small" style="margin-top:1px">${sb2}</div></div><button class="icon" data-act="msg-search">🔍</button>${eb}${!c.is_group&&o?`<button class="icon" data-act="call" data-id="${o.user_id}">📞</button>`:''}</div>${pinBar}${bn}<div class="messages-wrap"><div class="messages" id="msgs">${msgs.length?msgs.map(m=>{const out=m.sender_id===u.id;const snd=state.profiles[m.sender_id];const r=m.reactions||{};const rH=Object.entries(r).length?`<div class="reactions">${Object.entries(r).map(([e,a])=>`<button class="reaction-chip ${a.includes(u.id)?'mine':''}" data-act="react-msg" data-id="${m.id}" data-v="${e}">${e} ${a.length}</button>`).join('')}</div>`:'';return `<div class="msg-row ${out?'out':'in'}" data-msg-id="${m.id}"><div class="msg ${out?'out':'in'}">${c.is_group&&!out?`<div class="sender-name">${esc(snd?.display_name||'?')}</div>`:''}<div class="bubble">${renderMsgBody(m)}</div>${rH}${msgTs(m)}</div><button class="msg-menu-btn" data-act="msg-menu" data-id="${m.id}">⋯</button></div>`}).join(''):'<div class="empty">👋</div>'}</div><button class="scroll-down-btn ${state.scrollAtBottom?'':'show'}" id="scroll-down-btn" data-act="scroll-down">↓${badge}</button></div><div id="typing-indicator" class="typing-indicator"></div>${mm?`<div class="muted small" style="text-align:center;padding:8px">${t('mutedByAdmin')}</div>`:''}${replyPre}<div class="composer">${comp}</div>`;
+const ringClass=op?storyRing(op.id):'';
+let ab;
+if(c.is_group){
+ab=`<span data-act="open-gs" style="cursor:pointer">${aHtml(av,'sm')}</span>`;
+}else{
+if(ringClass){
+ab=`<span data-act="open-user-stories" data-id="${o?.user_id||''}" style="cursor:pointer">${aHtml(av,'sm '+ringClass)}</span>`;
+}else{
+ab=`<span data-act="view-prof" data-id="${o?.user_id||''}" style="cursor:pointer">${aHtml(av,'sm')}</span>`;
+}
+}
+const sb2=c.is_group?`${m.length} ${t('members').toLowerCase()}`:(op?fLastSeen(op)||('@'+esc(op.username)):'—');
+const eb=c.is_group&&isAdmin(c.id)?`<button class="icon" data-act="open-gs">⚙️</button>`:'';
+const badge=state.newMsgsBadge>0?`<span class="badge">${state.newMsgsBadge}</span>`:'';
+return `<div class="chat-head"><button class="icon" data-act="back">←</button>${ab}<div class="grow"><b style="font-size:15px">${esc(ti)}</b><div class="muted small" style="margin-top:1px">${sb2}</div></div><button class="icon" data-act="msg-search">🔍</button>${eb}${!c.is_group&&o?`<button class="icon" data-act="call" data-id="${o.user_id}">📞</button>`:''}</div>${pinBar}${bn}<div class="messages-wrap"><div class="messages" id="msgs">${msgs.length?msgs.map(m=>{const out=m.sender_id===u.id;const snd=state.profiles[m.sender_id];const r=m.reactions||{};const rH=Object.entries(r).length?`<div class="reactions">${Object.entries(r).map(([e,a])=>`<button class="reaction-chip ${a.includes(u.id)?'mine':''}" data-act="react-msg" data-id="${m.id}" data-v="${e}">${e} ${a.length}</button>`).join('')}</div>`:'';return `<div class="msg-row ${out?'out':'in'}" data-msg-id="${m.id}"><div class="msg ${out?'out':'in'}">${c.is_group&&!out?`<div class="sender-name">${esc(snd?.display_name||'?')}</div>`:''}<div class="bubble">${renderMsgBody(m)}</div>${rH}${msgTs(m)}</div><button class="msg-menu-btn" data-act="msg-menu" data-id="${m.id}">⋯</button></div>`}).join(''):'<div class="empty">👋</div>'}</div><button class="scroll-down-btn ${state.scrollAtBottom?'':'show'}" id="scroll-down-btn" data-act="scroll-down">↓${badge}</button></div><div id="typing-indicator" class="typing-indicator"></div>${mm?`<div class="muted small" style="text-align:center;padding:8px">${t('mutedByAdmin')}</div>`:''}${replyPre}<div class="composer">${comp}</div>`;
 }
 function renderStoriesPage(){
-  const alive=state.stories.filter(s=>{const au=state.profiles[s.user_id];const ttl=au?.story_ttl_hours||24;return Date.now()-new Date(s.created_at).getTime()<ttl*3600*1000}).sort((a,b)=>b.created_at-a.created_at);
-  let h=`<div class="row between" style="margin-bottom:8px"><h2 style="font-size:20px;font-weight:800;letter-spacing:-.4px">${t('storiesTitle')}</h2><div class="row"><button class="btn small primary" data-act="add-story">+ ${t('addStory').replace('+ ','')}</button><button class="btn small ghost" data-act="close-stories">✕</button></div></div>`;
-  if(!alive.length)h+=`<div class="empty">${t('noStories')}</div>`;
-  h+='<div class="stories-row" style="flex-wrap:wrap">';
-  for(const s of alive){
-    const au=state.profiles[s.user_id];if(!au)continue;
-    const bg=s.media_url?`background-image:url(${s.media_url});background-size:cover;background-position:center`:`background:${s.background_color||'#6366f1'}`;
-    h+=`<div class="story" data-act="view-story" data-id="${s.id}" style="${bg};min-width:120px;height:200px;flex:1">${aHtml(au,'xs','background:rgba(0,0,0,.35);')}<div><div>${esc(au.display_name)}</div><div class="small" style="opacity:.8">${tm(s.created_at)}</div></div></div>`;
-  }
-  return h+'</div>';
+const byUser={};
+for(const s of state.stories){
+const au=state.profiles[s.user_id];
+if(!au)continue;
+const ttl=au.story_ttl_hours||24;
+if(Date.now()-new Date(s.created_at).getTime()>=ttl*3600*1000)continue;
+if(!byUser[s.user_id])byUser[s.user_id]=[];
+byUser[s.user_id].push(s);
+}
+const users=Object.keys(byUser).map(id=>state.profiles[id]).filter(Boolean);
+users.sort((a,b)=>{
+const aUnv=hasUnviewedStories(a.id)?0:1;
+const bUnv=hasUnviewedStories(b.id)?0:1;
+if(aUnv!==bUnv)return aUnv-bUnv;
+const aLast=Math.max(...byUser[a.id].map(s=>new Date(s.created_at).getTime()));
+const bLast=Math.max(...byUser[b.id].map(s=>new Date(s.created_at).getTime()));
+return bLast-aLast;
+});
+let h=`<div class="overlay" data-act="close-stories-bg"><div class="card modal" style="max-width:520px">
+<div class="row between"><b>✨ ${t('storiesTitle')}</b><button class="icon" data-act="close-stories">✕</button></div>
+<button class="btn primary wide" data-act="add-story">+ ${t('addStory').replace('+ ','')}</button>`;
+if(!users.length){
+h+=`<div class="empty">${t('noStories')}</div>`;
+}else{
+h+=`<div class="stories-grid">`;
+for(const u of users){
+const ring=hasUnviewedStories(u.id)?'story-ring-unviewed':'story-ring-viewed';
+const isMe=u.id===state.user.id;
+h+=`<div class="story-user" data-act="open-user-stories" data-id="${u.id}">
+<div class="ava ${ring}" style="${aStyle(u)};width:64px;height:64px;font-size:26px;border-radius:20px">${u.avatar_url?'':esc(u.display_name?.[0]?.toUpperCase()||'?')}</div>
+<div class="name">${esc(isMe?t('you'):(u.display_name||u.username))}</div>
+</div>`;
+}
+h+=`</div>`;
+}
+h+=`</div></div>`;
+return h;
+}
+function renderStoryPlayer(){
+const p=state.storyPlayer;
+if(!p)return '';
+const s=p.stories[p.index];
+if(!s)return '';
+const au=state.profiles[s.user_id];
+const isMine=s.user_id===state.user.id;
+const isVideo=/\.(mp4|webm|mov|ogv)(\?|$)/i.test(s.media_url||'');
+const bars=p.stories.map((st,i)=>{
+let fill=0;
+if(i<p.index)fill=100;
+else if(i===p.index)fill=p.progress;
+return `<div style="flex:1;height:3px;background:rgba(255,255,255,.25);border-radius:2px;overflow:hidden"><div class="story-progress-fill" style="height:100%;background:#fff;width:${fill}%;transition:width .05s linear;border-radius:2px"></div></div>`;
+}).join('');
+const media=s.media_url
+?(isVideo
+?`<video id="story-video-player" src="${s.media_url}" playsinline autoplay style="max-width:100%;max-height:100%;border-radius:16px"></video>`
+:`<img src="${s.media_url}" style="max-width:100%;max-height:100%;object-fit:contain;border-radius:16px">`)
+:'';
+return `<div class="story-full" style="background:#000">
+<div id="story-progress-bars" style="position:absolute;top:0;left:0;right:0;padding:14px;display:flex;gap:4px;z-index:10">${bars}</div>
+<div style="position:absolute;top:40px;left:14px;right:14px;display:flex;align-items:center;gap:10px;z-index:10">
+${aHtml(au,'xs')}
+<b style="font-size:14px">${esc(au?.display_name||'?')}</b>
+<div class="small" style="opacity:.7">${tm(s.created_at)}</div>
+<div class="grow"></div>
+${isMine?`<button class="icon" data-act="story-viewers" data-id="${s.id}" style="color:#fff;font-size:13px;gap:2px">👁 ${(state.storyViewers[s.id]||[]).length}</button><button class="icon" data-act="del-story-player" data-id="${s.id}" style="color:#fff">🗑️</button>`:''}
+<button class="icon" data-act="close-story-player" style="color:#fff">✕</button>
+</div>
+<div style="position:absolute;inset:80px 20px 130px;display:flex;align-items:center;justify-content:center">
+${media}
+</div>
+${s.content?`<div style="position:absolute;bottom:110px;left:30px;right:30px;text-align:center;text-shadow:0 2px 8px rgba(0,0,0,.9);font-size:18px;color:#fff;font-weight:600">${esc(s.content)}</div>`:''}
+<div style="position:absolute;bottom:20px;left:0;right:0;padding:0 20px;z-index:10">
+${!isMine?`<div class="chips" style="justify-content:center;gap:10px">
+${EMOJI.map(e=>`<button class="reaction-chip" data-act="react-story" data-id="${s.id}" data-v="${e}" style="background:rgba(255,255,255,.15);border:none;color:#fff;font-size:18px;padding:8px 12px">${e}</button>`).join('')}
+<button class="reaction-chip" data-act="reply-story" data-id="${s.id}" style="background:rgba(255,255,255,.15);border:none;color:#fff;font-size:16px;padding:8px 14px">💬</button>
+</div>`:''}
+</div>
+<div data-act="story-prev" style="position:absolute;top:80px;bottom:120px;left:0;width:40%;z-index:5;cursor:pointer"></div>
+<div data-act="story-next" style="position:absolute;top:80px;bottom:120px;right:0;width:40%;z-index:5;cursor:pointer"></div>
+</div>`;
+}
+function renderStoryViewers(){
+const sid=state.storyViewersModal;
+if(!sid) return '';
+const viewers = state.storyViewers[sid] || [];
+const list = viewers.map(v=>state.profiles[v.viewer_id]).filter(Boolean);
+return `<div class="overlay" data-act="close-story-viewers-bg">
+<div class="card modal" style="max-width:360px">
+<div class="row between"><b>👁 ${t('viewedBy')} (${list.length})</b><button class="icon" data-act="close-story-viewers">✕</button></div>
+${list.length?list.map(p=>`<div class="member-row">${aHtml(p,'sm')}<div class="grow"><b>${esc(p.display_name||p.username)}</b></div></div>`).join(''):`<div class="empty">${t('noViews')}</div>`}
+</div>
+</div>`;
 }
 function renderProfile(){
   const u=state.profile;
@@ -1064,8 +1324,16 @@ function renderCreate(){const contactIds=state.contacts.map(c=>c.contact_id);con
 function renderMembers(){const c=state.chat;if(!c)return '';const m=state.members[c.id]||[];const ad=isAdmin(c.id);const cr=isCreator(c.id);return `<div class="overlay"><div class="card modal"><div class="row between"><b>${t('members')} (${m.length})</b><button class="icon" data-act="close-modal">✕</button></div>${m.map(x=>{const p=state.profiles[x.user_id];const im=x.user_id===state.user.id;return `<div class="member-row"><span data-act="view-prof" data-id="${x.user_id}" style="cursor:pointer">${aHtml(p,'sm')}</span><div class="grow"><b>${esc(p?.display_name||'?')}${im?' (вы)':''}</b><div class="row"><span class="badge ${x.role==='admin'?'admin':''}">${x.role}</span>${x.muted?'<span class="badge muted">🔇</span>':''}</div></div>${ad&&!im?`<div class="member-actions">${x.role==='admin'?`<button class="btn small ghost" data-act="demote" data-id="${x.user_id}">−</button>`:`<button class="btn small ghost" data-act="promote" data-id="${x.user_id}">+</button>`}${x.muted?`<button class="btn small ghost" data-act="unmute" data-id="${x.user_id}">🔊</button>`:`<button class="btn small danger" data-act="mute" data-id="${x.user_id}">🔇</button>`}${!cr||x.user_id!==c.created_by?`<button class="btn small danger" data-act="kick" data-id="${x.user_id}">✕</button>`:''}</div>`:''}</div>`}).join('')}${c.is_group?`<button class="btn danger wide" data-act="leave-group">${t('leaveGroup')}</button>`:''}</div></div>`}
 function renderGroupSet(){const cid=state.groupSettings;const c=state.chats.find(x=>x.id===cid);if(!c)return '';const ad=isAdmin(cid);const cr=isCreator(cid);return `<div class="overlay"><div class="card modal"><div class="row between"><b>⚙️ ${t('settingsGroup')}</b><button class="icon" data-act="close-gs">✕</button></div><div class="row" style="justify-content:center">${aHtml({avatar_url:c.avatar_url,display_name:c.name,accent_color:'#f59e0b'},'big')}</div>${ad?`<button class="btn ghost" data-act="pick-gav">${t('groupAvatar')}</button><input type="file" id="group-avatar-file" accept="image/*" style="display:none">`:''}<div class="lbl">${t('groupName')}</div><input id="gs-name" value="${esc(c.name||'')}" ${ad?'':'disabled'}><div class="lbl">${t('groupDesc')}</div><textarea id="gs-desc" rows="2" style="resize:none" ${ad?'':'disabled'}>${esc(c.description||'')}</textarea>${ad?`<button class="btn primary wide" data-act="save-gs">${t('save')}</button>`:''}<button class="btn ghost wide" data-act="view-members">${t('members')} (${(state.members[cid]||[]).length})</button><button class="btn danger wide" data-act="leave-group">${t('leaveGroup')}</button>${cr?`<button class="btn danger wide" data-act="delete-group" data-id="${cid}">🗑️ ${t('deleteGroup')}</button>`:''}</div></div>`}
 function renderProfileView(){const u=state.profiles[state.viewProfile];if(!u)return '';const mc=state.chats.filter(c=>(state.members[c.id]||[]).some(m=>m.user_id===u.id));const me=u.id===state.user.id;return `<div class="overlay"><div class="card modal"><div class="row between"><b>${t('profileView')}</b><button class="icon" data-act="close-pv">✕</button></div><div class="row" style="align-items:flex-start">${aHtml(u,'big')}<div class="grow"><h2 style="margin:0 0 4px;font-size:20px">${esc(u.display_name||u.username)}</h2><div class="muted small">@${esc(u.username)}</div><div class="muted small" style="margin-top:4px">${fLastSeen(u)}</div>${u.bio?`<div style="margin-top:8px">${esc(u.bio)}</div>`:`<div class="muted small" style="margin-top:8px">${t('bio')}</div>`}</div></div><div class="lbl">${t('commonChats')} (${mc.length})</div><div class="list">${mc.length?mc.map(c=>{const m=state.members[c.id]||[];const o=m.find(x=>x.user_id!==state.user.id);const op=o?state.profiles[o.user_id]:null;const ti=c.is_group?c.name:(op?.display_name||'Чат');const av=c.is_group?{display_name:c.name,accent_color:'#f59e0b'}:(op||{});return `<div class="item" data-act="pv-chat" data-id="${c.id}">${aHtml(av,'xs')}<div class="grow"><b>${esc(ti)}</b></div></div>`}).join(''):`<div class="empty">${t('noCommon')}</div>`}</div>${!me?`<div class="row" style="gap:8px;flex-wrap:wrap"><button class="btn primary grow" data-act="dm-pv" data-id="${u.id}">${t('write')}</button>${isContact(u.id)?`<button class="btn ghost" data-act="rm-contact-pv" data-id="${u.id}">${t('contactRemove')}</button>`:`<button class="btn success" data-act="add-contact-pv" data-id="${u.id}">${t('contactAdd')}</button>`}${isBlocked(u.id)?`<button class="btn ghost" data-act="unblock-pv" data-id="${u.id}">${t('unblock')}</button>`:`<button class="btn danger" data-act="block-pv" data-id="${u.id}">${t('block')}</button>`}</div>`:''}</div></div>`}
-function renderStoryComp(){let pr='';if(state.storyMedia)pr=`<div style="position:relative"><img class="preview-media" src="${state.storyMedia}"><button class="btn small danger" data-act="rm-story-media" style="position:absolute;top:6px;right:6px">✕</button></div>`;return `<div class="overlay"><div class="card modal"><div class="row between"><b>${t('newStory')}</b><button class="icon" data-act="close-modal">✕</button></div>${pr}<textarea id="story-text" rows="3" placeholder="${t('caption')}" style="resize:none"></textarea><button class="btn ghost" data-act="pick-story-media">${t('photo')}</button><input type="file" id="story-file" accept="image/*" style="display:none"><button class="btn primary wide" data-act="publish-story">${t('publish')}</button></div></div>`}
-function renderStoryView(){const s=state.stories.find(x=>x.id===state.viewStory);if(!s)return '';const au=state.profiles[s.user_id];const r=s.reactions||{};const isMine=s.user_id===state.user.id;const media=s.media_url?`<img src="${s.media_url}" style="max-width:88vw;max-height:50vh;object-fit:contain;border-radius:16px">`:'';const bg=s.media_url?'background:#0b0c10':`background:${s.background_color||'#6366f1'}`;const rH=Object.entries(r).length?Object.entries(r).map(([e,a])=>`<span class="reaction-chip" style="color:#fff;background:rgba(255,255,255,.2);border:none">${e} ${a.length}</span>`).join(' '):'';return `<div class="story-full" style="${bg}" data-act="close-story"><div class="row">${aHtml(au,'xs','background:rgba(0,0,0,.35);')}<b>${esc(au?.display_name||'')}</b><div class="grow"></div><div class="small">${tm(s.created_at)}</div>${isMine?`<button class="icon" data-act="del-story" data-id="${s.id}" style="color:#fff">🗑️</button>`:''}</div><div style="display:flex;flex-direction:column;gap:14px;align-items:center;justify-content:center;flex:1">${media}${s.content?`<div style="text-align:center">${esc(s.content)}</div>`:''}${rH?`<div style="text-align:center">${rH}</div>`:''}</div><div style="display:flex;flex-direction:column;gap:10px;align-items:center"><div class="chips" style="justify-content:center">${EMOJI.map(e=>{const c=(r[e]||[]).length;const mine=(r[e]||[]).includes(state.user.id);return `<button class="reaction-chip ${mine?'mine':''}" data-act="react-story" data-id="${s.id}" data-v="${e}" style="font-size:16px;padding:6px 10px;background:rgba(255,255,255,.2);border:none;color:#fff">${e}${c?' '+c:''}</button>`}).join('')}</div><button class="btn small" data-act="reply-story" data-id="${s.id}" style="background:rgba(255,255,255,.2);border:none;color:#fff">💬 ${t('reply')}</button><div class="small" style="opacity:.7">tap</div></div></div>`}
+function renderStoryComp(){
+let pr='';
+if(state.storyMedia){
+const isVid = state.storyMediaType === 'video';
+pr = isVid
+? `<div style="position:relative"><video class="preview-media" src="${state.storyMedia}" controls muted playsinline></video><button class="btn small danger" data-act="rm-story-media" style="position:absolute;top:6px;right:6px">✕</button></div>`
+: `<div style="position:relative"><img class="preview-media" src="${state.storyMedia}"><button class="btn small danger" data-act="rm-story-media" style="position:absolute;top:6px;right:6px">✕</button></div>`;
+}
+return `<div class="overlay"><div class="card modal"><div class="row between"><b>${t('newStory')}</b><button class="icon" data-act="close-modal">✕</button></div>${pr}<textarea id="story-text" rows="3" placeholder="${t('caption')}" style="resize:none"></textarea><button class="btn ghost" data-act="pick-story-media">${t('photo')} / 🎬</button><input type="file" id="story-file" accept="image/*,video/*" style="display:none"><button class="btn primary wide" data-act="publish-story">${t('publish')}</button></div></div>`;
+}
 function renderMsgMenu(){const m=state.messages.find(x=>x.id===state.msgMenu);if(!m)return '';const mine=m.sender_id===state.user.id;return `<div class="overlay"><div class="card modal"><div class="row between"><b>${t('reaction')}</b><button class="icon" data-act="close-mm">✕</button></div><div class="chips" style="font-size:22px">${EMOJI.map(e=>`<button class="chip" data-act="react-msg" data-id="${m.id}" data-v="${e}">${e}</button>`).join('')}</div><button class="btn ghost wide" data-act="reply-msg" data-id="${m.id}">↩️ ${t('reply')}</button>${m.pinned?`<button class="btn ghost wide" data-act="unpin-msg" data-id="${m.id}">${t('unpinMsg')}</button>`:`<button class="btn ghost wide" data-act="pin-msg" data-id="${m.id}">${t('pinMsg')}</button>`}${mine&&m.content?`<button class="btn ghost wide" data-act="edit-msg" data-id="${m.id}">✏️ ${t('edit')}</button>`:''}${mine?`<button class="btn danger wide" data-act="del-msg" data-id="${m.id}">🗑️ ${t('del')}</button>`:''}</div></div>`}
 function renderCall(){
   const o=state.profiles[state.call.outbound?state.call.callee_id:state.call.caller_id];
@@ -1189,18 +1457,30 @@ case 'allow-notif':{if('Notification' in window){try{const p=await Notification.
 case 'callback':await startCall(id);break;
 case 'tab':
   state.tab=el.dataset.tab;state.chatId=null;state.chat=null;state.settingsSection=null;state.showStories=false;
+  if(state.storyPlayer){stopStoryTimer();state.storyPlayer=null;}
+  state.storyViewersModal=null;
   if(state.tab==='calls'){setCallsSeenAt(new Date().toISOString());state.missedCalls=[];}
   render();
   break;
 case 'open-stories':state.showStories=true;state.tab='chats';render();break;
 case 'close-stories':state.showStories=false;render();break;
+case 'close-stories-bg':if(e.target.closest('.card'))return;state.showStories=false;render();break;
+case 'open-user-stories':if(id&&getUserStoriesWithMine(id).length){openUserStories(id)}break;
+case 'open-story-from-msg':{const sid=el.dataset.sid;if(id){const sts=getUserStoriesWithMine(id);if(sts.length){openUserStories(id,sid)}else{toast(t('storyUnavailable'))}}break}
+case 'story-prev':prevStory();break;
+case 'story-next':nextStory();break;
+case 'close-story-player':closeStoryPlayer();break;
+case 'del-story-player':await deleteStoryPlayer(id);break;
+case 'story-viewers':state.storyViewersModal=id;render();break;
+case 'close-story-viewers':state.storyViewersModal=null;render();break;
+case 'close-story-viewers-bg':if(e.target.closest('.card'))return;state.storyViewersModal=null;render();break;
 case 'open-chat':await openChat(id);break;
 case 'back':state.chatId=null;state.chat=null;if(msgChannel){sb.removeChannel(msgChannel);msgChannel=null}if(typingChannel){sb.removeChannel(typingChannel);typingChannel=null}if(state.recording)stopRec(false);await loadUnread();render();break;
 case 'send':sendMsg();break;
 case 'new-chat':state.modal='pick';state.pickMode='chat';state.searchQuery='';render();break;
 case 'new-group':state.createGroup=true;state.groupName='';state.groupMembers=[];render();break;
 case 'pick-user':if(state.pickMode==='call')await startCall(id);else{const cid=await startDM(id);if(cid)await openChat(cid)}break;
-case 'close-modal':state.modal=null;state.createGroup=false;state.viewMembers=false;state.storyCompose=false;state.storyMedia=null;state.searchResults=null;state.searchQuery='';render();break;
+case 'close-modal':state.modal=null;state.createGroup=false;state.viewMembers=false;state.storyCompose=false;state.storyMedia=null;state.storyMediaFile=null;state.storyMediaType='image';state.searchResults=null;state.searchQuery='';render();break;
 case 'toggle-member':if(state.groupMembers.includes(id))state.groupMembers=state.groupMembers.filter(x=>x!==id);else state.groupMembers.push(id);break;
 case 'create-group-btn':{const n=document.getElementById('g-name').value.trim();if(!n||!state.groupMembers.length){toast('Выберите участников');return}el.disabled=true;const cid=await createGroup(n,state.groupMembers);el.disabled=false;if(cid){state.createGroup=false;await openChat(cid)}break}
 case 'view-members':state.viewMembers=true;state.groupSettings=null;render();break;
@@ -1229,15 +1509,34 @@ case 'scroll-down':{const m=document.getElementById('msgs');if(m){m.scrollTop=m.
 case 'msg-search':state.searchMsgs=[];state.searchMsgsQuery='';render();setTimeout(()=>document.getElementById('msg-search-input')?.focus(),100);break;
 case 'close-msg-search':state.searchMsgs=null;render();break;
 case 'jump-to-msg':{state.searchMsgs=null;render();setTimeout(()=>{const m=document.querySelector(`[data-msg-id="${id}"]`);if(m){m.scrollIntoView({behavior:'smooth',block:'center'});m.style.outline='2px solid var(--accent)';setTimeout(()=>m.style.outline='',2000)}},100);break}
-case 'add-story':state.storyCompose=true;state.storyMedia=null;render();break;
+case 'add-story':state.storyCompose=true;state.storyMedia=null;state.storyMediaFile=null;state.storyMediaType='image';render();break;
 case 'pick-story-media':document.getElementById('story-file')?.click();break;
-case 'rm-story-media':state.storyMedia=null;render();break;
-case 'publish-story':{const x=document.getElementById('story-text').value.trim();if(!x&&!state.storyMedia)return;let mu=null;if(state.storyMedia){try{const b=d2b(state.storyMedia);const p=`stories/${state.user.id}/${uid()}.jpg`;const u=await upMedia(p,b,'image/jpeg');mu=u}catch(err){toast(err.message);return}}await sb.from('stories').insert({user_id:state.user.id,content:x,media_url:mu,background_color:state.storyBg});state.storyCompose=false;state.storyMedia=null;await loadStories();state.showStories=true;state.tab='chats';render();break}
-case 'view-story':state.viewStory=id;render();break;
-case 'close-story':if(e.target.closest('img,button,audio,video'))return;state.viewStory=null;render();break;
+case 'rm-story-media':if(state.storyMedia&&state.storyMediaType==='video'&&state.storyMedia.startsWith('blob:')){try{URL.revokeObjectURL(state.storyMedia)}catch(e){}}state.storyMedia=null;state.storyMediaFile=null;state.storyMediaType='image';render();break;
+case 'publish-story':{
+  const x=document.getElementById('story-text').value.trim();
+  if(!x&&!state.storyMedia)return;
+  let mu=null;
+  if(state.storyMedia){
+    try{
+      if(state.storyMediaType==='video' && state.storyMediaFile){
+        const f=state.storyMediaFile;
+        const ext=(f.name.split('.').pop()||'mp4').toLowerCase().replace(/[^a-z0-9]/g,'');
+        const p=`stories/${state.user.id}/${uid()}.${ext||'mp4'}`;
+        mu = await upMedia(p, f, f.type||'video/mp4');
+      }else if(state.storyMediaType==='image'){
+        const b=d2b(state.storyMedia);
+        const p=`stories/${state.user.id}/${uid()}.jpg`;
+        mu = await upMedia(p, b, 'image/jpeg');
+      }
+    }catch(err){toast(err.message);return}
+  }
+  await sb.from('stories').insert({user_id:state.user.id,content:x,media_url:mu,background_color:state.storyBg});
+  state.storyCompose=false;state.storyMedia=null;state.storyMediaFile=null;state.storyMediaType='image';
+  await loadStories();
+  state.showStories=true;state.tab='chats';render();break
+}
 case 'react-story':await reactStory(id,v);break;
 case 'reply-story':await replyStory(id);break;
-case 'del-story':await deleteStory(id);break;
 case 'pick-av':document.getElementById('avatar-file')?.click();break;
 case 'set-accent':await sb.from('profiles').update({accent_color:v}).eq('id',state.user.id);await loadProf();render();break;
 case 'save-prof':{const n=document.getElementById('p-name').value.trim();const b=document.getElementById('p-bio').value.trim();const ph=document.getElementById('p-phone')?.value.trim()||'';const np=ph?nPhone(ph):null;if(ph&&!np){toast('Неверный номер');return}const upd={display_name:n,bio:b};if(np)upd.phone=np;const {error}=await sb.from('profiles').update(upd).eq('id',state.user.id);if(error){toast(error.message);return}await loadProf();render();break}
@@ -1309,7 +1608,7 @@ case 'cancel-2fa':state.pending2FA=null;render();break;
 document.addEventListener('change',async e=>{
 if(e.target.id==='avatar-file'){const f=e.target.files[0];if(!f)return;try{const d=await rImg(f,300,0.85);const b=d2b(d);const p=`avatars/${state.user.id}.jpg`;const u=await upMedia(p,b,'image/jpeg');await sb.from('profiles').update({avatar_url:u+'?t='+Date.now()}).eq('id',state.user.id);await loadProf();render()}catch(err){toast(err.message)}e.target.value=''}
 if(e.target.id==='group-avatar-file'){const f=e.target.files[0];if(!f||!state.groupSettings)return;try{const d=await rImg(f,300,0.85);const b=d2b(d);const p=`groups/${state.groupSettings}.jpg`;const u=await upMedia(p,b,'image/jpeg');await sb.from('chats').update({avatar_url:u+'?t='+Date.now()}).eq('id',state.groupSettings);await refresh();render()}catch(err){toast(err.message)}e.target.value=''}
-if(e.target.id==='story-file'){const f=e.target.files[0];if(!f)return;try{state.storyMedia=await rImg(f,800,0.75);render()}catch(err){toast(err.message)}e.target.value=''}
+if(e.target.id==='story-file'){const f=e.target.files[0];if(!f)return;try{if(f.type.startsWith('video/')){if(f.size>MAX){toast('Видео больше '+fSize(MAX));e.target.value='';return}state.storyMediaFile=f;state.storyMedia=URL.createObjectURL(f);state.storyMediaType='video';render()}else{state.storyMediaFile=null;state.storyMedia=await rImg(f,800,0.75);state.storyMediaType='image';render()}}catch(err){toast(err.message)}e.target.value=''}
 if(e.target.id==='chat-file'){const f=e.target.files[0];if(!f)return;await sendFile(f);e.target.value=''}
 if(e.target.dataset.act==='set-priv-ls'){await sb.from('profiles').update({privacy_last_seen:e.target.value}).eq('id',state.user.id);await loadProf();render()}
 if(e.target.dataset.act==='set-priv-msg'){await sb.from('profiles').update({privacy_messages:e.target.value}).eq('id',state.user.id);await loadProf();render()}
@@ -1328,61 +1627,10 @@ if(e.key==='Enter'&&e.target.id==='msg-input'){e.preventDefault();sendMsg()}
 if(e.key==='Enter'&&e.target.id==='ai-input'){e.preventDefault();sendAI()}
 if(e.key==='Enter'&&e.target.id==='twofa-code'){e.preventDefault();document.querySelector('[data-act="verify-2fa"]')?.click()}
 });
-window.addEventListener('beforeunload',()=>{if(state.recording){try{state.mediaRecorder?.stop()}catch(e){}cleanRec()}if(sigPollTimer)clearInterval(sigPollTimer);if(heartbeatTimer)clearInterval(heartbeatTimer);if(refreshInterval)clearInterval(refreshInterval);if(callPollTimer)clearInterval(callPollTimer)});
+window.addEventListener('beforeunload',()=>{if(state.recording){try{state.mediaRecorder?.stop()}catch(e){}cleanRec()}stopStoryTimer();if(sigPollTimer)clearInterval(sigPollTimer);if(heartbeatTimer)clearInterval(heartbeatTimer);if(refreshInterval)clearInterval(refreshInterval);if(callPollTimer)clearInterval(callPollTimer)});
 sb.auth.onAuthStateChange(async(ev,ss)=>{if(ev==='SIGNED_OUT'){const w=!!state.user;state.user=null;state.profile=null;if(w)render()}if(ev==='TOKEN_REFRESHED'&&ss?.user)state.user=ss.user;if(ev==='SIGNED_IN'&&ss?.user&&!state.user)state.user=ss.user});
 if('serviceWorker' in navigator){navigator.serviceWorker.register('service-worker.js').then(reg=>console.log('SW OK',reg.scope)).catch(err=>console.warn('SW fail',err))}
 (async()=>{try{await loadSess();if(state.user)await loadProf();if(state.user&&state.profile)await boot();else render()}catch(e){console.error('BOOT',e);fatal('Ошибка',String(e.message||e),'F12 → Console')}})();
-// --- Детектор VPN по несовпадению часовых поясов ---
-async function detectVPN() {
-  const browserTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  if (!browserTimezone) return; // Если браузер не сообщает часовой пояс, выходим
-
-  try {
-    // Запрашиваем данные по IP. ipapi.co не требует ключа и поддерживает CORS[reference:1]
-    const response = await fetch('https://ipapi.co/json/');
-    if (!response.ok) return; // Если сервис недоступен, тихо игнорируем
-
-    const data = await response.json();
-    const ipTimezone = data.timezone;
-
-    // Если часовые пояса есть и они не совпадают — показываем баннер
-    if (ipTimezone && ipTimezone !== browserTimezone) {
-      showVPNBanner(browserTimezone, ipTimezone);
-    }
-  } catch (error) {
-    // При любой сетевой ошибке (VPN, блокировка, недоступность API) просто молчим
-    console.warn('VPN detection check failed:', error);
-  }
-}
-
-function showVPNBanner(browserTz, ipTz) {
-  // Чтобы не показывать баннер повторно, проверяем, есть ли он уже на странице
-  if (document.getElementById('vpn-banner')) return;
-
-  const banner = document.createElement('div');
-  banner.id = 'vpn-banner';
-  // Стили для баннера: фиксирован вверху, заметный, но не перекрывает контент
-  banner.style.cssText = `
-    position: fixed; top: 0; left: 0; right: 0; z-index: 10000;
-    background: #f59e0b; color: #000; padding: 12px 20px;
-    text-align: center; font-size: 14px; font-weight: 600;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-    display: flex; align-items: center; justify-content: center; gap: 10px;
-  `;
-  banner.innerHTML = `
-    <span>🌐</span>
-    <span>Похоже, вы используете VPN. Для стабильной работы звонков и сообщений рекомендуется его отключить.</span>
-    <button onclick="this.parentElement.remove()" style="
-      background: none; border: 1px solid #000; border-radius: 8px;
-      padding: 4px 10px; cursor: pointer; font-weight: 600; margin-left: 10px;
-    ">OK</button>
-  `;
-  document.body.appendChild(banner);
-}
-
-// Запускаем проверку после полной загрузки страницы, чтобы не мешать основному приложению
-window.addEventListener('load', detectVPN);
-// --- Конец детектора VPN ---
 })();
 </script>
 </body>
