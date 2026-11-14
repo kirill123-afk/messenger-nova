@@ -648,8 +648,10 @@ try{
 makingOffer=true;
 await pc.setLocalDescription();
 await sendSig('offer',{sdp:pc.localDescription.toJSON()});
-}catch(e){console.warn('negotiation',e)}
-finally{makingOffer=false}
+}catch(e){
+console.warn('[WebRTC] negotiation failed',e);
+try{await pc.setLocalDescription({type:'rollback'})}catch(e2){}
+}finally{makingOffer=false}
 };
 pc.ontrack=e=>{
 if(e.track.kind==='audio'){
@@ -682,26 +684,42 @@ for(const s of ps){await procSig(s)}
 }
 })();
 }
-function subSigs(cid){if(sigChannel)sb.removeChannel(sigChannel);sigChannel=sb.channel('sig_'+cid).on('postgres_changes',{event:'INSERT',schema:'public',table:'call_signals',filter:`call_id=eq.${cid}`},p=>{if(p.new.sender_id===state.user.id)return;if(processed.has(p.new.id))return;processed.add(p.new.id);procSig(p.new)}).subscribe()}
-function startSigPoll(cid){if(sigPollTimer)clearInterval(sigPollTimer);sigPollTimer=setInterval(async()=>{if(!state.call||state.call.id!==cid)return;try{const {data}=await sb.from('call_signals').select('*').eq('call_id',cid).order('created_at');for(const s of data||[]){if(processed.has(s.id))continue;if(s.sender_id===state.user.id)continue;processed.add(s.id);await procSig(s)}}catch(e){}},900)}
+function subSigs(cid){if(sigChannel)sb.removeChannel(sigChannel);sigChannel=sb.channel('sig_'+cid).on('postgres_changes',{event:'INSERT',schema:'public',table:'call_signals',filter:`call_id=eq.${cid}`},async p=>{if(p.new.sender_id===state.user.id)return;if(processed.has(p.new.id))return;const ok=await procSig(p.new);if(ok)processed.add(p.new.id)}).subscribe()}
+function startSigPoll(cid){if(sigPollTimer)clearInterval(sigPollTimer);sigPollTimer=setInterval(async()=>{if(!state.call||state.call.id!==cid)return;try{const {data}=await sb.from('call_signals').select('*').eq('call_id',cid).order('created_at');for(const s of data||[]){if(processed.has(s.id))continue;if(s.sender_id===state.user.id)continue;const ok=await procSig(s);if(ok)processed.add(s.id)}}catch(e){}},900)}
 async function sendSig(type,payload){if(!state.call)return;await sb.from('call_signals').insert({call_id:state.call.id,sender_id:state.user.id,type,payload})}
 async function procSig(s){
-if(!pc){pendingSignals.push(s);return}
+if(!pc){pendingSignals.push(s);return false}
 try{
 if(s.type==='offer'){
 const polite=!state.call?.outbound;
 const offerCollision=makingOffer||pc.signalingState!=='stable';
 ignoreOffer=!polite&&offerCollision;
-if(ignoreOffer)return;
+if(ignoreOffer){
+console.log('[WebRTC] ignore colliding offer (impolite)');
+return true;
+}
+if(offerCollision&&polite){
+console.log('[WebRTC] rollback (polite)');
+try{await pc.setLocalDescription({type:'rollback'})}catch(e){
+console.warn('[WebRTC] rollback failed',e);
+return false;
+}
+}
 await pc.setRemoteDescription(new RTCSessionDescription(s.payload.sdp));
 await pc.setLocalDescription();
 await sendSig('answer',{sdp:pc.localDescription.toJSON()});
+return true;
 }else if(s.type==='answer'){
-if(pc.signalingState==='have-local-offer')await pc.setRemoteDescription(new RTCSessionDescription(s.payload.sdp));
+if(pc.signalingState==='have-local-offer'){
+await pc.setRemoteDescription(new RTCSessionDescription(s.payload.sdp));
+}
+return true;
 }else if(s.type==='ice'){
 try{await pc.addIceCandidate(new RTCIceCandidate(s.payload.candidate))}catch(e){if(!ignoreOffer)console.warn('ice',e)}
+return true;
 }
-}catch(e){console.warn('sig',e)}
+return true;
+}catch(e){console.warn('[WebRTC] sig error',e);return false}
 }
 async function updVS(){
 const tr=screenTrack||cameraTrack;
