@@ -39,7 +39,7 @@ input:focus,textarea:focus,select:focus{border-color:var(--accent)}
 .ava.xs{width:26px;height:26px;font-size:14px;border-radius:9px}
 .ava.huge{width:110px;height:110px;font-size:54px;border-radius:36px}
 .ava-online::after{content:'';position:absolute;bottom:-1px;right:-1px;width:11px;height:11px;background:var(--online);border:2px solid var(--card);border-radius:50%}
-.content{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px}
+.content{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;min-height:0;-webkit-overflow-scrolling:touch;touch-action:pan-y}
 .content.chat{padding:0;gap:0}
 .tabs{display:flex;border-top:1px solid var(--line);background:var(--card)}
 .tab{flex:1;padding:8px 2px;font-size:10px;color:var(--muted);position:relative}
@@ -156,6 +156,8 @@ input:focus,textarea:focus,select:focus{border-color:var(--accent)}
 .call-item.missed{background:rgba(239,68,68,.08);border-color:rgba(239,68,68,.3)}
 .call-icon{font-size:18px;color:var(--accent)}
 .call-icon.missed{color:#ef4444}
+.settings-header{display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none;touch-action:manipulation;padding:14px 18px;font-weight:600}
+.settings-body{padding:0 18px 18px;display:flex;flex-direction:column;gap:10px}
 @keyframes spin{to{transform:rotate(360deg)}}
 </style>
 </head>
@@ -813,29 +815,45 @@ async function replyStory(sid){const s=state.stories.find(x=>x.id===sid);if(!s)r
 async function deleteStory(sid){if(!confirm(t('storyDeleteConfirm')))return;await sb.from('stories').delete().eq('id',sid).eq('user_id',state.user.id);state.viewStory=null;await loadStories();render()}
 
 function render(){
-document.documentElement.style.setProperty('--accent',state.profile?.accent_color||'#6366f1');
-document.body.classList.toggle('light',state.profile?.theme==='light');
-const app=document.getElementById('app');
-if(!state.user){app.innerHTML=renderAuth();return}
-if(!state.profile){app.innerHTML=renderProfLoad();return}
-const mi=document.getElementById('msg-input');const mv=mi?mi.value:null;
-const saveIds=['a-login','a-user','a-name','a-pass','twofa-code','search-input','pick-search','msg-search-input','contacts-search','p-name','p-bio','p-phone'];
-const saved={};let focusId=null;
-saveIds.forEach(fid=>{const el=document.getElementById(fid);if(el){saved[fid]=el.value;if(document.activeElement===el)focusId=fid}});
-app.innerHTML=renderApp();
-const nm=document.getElementById('msg-input');if(nm&&mv!==null){nm.value=mv;if(document.activeElement===mi)nm.focus()}
-saveIds.forEach(fid=>{const el=document.getElementById(fid);if(el&&saved[fid]!==undefined)el.value=saved[fid]});
-if(focusId){const el=document.getElementById(focusId);if(el)el.focus()}
-const m=document.getElementById('msgs');if(m)m.scrollTop=m.scrollHeight;
-attLocal();attachRemote();
-updateTypingIndicator();
-if(state.call&&state.call.activeAt&&!callTimer){callTimer=setInterval(()=>{
-  document.querySelectorAll('#call-timer').forEach(el=>{
-    if(!state.call?.activeAt)return;
-    const s=Math.floor((Date.now()-state.call.activeAt)/1000);
-    el.textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
-  });
-},500)}}
+  document.documentElement.style.setProperty('--accent',state.profile?.accent_color||'#6366f1');
+  document.body.classList.toggle('light',state.profile?.theme==='light');
+  const app=document.getElementById('app');
+  if(!state.user){app.innerHTML=renderAuth();return}
+  if(!state.profile){app.innerHTML=renderProfLoad();return}
+
+  const oldContent=document.querySelector('.content');
+  const savedScroll=oldContent?oldContent.scrollTop:0;
+  const mi=document.getElementById('msg-input');const mv=mi?mi.value:null;
+  const saveIds=['a-login','a-user','a-name','a-pass','twofa-code','search-input','pick-search','msg-search-input','contacts-search','p-name','p-bio','p-phone'];
+  const saved={};let focusId=null;
+  saveIds.forEach(fid=>{const el=document.getElementById(fid);if(el){saved[fid]=el.value;if(document.activeElement===el)focusId=fid}});
+
+  app.innerHTML=renderApp();
+
+  const nm=document.getElementById('msg-input');if(nm&&mv!==null){nm.value=mv;if(document.activeElement===mi)nm.focus()}
+  saveIds.forEach(fid=>{const el=document.getElementById(fid);if(el&&saved[fid]!==undefined)el.value=saved[fid]});
+  if(focusId){const el=document.getElementById(focusId);if(el)el.focus()}
+
+  const newContent=document.querySelector('.content');
+  if(newContent){
+    if(state.chatId){
+      const m=document.getElementById('msgs');
+      if(m)m.scrollTop=m.scrollHeight;
+    }else{
+      newContent.scrollTop=savedScroll;
+    }
+  }
+
+  attLocal();attachRemote();
+  updateTypingIndicator();
+  if(state.call&&state.call.activeAt&&!callTimer){callTimer=setInterval(()=>{
+    document.querySelectorAll('#call-timer').forEach(el=>{
+      if(!state.call?.activeAt)return;
+      const s=Math.floor((Date.now()-state.call.activeAt)/1000);
+      el.textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+    });
+  },500)}
+}
 function renderProfLoad(){return `<div class="boot"><div class="ring"></div><div class="msg">Загрузка профиля…</div><div class="hint" style="max-width:340px;line-height:1.6">Если висит долго — проверьте, что Confirm email отключён в Supabase.</div><button class="btn primary" data-act="retry-prof" style="margin-top:14px">Повторить</button><button class="btn ghost" data-act="force-logout" style="margin-top:8px">← Назад</button></div>`}
 function renderAuth(){if(state.pending2FA)return `<div class="auth-wrap"><div class="auth-card"><div class="logo">🔐 2FA</div><div class="muted small">${t('twofaHint')}: <b>${esc(state.pending2FA.email)}</b></div><input id="twofa-code" placeholder="${t('twofaCode')}" maxlength="6" style="text-align:center;font-size:22px;letter-spacing:6px"><button class="btn primary" data-act="verify-2fa">${t('verify')}</button><button class="btn ghost" data-act="cancel-2fa">${t('back')}</button><div class="err">${esc(state.authErr)}</div></div></div>`;const reg=state.authMode==='register';return `<div class="auth-wrap"><div class="auth-card"><div class="logo">◈ Nova</div><div class="muted small">${reg?t('createAcc'):t('login')}</div>${reg?`<input id="a-user" placeholder="${t('username')}"><input id="a-name" placeholder="${t('displayName')}">`:''}<input id="a-login" placeholder="${t('email')}"><input id="a-pass" type="password" placeholder="${t('password')}"><button class="btn primary" data-act="do-auth">${reg?t('register'):t('login')}</button><button class="btn ghost" data-act="toggle-auth">${reg?t('haveAcc'):t('createAcc')}</button><div class="err">${esc(state.authErr)}</div></div></div>`}
 function renderApp(){const u=state.profile;const tabs=[['chats','💬',t('chats')],['calls','📞',t('calls')],['stories','✨',t('stories')],['contacts','👥',t('contacts')],['profile','⚙️',t('profile')]];const totalUnread=Object.values(state.unreadCounts).reduce((a,b)=>a+b,0);const missedCount=state.missedCalls.length;let ex='';if(state.showAI)ex+=renderAI();if(state.showBlocked)ex+=renderBlocked();if(state.aiModal==='image')ex+=renderImgModal();return `<header class="top">${aHtml(u)}<div class="grow"><b>${esc(u.display_name||u.username)}</b><div class="muted small">@${esc(u.username)}</div></div></header><main class="content ${state.chatId?'chat':''}">${state.chatId?renderChat():renderTab()}</main>${state.chatId?'':`<nav class="tabs">${tabs.map(([k,l,label])=>{let badge='';if(k==='chats'&&totalUnread>0)badge=`<span class="tab-badge">${totalUnread>99?'99+':totalUnread}</span>`;if(k==='calls'&&missedCount>0)badge=`<span class="tab-badge">${missedCount>99?'99+':missedCount}</span>`;return `<button class="tab ${state.tab===k?'on':''}" data-act="tab" data-tab="${k}">${l}<br>${label}${badge}</button>`}).join('')}</nav>`}${state.tab==='chats'&&!state.chatId?`<button class="floating-ai" data-act="open-ai">🤖</button>`:''}${state.modal==='pick'?renderPick():''}${state.modal==='search'?renderSearchModal():''}${state.createGroup?renderCreate():''}${state.viewMembers?renderMembers():''}${state.groupSettings?renderGroupSet():''}${state.storyCompose?renderStoryComp():''}${state.msgMenu?renderMsgMenu():''}${state.viewStory?renderStoryView():''}${state.viewProfile?renderProfileView():''}${state.incoming?renderIncoming():''}${state.call?renderCall():''}${state.lightbox?`<div class="lightbox" data-act="close-lb"><img src="${state.lightbox}"></div>`:''}${state.searchMsgs!==null?renderSearchMsgs():''}${state.showEmoji?renderEmojiPicker():''}${ex}`}
@@ -882,11 +900,11 @@ function renderProfile(){
   const notifState=('Notification' in window)?Notification.permission:'denied';
   const s=state.settingsSection||null;
   const sec=(key,title,body)=>`
-    <div class="card" style="padding:0;overflow:hidden">
-      <button class="btn ghost wide" data-act="settings-toggle" data-v="${key}" style="justify-content:space-between;border-radius:0;padding:14px 18px;text-align:left;background:transparent">
+    <div class="card" style="padding:0">
+      <div class="settings-header" data-act="settings-toggle" data-v="${key}" style="border-radius:20px 20px 0 0">
         <span>${title}</span><span style="color:var(--muted)">${s===key?'▲':'▼'}</span>
-      </button>
-      ${s===key?`<div style="padding:0 18px 18px;display:flex;flex-direction:column;gap:10px">${body}</div>`:''}
+      </div>
+      ${s===key?`<div class="settings-body">${body}</div>`:''}
     </div>`;
   return `<h2>${t('profile')}</h2>
   ${sec('profile',t('secProfile'),`
@@ -984,7 +1002,7 @@ case 'logout':signOut();break;
 case 'delete-account':await deleteAccount();break;
 case 'allow-notif':{if('Notification' in window){try{const p=await Notification.requestPermission();if(p==='granted'){toast('Включены','#10b981');notify('Nova','Уведомления работают','test',true)}else toast('Заблокированы','#ef4444')}catch(e){toast(e.message)}}render();break}
 case 'callback':await startCall(id);break;
-case 'tab':state.tab=el.dataset.tab;state.chatId=null;state.chat=null;render();break;
+case 'tab':state.tab=el.dataset.tab;state.chatId=null;state.chat=null;state.settingsSection=null;render();break;
 case 'open-chat':await openChat(id);break;
 case 'back':state.chatId=null;state.chat=null;if(msgChannel){sb.removeChannel(msgChannel);msgChannel=null}if(typingChannel){sb.removeChannel(typingChannel);typingChannel=null}if(state.recording)stopRec(false);await loadUnread();render();break;
 case 'send':sendMsg();break;
