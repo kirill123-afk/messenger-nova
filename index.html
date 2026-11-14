@@ -21,7 +21,17 @@ body.light{--bg:#f6f7fb;--bg-2:#eef0f6;--card:#fff;--card-2:#f5f6fa;--text:#0f11
 html,body{height:100%}
 body{background:var(--bg);color:var(--text);overflow:hidden;font-size:calc(14px*var(--fs));-webkit-tap-highlight-color:transparent;transition:background .3s ease,color .3s ease}
 body::before{content:'';position:fixed;inset:0;background:radial-gradient(circle at 15% 20%,rgba(99,102,241,.22) 0%,transparent 50%),radial-gradient(circle at 85% 80%,rgba(139,92,246,.18) 0%,transparent 50%),radial-gradient(circle at 50% 100%,rgba(16,185,129,.08) 0%,transparent 60%);pointer-events:none;z-index:0}
-body.light::before{opacity:.6}
+@keyframes aurora-drift{0%,100%{transform:translate(0,0)}50%{transform:translate(1.5%,-1%)}}
+body.light::before{
+  opacity:1;
+  animation:aurora-drift 26s ease-in-out infinite;
+  background:
+    radial-gradient(circle at 12% 15%, rgba(255,182,193,.5) 0%, transparent 45%),
+    radial-gradient(circle at 88% 20%, rgba(196,181,253,.5) 0%, transparent 50%),
+    radial-gradient(circle at 25% 85%, rgba(167,243,208,.45) 0%, transparent 45%),
+    radial-gradient(circle at 90% 88%, rgba(253,230,138,.4) 0%, transparent 50%),
+    radial-gradient(circle at 55% 45%, rgba(191,219,254,.35) 0%, transparent 55%);
+}
 #app{position:relative;z-index:1;height:100dvh;display:flex;flex-direction:column}
 button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
 input,textarea,select{font:inherit;color:inherit;background:var(--bg-2);border:1px solid var(--line);border-radius:14px;padding:12px 14px;width:100%;outline:none;transition:border-color .3s ease,background .3s ease,box-shadow .3s ease}
@@ -278,6 +288,14 @@ body>div[style*="position:fixed"][style*="bottom:90px"]{animation:bounceIn .6s e
 /* Фокус полей */
 input,textarea,select{transition:border-color .3s ease,background .3s ease,box-shadow .3s ease}
 input:focus,textarea:focus,select:focus{box-shadow:0 0 0 5px color-mix(in srgb,var(--accent) 20%,transparent)}
+body.light .top{background:rgba(255,255,255,.82)}
+body.light .tabs{background:rgba(255,255,255,.88)}
+body.light .chat-head{background:rgba(255,255,255,.92)}
+body.light .composer{background:rgba(255,255,255,.92)}
+body.light .overlay{background:rgba(15,17,23,.5)}
+body.light .item:hover{box-shadow:0 8px 20px rgba(0,0,0,.08)}
+body.light .card{box-shadow:0 8px 32px rgba(0,0,0,.08)}
+body.light .bubble{box-shadow:0 1px 3px rgba(0,0,0,.04)}
 </style>
 </head>
 <body>
