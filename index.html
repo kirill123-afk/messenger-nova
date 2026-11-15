@@ -226,6 +226,31 @@ body.chat-closing .content.chat{animation:chatSlideOut .35s cubic-bezier(.4,0,1,
 #snowfall-container>div{position:absolute;top:-30px;color:#fff;text-shadow:0 0 8px rgba(255,255,255,.7);animation:snowfall linear infinite;user-select:none}
 body.light #snowfall-container>div{color:#a5b4fc;text-shadow:0 0 6px rgba(165,180,252,.8)}
 .admin-badge{position:absolute;top:-4px;right:-4px;background:#f59e0b;color:#000;font-size:9px;padding:1px 4px;border-radius:6px;font-weight:700}
+/* === Season effects === */
+@keyframes season-snow{
+0%   { transform: translate(0,-10vh) rotate(0deg); }
+100% { transform: translate(var(--drift,30px),110vh) rotate(360deg); }
+}
+@keyframes season-leaf{
+0%   { transform: translate(0,-10vh) rotate(0deg) scale(1); }
+50%  { transform: translate(calc(var(--drift,90px)*.5),55vh) rotate(180deg) scale(1.06); }
+100% { transform: translate(var(--drift,90px),110vh) rotate(360deg) scale(1); }
+}
+@keyframes season-blossom{
+0%   { transform: translate(0,-10vh) rotate(0deg) scale(.8); opacity:0; }
+15%  { opacity:1; }
+100% { transform: translate(var(--drift,80px),110vh) rotate(240deg) scale(1.1); opacity:0; }
+}
+@keyframes season-sun{
+0%   { transform: translate(0,-10vh) scale(.6); opacity:0; }
+20%  { opacity:.9; }
+100% { transform: translate(var(--drift,40px),110vh) scale(1); opacity:0; }
+}
+@keyframes sun-breathe{
+0%,100%{ opacity:.7; transform:scale(1); }
+50%    { opacity:1;  transform:scale(1.05); }
+}
+#season-container{position:fixed;inset:0;pointer-events:none;z-index:5;overflow:hidden}
 </style>
 </head>
 <body>
@@ -251,7 +276,7 @@ const L={ru:{chats:'Чаты',calls:'Звонки',memory:'Память',contact
 function t(k){return (L[S.lang]||L.ru)[k]||k}
 const EMOJI=['❤️','😂','👍','😮','😢','🔥'];
 const ALL_EMOJI=['😀','😁','😂','🤣','😃','😄','😅','😆','😉','😊','😋','😎','😍','😘','🥰','😗','😙','😚','🙂','🤗','🤩','🤔','🤨','😐','😑','😶','🙄','😏','😣','😥','😮','🤐','😯','😪','😫','🥱','😴','😌','😛','😜','😝','🤤','😒','😓','😔','😕','🙃','🤑','😲','🙁','😖','😞','😟','😤','😢','😭','😦','😧','😨','😩','🤯','😬','😰','😱','🥵','🥶','😳','🤪','😵','🥴','😠','😡','🤬','😷','🤒','🤕','🤢','🤮','🤧','😇','🥳','🥺','🤠','🤡','🤥','🤫','🤭','🧐','🤓','👻','💀','👽','🤖','💩','❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','💔','👍','👎','👌','✌️','🤞','🤟','🤘','🤙','👏','🙌','🤝','💪','🔥','✨','⭐','🌟','💫','💥','💯','🎉','🎊','🎁','🎂'];
-const state={user:null,profile:null,tab:'chats',chatId:null,chat:null,chats:[],messages:[],stories:[],profiles:{},members:{},contacts:[],blocks:[],unreadCounts:{},missedCalls:[],allCalls:[],chatReads:{},typingUsers:{},modal:null,pickMode:'chat',createGroup:false,groupName:'',groupMembers:[],searchQuery:'',searchResults:null,contactsSearchQuery:'',viewMembers:false,storyCompose:false,storyMedia:null,storyMediaFile:null,storyMediaType:'image',storyBg:'#6366f1',storyPlayer:null,storyViewers:{},storyViewersModal:null,incoming:null,call:null,callMinimized:false,muted:false,cameraOn:false,screenOn:false,msgMenu:null,authMode:'login',authErr:'',recording:false,recordStart:0,recordInterval:null,mediaRecorder:null,recordedChunks:[],recordStream:null,lightbox:null,aiMessages:[],aiLoading:false,aiModal:null,viewProfile:null,groupSettings:null,showAI:false,showBlocked:false,pending2FA:null,replyTo:null,searchMsgs:null,searchMsgsQuery:'',showEmoji:false,callReactions:[],settingsSection:null,showStories:false,scrollAtBottom:true,newMsgsBadge:0,stream:null,ownerTransferPending:null,chatMenu:null,snowfall:false,showAdmin:false,adminStats:null,adminUsers:null,appSettings:{}};
+const state={user:null,profile:null,tab:'chats',chatId:null,chat:null,chats:[],messages:[],stories:[],profiles:{},members:{},contacts:[],blocks:[],unreadCounts:{},missedCalls:[],allCalls:[],chatReads:{},typingUsers:{},modal:null,pickMode:'chat',createGroup:false,groupName:'',groupMembers:[],searchQuery:'',searchResults:null,contactsSearchQuery:'',viewMembers:false,storyCompose:false,storyMedia:null,storyMediaFile:null,storyMediaType:'image',storyBg:'#6366f1',storyPlayer:null,storyViewers:{},storyViewersModal:null,incoming:null,call:null,callMinimized:false,muted:false,cameraOn:false,screenOn:false,msgMenu:null,authMode:'login',authErr:'',recording:false,recordStart:0,recordInterval:null,mediaRecorder:null,recordedChunks:[],recordStream:null,lightbox:null,aiMessages:[],aiLoading:false,aiModal:null,viewProfile:null,groupSettings:null,showAI:false,showBlocked:false,pending2FA:null,replyTo:null,searchMsgs:null,searchMsgsQuery:'',showEmoji:false,callReactions:[],settingsSection:null,showStories:false,scrollAtBottom:true,newMsgsBadge:0,stream:null,ownerTransferPending:null,chatMenu:null,snowfall:false,seasonEffect:'auto',showAdmin:false,adminStats:null,adminUsers:null,appSettings:{}};
 function getThemePref(){return state.profile?.theme || S.theme || 'dark'}
 function getEffectiveTheme(){const p=getThemePref();if(p==='system'){return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light'}return p === 'light' ? 'light' : 'dark'}
 function cycleTheme(){const cur=getThemePref();return cur==='dark'?'light':(cur==='light'?'system':'dark')}
@@ -259,7 +284,7 @@ function themeIcon(pref){if(!pref) pref = getThemePref();return pref === 'light'
 function isSuperAdmin(){return state.profile?.username === ADMIN_USERNAME}
 if(window.matchMedia){try{const mq = window.matchMedia('(prefers-color-scheme: dark)');const sysHandler = ()=>{if(getThemePref() === 'system'){document.body.classList.toggle('light', !mq.matches)}};if(mq.addEventListener) mq.addEventListener('change', sysHandler);else if(mq.addListener) mq.addListener(sysHandler)}catch(e){}}
 let callTimer=null,ringInterval=null,dialInterval=null,ringTimeout=null,callerTimeout=null,pc=null,cameraTrack=null,screenTrack=null,videoSender=null,remoteStream=null,makingOffer=false,ignoreOffer=false;
-let msgChannel=null,globalMsgChannel=null,callsChannel=null,sigChannel=null,sigPollTimer=null,heartbeatTimer=null,profilesChannel=null,refreshInterval=null,typingChannel=null,typingTimer=null,callReactChannel=null,callsListChannel=null,callPollTimer=null;
+let msgChannel=null,globalMsgChannel=null,callsChannel=null,sigChannel=null,sigPollTimer=null,heartbeatTimer=null,profilesChannel=null,refreshInterval=null,typingChannel=null,typingTimer=null,callReactChannel=null,callsListChannel=null,callPollTimer=null,appSettingsChannel=null;
 let pendingSignals=[],processed=new Set();
 let audioCtx=null;
 function initA(){if(!audioCtx){try{audioCtx=new(window.AudioContext||window.webkitAudioContext)()}catch(e){}}}
@@ -323,7 +348,10 @@ try{if(sigChannel)sb.removeChannel(sigChannel)}catch(e){}
 try{if(typingChannel)sb.removeChannel(typingChannel)}catch(e){}
 try{if(callReactChannel)sb.removeChannel(callReactChannel)}catch(e){}
 try{if(callsListChannel)sb.removeChannel(callsListChannel)}catch(e){}
-msgChannel=null;globalMsgChannel=null;profilesChannel=null;callsChannel=null;sigChannel=null;typingChannel=null;callReactChannel=null;callsListChannel=null;
+try{if(appSettingsChannel)sb.removeChannel(appSettingsChannel)}catch(e){}
+msgChannel=null;globalMsgChannel=null;profilesChannel=null;callsChannel=null;sigChannel=null;typingChannel=null;callReactChannel=null;callsListChannel=null;appSettingsChannel=null;
+document.getElementById('season-container')?.remove();
+document.getElementById('snowfall-container')?.remove();
 if(refreshInterval){clearInterval(refreshInterval);refreshInterval=null}
 if(heartbeatTimer){clearInterval(heartbeatTimer);heartbeatTimer=null}
 if(ringTimeout){clearTimeout(ringTimeout);ringTimeout=null}
@@ -587,13 +615,22 @@ render();
 function subProfiles(){
 if(profilesChannel){sb.removeChannel(profilesChannel);profilesChannel=null}
 profilesChannel=sb.channel('profiles_updates')
+.on('postgres_changes',{event:'INSERT',schema:'public',table:'profiles'},(p)=>{
+if(p.new&&state.showAdmin){state.adminUsers=[p.new,...(state.adminUsers||[])];render()}
+})
 .on('postgres_changes',{event:'UPDATE',schema:'public',table:'profiles'},(p)=>{
 if(p.new&&state.profiles[p.new.id])state.profiles[p.new.id]={...state.profiles[p.new.id],...p.new};
 if(p.new&&state.profile&&p.new.id===state.profile.id)state.profile={...state.profile,...p.new};
+if(p.new&&state.showAdmin){
+const arr=state.adminUsers||[];
+const idx=arr.findIndex(x=>x.id===p.new.id);
+if(idx>=0)arr[idx]={...arr[idx],...p.new};
+else arr.unshift(p.new);
+}
 render();
 })
 .on('postgres_changes',{event:'DELETE',schema:'public',table:'profiles'},(p)=>{
-if(p.old?.id){delete state.profiles[p.old.id];render()}
+if(p.old?.id){delete state.profiles[p.old.id];if(state.showAdmin)state.adminUsers=(state.adminUsers||[]).filter(x=>x.id!==p.old.id);render()}
 })
 .subscribe();
 }
@@ -691,7 +728,7 @@ function setupWebRTC(){
 if(!state.call||pc||!state.stream)return;
 pc=new RTCPeerConnection({iceServers:[{urls:'stun:stun.l.google.com:19302'},{urls:'stun:stun1.l.google.com:19302'}]});
 state.stream.getTracks().forEach(t=>pc.addTrack(t,state.stream));
-if(cameraTrack||screenTrack){const tr=cameraTrack||screenTrack;try{videoSender=pc.addTrack(tr,state.stream)}catch(e){}}
+if(cameraTrack||screenTrack){const tr=cameraTrack||screenTrack;try{videoSender=pc.addTrack(tr,state.stream)}catch(e){}} 
 makingOffer=false;ignoreOffer=false;
 pc.onnegotiationneeded=async()=>{try{makingOffer=true;await pc.setLocalDescription();await sendSig('offer',{sdp:pc.localDescription.toJSON()})}catch(e){try{await pc.setLocalDescription({type:'rollback'})}catch(e2){}}finally{makingOffer=false}};
 pc.ontrack=e=>{
@@ -805,7 +842,6 @@ const nw=newEl.value;
 if(!cur||!nw){toast('Заполните оба поля');return}
 if(nw.length<6){toast('Пароль: минимум 6 символов');return}
 try{
-// Проверяем текущий пароль, перелогинившись
 const email=state.user.email;
 const {error:signErr}=await sb.auth.signInWithPassword({email,password:cur});
 if(signErr)throw new Error('Текущий пароль неверен');
@@ -890,6 +926,7 @@ const {data}=await sb.from('app_settings').select('*');
 const m={};(data||[]).forEach(r=>m[r.key]=r.value);
 state.appSettings=m;
 state.snowfall=!!(m.snowfall?.enabled);
+state.seasonEffect=(m.season_effect&&m.season_effect.kind)?m.season_effect.kind:(state.snowfall?'snow':'auto');
 }catch(e){console.warn('app settings',e)}
 }
 async function toggleSnowfall(enabled){
@@ -923,14 +960,102 @@ function removeSnowfall(){
 const c=document.getElementById('snowfall-container');
 if(c)c.remove();
 }
+/* === Season effects (new) === */
+function getAutoSeason(){
+const m=new Date().getMonth();
+if(m===11||m===0||m===1)return 'snow';
+if(m>=2&&m<=4)return 'blossom';
+if(m>=5&&m<=7)return 'sun';
+return 'leaves';
+}
+function effectiveSeason(pref){
+if(!pref||pref==='auto')return getAutoSeason();
+return pref;
+}
+let _activeSeason=null;
+function applySeasonEffect(kind){
+_activeSeason=kind;
+document.getElementById('snowfall-container')?.remove();
+document.getElementById('season-container')?.remove();
+if(localStorage.getItem('nova_effect_optout')==='1')return;
+if(!kind||kind==='none')return;
+const cfg={
+snow:    {emojis:['❄️','❅','❆','✻','✼'],  count:45,size:[8,22], dur:[6,12], drift:100,cls:'snow'},
+leaves:  {emojis:['🍂','🍁','🌿','🍃'],    count:38,size:[16,30],dur:[7,14], drift:160,cls:'leaf'},
+blossom: {emojis:['🌸','🌷','🌼','✿','💮'],count:35,size:[14,26],dur:[8,15], drift:120,cls:'blossom'},
+sun:     {emojis:['✨','🌟','☀️','☼'],    count:22,size:[14,26],dur:[10,18],drift:60, cls:'sun'}
+}[kind];
+if(!cfg)return;
+const c=document.createElement('div');
+c.id='season-container';
+c.style.cssText='position:fixed;inset:0;pointer-events:none;z-index:5;overflow:hidden';
+if(kind==='sun'){
+const ray=document.createElement('div');
+ray.style.cssText='position:absolute;inset:-20%;background:radial-gradient(circle at 80% -10%,rgba(255,220,120,.35),transparent 55%),radial-gradient(circle at 20% 0%,rgba(255,180,80,.18),transparent 45%);animation:sun-breathe 12s ease-in-out infinite;pointer-events:none';
+c.appendChild(ray);
+}
+for(let i=0;i<cfg.count;i++){
+const el=document.createElement('div');
+el.textContent=cfg.emojis[Math.floor(Math.random()*cfg.emojis.length)];
+const size=cfg.size[0]+Math.random()*(cfg.size[1]-cfg.size[0]);
+const dur=cfg.dur[0]+Math.random()*(cfg.dur[1]-cfg.dur[0]);
+const delay=Math.random()*dur;
+const drift=((Math.random()*2-1)*cfg.drift).toFixed(0);
+el.style.cssText=`position:absolute;left:${Math.random()*100}%;top:-40px;font-size:${size}px;opacity:${(0.5+Math.random()*0.5).toFixed(2)};animation:season-${cfg.cls} ${dur}s linear -${delay}s infinite;--drift:${drift}px;filter:drop-shadow(0 0 4px rgba(255,255,255,.25));will-change:transform;`;
+c.appendChild(el);
+}
+document.body.appendChild(c);
+}
+async function setSeasonEffect(kind){
+try{
+const {error}=await sb.from('app_settings').upsert({key:'season_effect',value:{kind},updated_at:new Date().toISOString()},{onConflict:'key'});
+if(error)throw error;
+state.seasonEffect=kind;
+state.appSettings.season_effect={kind};
+applySeasonEffect(effectiveSeason(kind));
+try{
+await sb.from('app_settings').upsert({key:'snowfall',value:{enabled:kind==='snow'},updated_at:new Date().toISOString()},{onConflict:'key'});
+state.snowfall=(kind==='snow');
+}catch(e){}
+toast('Эффект: '+({auto:'Авто',snow:'Снег',leaves:'Листопад',blossom:'Весна',sun:'Солнце',none:'Выкл'}[kind]||kind),'#10b981');
+render();
+}catch(e){toast('Ошибка: '+(e.message||e))}
+}
+function subAppSettings(){
+if(appSettingsChannel){sb.removeChannel(appSettingsChannel);appSettingsChannel=null}
+appSettingsChannel=sb.channel('app_settings_live')
+.on('postgres_changes',{event:'*',schema:'public',table:'app_settings'},(p)=>{
+const row=p.new||p.old;
+if(!row||!row.key)return;
+if(row.key==='season_effect'){
+const kind=row.value?.kind||'auto';
+state.appSettings.season_effect=row.value;
+state.seasonEffect=kind;
+applySeasonEffect(effectiveSeason(kind));
+if(state.showAdmin)render();
+}else if(row.key==='snowfall'){
+state.appSettings.snowfall=row.value;
+state.snowfall=!!row.value?.enabled;
+if(!state.appSettings.season_effect){applySeasonEffect(state.snowfall?'snow':'auto')}
+if(state.showAdmin)render();
+}
+}).subscribe();
+}
 async function loadAdminStats(){
 try{const {data}=await sb.rpc('admin_stats');state.adminStats=data}catch(e){state.adminStats=null}
 }
 async function loadAdminUsers(){
 try{
-const {data}=await sb.from('profiles').select('id,username,display_name,created_at,last_seen,avatar_url,accent_color').order('created_at',{ascending:false}).limit(200);
+const {data,error}=await sb.rpc('admin_list_users');
+if(error){
+console.warn('[admin] RPC admin_list_users:',error.message);
+const {data:d2,error:e2}=await sb.from('profiles').select('id,username,display_name,created_at,last_seen,avatar_url,accent_color').order('created_at',{ascending:false}).limit(200);
+if(e2)console.warn('[admin] fallback select:',e2.message);
+state.adminUsers=d2||[];
+}else{
 state.adminUsers=data||[];
-}catch(e){state.adminUsers=[]}
+}
+}catch(e){console.warn('[admin] loadAdminUsers',e);state.adminUsers=[]}
 }
 function render(){
 document.documentElement.style.setProperty('--accent',state.profile?.accent_color||'#6366f1');
@@ -1149,13 +1274,16 @@ function renderAdminPanel(){
 if(!isSuperAdmin())return '';
 const st = state.adminStats || {};
 const users = state.adminUsers || [];
-const snowOn = !!state.snowfall;
+const curSeason = state.seasonEffect || 'auto';
+const seasons = [['auto','🍂 Авто'],['snow','❄️ Снег'],['blossom','🌸 Весна'],['sun','☀️ Солнце'],['leaves','🍁 Листопад'],['none','🚫 Нет']];
 return `<div class="overlay" data-act="close-admin-bg"><div class="card modal" style="max-width:560px">
 <div class="row between"><b>👑 ${t('adminPanel')}</b><button class="icon" data-act="close-admin">✕</button></div>
 <div class="small muted">Только для @${esc(state.profile.username)}</div>
-<div class="lbl">❄️ Сезонные эффекты</div>
-<button class="btn ${snowOn?'success':'ghost'} wide" data-act="toggle-snow">${snowOn?t('snowfallOn')+' — выключить':t('snowfallOff')}</button>
-<div class="small muted" style="text-align:center;margin-top:-6px">Виден всем пользователям Nova</div>
+<div class="lbl">🎨 Сезонный эффект (для всех)</div>
+<div class="chips" style="gap:6px">
+${seasons.map(([k,l])=>`<button class="btn small ${curSeason===k?'primary':'ghost'}" data-act="set-season" data-v="${k}" style="flex:1;min-width:90px">${l}</button>`).join('')}
+</div>
+<div class="small muted" style="text-align:center">Меняется у всех в реальном времени. «Авто» — по сезону.</div>
 <div class="lbl">📊 Статистика</div>
 <div class="row" style="gap:8px;flex-wrap:wrap">
 <div class="memory-box" style="flex:1;min-width:100px;flex-direction:column;align-items:flex-start"><span class="small muted">Пользователей</span><span class="memory-val">${st.users ?? '—'}</span></div>
@@ -1183,9 +1311,10 @@ let cacheSize='0 Б';
 try{let total=0;for(const k of Object.keys(localStorage)){total+=(localStorage.getItem(k)||'').length*2}cacheSize=fSize(total)}catch(e){}
 const msgCount=state.messages.length;
 const stCount=state.stories.length;
+const effectOptout=localStorage.getItem('nova_effect_optout')==='1';
 return `<div class="profile-hero"><div class="avatar-wrap" data-act="pick-av"><div class="ava big" style="${aStyle(u)}">${u.avatar_url?'':esc(u.display_name?.[0]?.toUpperCase()||'?')}</div><div class="avatar-badge">📷</div></div><input type="file" id="avatar-file" accept="image/*" style="display:none"><div><div class="profile-hero-name">${esc(u.display_name||u.username)}</div><div class="profile-hero-username">@${esc(u.username)}</div></div>${u.bio?`<div class="profile-hero-bio">${esc(u.bio)}</div>`:''}<div class="small muted">${fLastSeen(u)}</div></div>
 ${sec('✏️', 'Имя и телефон', `<input id="p-name" value="${esc(u.display_name||'')}" placeholder="${t('displayName')}"><input id="p-bio" value="${esc(u.bio||'')}" placeholder="${t('bio')}"><input id="p-phone" value="${esc(u.phone||'')}" placeholder="+7 ..."><button class="btn primary wide" data-act="save-prof">${t('saveProfile')}</button>`)}
-${sec('🎨', 'Внешний вид', `<button class="btn ghost wide" data-act="toggle-theme">${u.theme==='light'?'☀️ Светлая тема':(u.theme==='system'?'🌓 Системная тема':'🌙 Тёмная тема')}</button>${u.theme==='system'?`<div class="small muted" style="text-align:center;margin-top:-6px">Следует за системой: ${getEffectiveTheme()==='dark'?'🌙 тёмная':'☀️ светлая'}</div>`:''}<div class="lbl">${t('accent')}</div><div class="chips">${ac.map(c=>`<button class="dot ${u.accent_color===c?'on':''}" style="background:${c};color:${c}" data-act="set-accent" data-v="${c}"></button>`).join('')}</div><div class="lbl">${t('lang')}</div><div class="chips">${lg.map(([k,l])=>`<button class="btn small ${S.lang===k?'primary':'ghost'}" data-act="set-lang" data-v="${k}">${l}</button>`).join('')}</div><div class="lbl">Размер шрифта</div><div class="row" style="gap:8px"><button class="btn ghost grow" data-act="fs-minus">A −</button><button class="btn ghost grow" data-act="fs-plus">A +</button></div>`)}
+${sec('🎨', 'Внешний вид', `<button class="btn ghost wide" data-act="toggle-theme">${u.theme==='light'?'☀️ Светлая тема':(u.theme==='system'?'🌓 Системная тема':'🌙 Тёмная тема')}</button>${u.theme==='system'?`<div class="small muted" style="text-align:center;margin-top:-6px">Следует за системой: ${getEffectiveTheme()==='dark'?'🌙 тёмная':'☀️ светлая'}</div>`:''}<div class="lbl">${t('accent')}</div><div class="chips">${ac.map(c=>`<button class="dot ${u.accent_color===c?'on':''}" style="background:${c};color:${c}" data-act="set-accent" data-v="${c}"></button>`).join('')}</div><div class="lbl">${t('lang')}</div><div class="chips">${lg.map(([k,l])=>`<button class="btn small ${S.lang===k?'primary':'ghost'}" data-act="set-lang" data-v="${k}">${l}</button>`).join('')}</div><div class="lbl">Размер шрифта</div><div class="row" style="gap:8px"><button class="btn ghost grow" data-act="fs-minus">A −</button><button class="btn ghost grow" data-act="fs-plus">A +</button></div><div class="lbl">Сезонные эффекты</div><div class="chips"><button class="btn small ${!effectOptout?'primary':'ghost'}" data-act="effect-optout" data-v="0">Показывать</button><button class="btn small ${effectOptout?'primary':'ghost'}" data-act="effect-optout" data-v="1">Отключить</button></div>`)}
 ${sec('🔒', 'Приватность', `<div class="lbl">${t('lastSeenPrivacy')}</div><select data-act="set-priv-ls">${['everyone','contacts','nobody'].map(v=>`<option value="${v}" ${(u.privacy_last_seen||'everyone')===v?'selected':''}>${t(v)}</option>`).join('')}</select><div class="lbl">${t('messagesPrivacy')}</div><select data-act="set-priv-msg">${['everyone','contacts','nobody'].map(v=>`<option value="${v}" ${(u.privacy_messages||'everyone')===v?'selected':''}>${t(v)}</option>`).join('')}</select><div class="lbl">${t('groupsPrivacy')}</div><select data-act="set-priv-groups">${['everyone','contacts','nobody'].map(v=>`<option value="${v}" ${(u.privacy_groups||'everyone')===v?'selected':''}>${t(v)}</option>`).join('')}</select><div class="lbl">${t('storyTtl')}</div><select data-act="set-ttl">${[1,6,12,24,48,72].map(h=>`<option value="${h}" ${(u.story_ttl_hours||24)===h?'selected':''}>${h} ${t('hours')}</option>`).join('')}</select>`)}
 ${sec('🔔', 'Уведомления', `${notifState==='granted'?`<div class="small" style="color:var(--online)">✓ ${t('notifOn')}</div>`:notifState==='denied'?`<div class="small" style="color:#ef4444">${t('notifBlocked')}</div>`:`<button class="btn primary wide" data-act="allow-notif">${t('allowNotif')}</button>`}<button class="btn ghost wide" data-act="toggle-sounds">${S.sounds?t('soundsOn'):t('soundsOff')}</button><button class="btn ghost wide" data-act="toggle-notif">${S.notifications?t('notifOn'):t('notifOff')}</button>`)}
 ${sec('🔐', 'Безопасность (2FA)', `<button class="btn ghost wide" data-act="${u.twofa_enabled?'disable-2fa':'enable-2fa'}">${u.twofa_enabled?t('twofaOn'):t('twofaOff')}</button>`)}
@@ -1275,7 +1404,8 @@ async function boot(){
 await loadProf();if(!state.profile){render();return}
 if(state.profile.theme){S.theme=state.profile.theme;saveS()}
 await loadAppSettings();
-if(state.snowfall) renderSnowfall(); else removeSnowfall();
+applySeasonEffect(effectiveSeason(state.seasonEffect));
+subAppSettings();
 await loadChats();await loadStories();await loadAll();await loadContacts();await loadBlocks();
 await loadUnread();await loadMissedCalls();await loadAllCalls();
 await checkMissedCalls();
@@ -1330,7 +1460,19 @@ break;
 }
 case 'close-admin':state.showAdmin=false;render();break;
 case 'close-admin-bg':if(e.target.closest('.card'))return;state.showAdmin=false;render();break;
-case 'toggle-snow':await toggleSnowfall(!state.snowfall);render();break;
+case 'toggle-snow':await setSeasonEffect(state.snowfall?'auto':'snow');break;
+case 'set-season':await setSeasonEffect(v);break;
+case 'effect-optout':{
+localStorage.setItem('nova_effect_optout',v);
+if(v==='1'){
+document.getElementById('season-container')?.remove();
+document.getElementById('snowfall-container')?.remove();
+}else{
+applySeasonEffect(effectiveSeason(state.seasonEffect));
+}
+render();
+break;
+}
 case 'admin-refresh':await Promise.all([loadAdminStats(),loadAdminUsers()]);render();break;
 case 'admin-reset-pass':await adminResetPassword(id,el.dataset.name);break;
 case 'admin-del-msg':{
