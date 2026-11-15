@@ -650,7 +650,8 @@ container.appendChild(el);
 document.body.appendChild(container);
 const title=document.querySelector('.top-title');
 const orig=title?title.textContent:'';
-const messages=['🎉 Nova!','✨ Магия!','🚀 Поехали!','◈ Пасхалка!','👋 Привет, Кирилл!','🎊 Ура!','💜 Nova любит тебя','🌟 Ты нашёл секрет!'];
+const userName = state.profile?.display_name || state.profile?.username || 'друг';
+const messages=['🎉 Nova!','✨ Магия!','🚀 Поехали!','◈ Пасхалка!',`👋 Привет, ${userName}!`,'🎊 Ура!','💜 Nova любит тебя','🌟 Ты нашёл секрет!'];
 if(title)title.textContent=messages[Math.floor(Math.random()*messages.length)];
 setTimeout(()=>{
 if(title)title.textContent=orig;
@@ -1056,7 +1057,23 @@ async function setMuted(cid,uid2,m){const {error}=await sb.rpc('set_member_muted
 async function leaveGroup(cid){if(!confirm('Выйти из группы?'))return;const {error}=await sb.rpc('leave_chat',{target_chat:cid});if(error){toast(error.message);return}state.chatId=null;state.chat=null;state.groupSettings=null;await refresh();render()}
 async function kickMember(cid,uid2){const p=state.profiles[uid2];if(!confirm(`Исключить ${p?.display_name||p?.username||'участника'}?`))return;const {error}=await sb.rpc('kick_member',{target_chat:cid,target_user:uid2});if(error){toast(error.message);return}await refresh();render()}
 async function deleteGroup(cid){if(!confirm('⚠️ УДАЛИТЬ ГРУППУ? Нельзя отменить.'))return;if(!confirm('Вы ТОЧНО уверены?'))return;const {error}=await sb.rpc('delete_group',{target_chat:cid});if(error){toast(error.message);return}state.chatId=null;state.chat=null;state.groupSettings=null;await refresh();render()}
-async function deleteAccount(){if(!confirm('⚠️ УДАЛИТЬ АККАУНТ? Все данные будут удалены.'))return;if(!confirm('Вы ТОЧНО уверены?'))return;try{await sb.from('contacts').delete().eq('user_id',state.user.id);await sb.from('contacts').delete().eq('contact_id',state.user.id);await sb.from('blocks').delete().eq('user_id',state.user.id);await sb.from('blocks').delete().eq('blocked_id',state.user.id);await sb.from('story_reactions').delete().eq('user_id',state.user.id);await sb.from('story_replies').delete().eq('user_id',state.user.id);await sb.from('messages').delete().eq('sender_id',state.user.id);await sb.from('stories').delete().eq('user_id',state.user.id);await sb.from('chat_members').delete().eq('user_id',state.user.id);await sb.from('profiles').delete().eq('id',state.user.id);await sb.auth.signOut();toast('Удалён','#10b981');setTimeout(()=>location.reload(),1500)}catch(e){toast(e.message)}}
+
+/* ============ DELETE ACCOUNT (RPC) ============ */
+async function deleteAccount(){
+  if(!confirm('⚠️ УДАЛИТЬ АККАУНТ? Все данные будут удалены безвозвратно.'))return;
+  if(!confirm('Вы ТОЧНО уверены? Это действие нельзя отменить.'))return;
+  try{
+    const { error } = await sb.rpc('delete_user');
+    if(error) throw error;
+    try { await sb.auth.signOut(); } catch(e) {}
+    toast('Аккаунт удалён','#10b981');
+    setTimeout(()=>location.reload(), 1500);
+  }catch(e){
+    toast('Ошибка удаления: ' + (e.message||e));
+  }
+}
+/* ============ END DELETE ACCOUNT ============ */
+
 function isAdmin(cid){const m=(state.members[cid]||[]).find(x=>x.user_id===state.user.id);return m?.role==='admin'}
 function isCreator(cid){const c=state.chats.find(x=>x.id===cid);return c&&c.created_by===state.user.id}
 function isContact(uid2){return state.contacts.some(c=>c.contact_id===uid2)}
