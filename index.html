@@ -949,7 +949,7 @@ avaHtml=`<span data-act="open-user-stories" data-id="${op.id}" style="cursor:poi
 }else{
 avaHtml=aHtml(av);
 }
-h+=`<div class="item ${unread>0?'unread':''} ${isPinned?'pinned':''}" data-act="open-chat" data-id="${c.id}">${avaHtml}<div class="grow"><b style="font-size:15px">${isPinned?'📌 ':''}${esc(ti)}</b><div class="muted small" style="margin-top:2px">${c.is_group?`${m.length} ${t('members').toLowerCase()}`:(isDeleted?t('deletedAccount'):(ls||'@'+esc(op?.username||'—')))}</div></div>${unread>0?`<span class="item-badge">${unread>99?'99+':unread}</span>`:''}<button class="chat-more" data-act="chat-menu" data-id="${c.id}" onclick="event.stopPropagation()">⋯</button></div>`;
+h+=`<div class="item ${unread>0?'unread':''} ${isPinned?'pinned':''}" data-act="open-chat" data-id="${c.id}">${avaHtml}<div class="grow"><b style="font-size:15px">${isPinned?'📌 ':''}${esc(ti)}</b><div class="muted small" style="margin-top:2px">${c.is_group?`${m.length} ${t('members').toLowerCase()}`:(isDeleted?t('deletedAccount'):(ls||'@'+esc(op?.username||'—')))}</div></div>${unread>0?`<span class="item-badge">${unread>99?'99+':unread}</span>`:''}<button class="chat-more" data-act="chat-menu" data-id="${c.id}">⋯</button></div>`;
 }
 return h+'</div>';
 }
