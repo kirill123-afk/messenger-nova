@@ -19,15 +19,7 @@ html,body{height:100%}
 body{background:var(--bg);color:var(--text);overflow:hidden;font-size:calc(14px*var(--fs));-webkit-tap-highlight-color:transparent;transition:background .3s ease,color .3s ease}
 @keyframes aurora-drift{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(1.5%,-1%) scale(1.03)}}
 body::before{content:'';position:fixed;inset:0;background:radial-gradient(circle at 15% 20%,rgba(99,102,241,.22) 0%,transparent 50%),radial-gradient(circle at 85% 80%,rgba(139,92,246,.18) 0%,transparent 50%),radial-gradient(circle at 50% 100%,rgba(16,185,129,.08) 0%,transparent 60%);pointer-events:none;z-index:0;animation:aurora-drift 32s ease-in-out infinite;will-change:transform}
-body.light::before{
-  opacity:1;
-  background:
-    radial-gradient(circle at 12% 15%, rgba(255,182,193,.5) 0%, transparent 45%),
-    radial-gradient(circle at 88% 20%, rgba(196,181,253,.5) 0%, transparent 50%),
-    radial-gradient(circle at 25% 85%, rgba(167,243,208,.45) 0%, transparent 45%),
-    radial-gradient(circle at 90% 88%, rgba(253,230,138,.4) 0%, transparent 50%),
-    radial-gradient(circle at 55% 45%, rgba(191,219,254,.35) 0%, transparent 55%);
-}
+body.light::before{opacity:1;background:radial-gradient(circle at 12% 15%,rgba(255,182,193,.5) 0%,transparent 45%),radial-gradient(circle at 88% 20%,rgba(196,181,253,.5) 0%,transparent 50%),radial-gradient(circle at 25% 85%,rgba(167,243,208,.45) 0%,transparent 45%),radial-gradient(circle at 90% 88%,rgba(253,230,138,.4) 0%,transparent 50%),radial-gradient(circle at 55% 45%,rgba(191,219,254,.35) 0%,transparent 55%)}
 #app{position:relative;z-index:1;height:100dvh;display:flex;flex-direction:column}
 button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
 input,textarea,select{font:inherit;color:inherit;background:var(--bg-2);border:1px solid var(--line);border-radius:14px;padding:12px 14px;width:100%;outline:none;transition:border-color .3s ease,background .3s ease,box-shadow .3s ease}
@@ -224,8 +216,6 @@ body.light .card{box-shadow:0 8px 32px rgba(0,0,0,.08)}
 .story-thumb-author{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);overflow:hidden}
 .story-thumb-author span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 @keyframes ee-fall{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}
-
-/* ===== SMOOTH ANIMATIONS ===== */
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes fadeOut{from{opacity:1}to{opacity:0}}
 @keyframes popIn{0%{opacity:0;transform:scale(.85) translateY(20px)}65%{opacity:1;transform:scale(1.03) translateY(-3px)}100%{opacity:1;transform:scale(1) translateY(0)}}
@@ -238,8 +228,6 @@ body.light .card{box-shadow:0 8px 32px rgba(0,0,0,.08)}
 @keyframes bounceIn{0%{opacity:0;transform:scale(.2)}55%{opacity:1;transform:scale(1.12)}75%{transform:scale(.94)}100%{opacity:1;transform:scale(1)}}
 @keyframes chatSlideIn{from{opacity:0;transform:translateX(60px)}to{opacity:1;transform:translateX(0)}}
 @keyframes chatSlideOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(60px)}}
-
-/* ===== ВХОД / ВЫХОД ИЗ ЧАТА ===== */
 body.chat-opening .content.chat .messages{animation:chatSlideIn .45s cubic-bezier(.2,.9,.3,1.1) both}
 body.chat-opening .content.chat .chat-head{animation:slideDownIn .4s ease both}
 body.chat-closing .content.chat{animation:chatSlideOut .35s cubic-bezier(.4,0,1,1) both}
@@ -263,36 +251,16 @@ let S={sounds:true,notifications:true,fontScale:1,lang:'ru',theme:'dark'};
 function loadS(){try{const s=JSON.parse(localStorage.getItem('nova_settings')||'null');if(s)S={...S,...s}}catch(e){}document.documentElement.style.setProperty('--fs',S.fontScale)}
 function saveS(){try{localStorage.setItem('nova_settings',JSON.stringify(S))}catch(e){}document.documentElement.style.setProperty('--fs',S.fontScale)}
 loadS();
-const L={ru:{chats:'Чаты',calls:'Звонки',memory:'Память',contacts:'Контакты',settings:'Настройки',login:'Войти',register:'Зарегистрироваться',createAcc:'Создать аккаунт',haveAcc:'У меня есть аккаунт',email:'Email или телефон',usernameOrEmail:'Логин, email или телефон',password:'Пароль',username:'Логин',displayName:'Имя',online:'в сети',wasOnline:'был(а)',yesterday:'вчера',daysAgo:'дн.назад',members:'Участники',leaveGroup:'Выйти',deleteGroup:'Удалить группу',kick:'Исключить',groupName:'Название',groupDesc:'Описание',groupAvatar:'Аватар группы',save:'Сохранить',newChat:'+ Чат',newGroup:'👥 Группа',create:'Создать',soundsOn:'🔔 Звуки: вкл',soundsOff:'🔕 Звуки: выкл',notifOn:'🔔 Уведомления: вкл',notifOff:'🔕 Уведомления: выкл',lang:'🌐 Язык',privacy:'Приватность',appearance:'Внешний вид',theme:'🎨 Тема',lastSeenPrivacy:'Кто видит «в сети»',messagesPrivacy:'Кто может писать',groupsPrivacy:'Кто может добавлять в группы',everyone:'Все',contacts:'Контакты',nobody:'Никто',aiGreeting:'Привет! Я AI-ассистент.',aiThinking:'AI думает…',aiPlaceholder:'Спросите что угодно...',aiClear:'Очистить',describeImage:'Опишите картинку...',generate:'Сгенерировать',improving:'Улучшаю промпт…',generating:'Генерирую…',download:'Скачать',toChat:'В AI-чат',leaveConfirm:'Выйти?',back:'Назад',close:'Закрыть',noChats:'Пока нет чатов.',commonChats:'Общие чаты',noCommon:'Нет общих чатов',write:'Написать',bio:'О себе...',noUsers:'Нет пользователей',pickMembers:'Выберите из контактов',cache:'Очистить кэш',logout:'Выйти',saveProfile:'Сохранить профиль',accent:'Акцентный цвет',addStory:'+ Добавить',noStories:'Историй нет',newStory:'Новая история',caption:'Подпись...',publish:'Опубликовать',photo:'📷 Фото',edit:'Редактировать',del:'Удалить',reaction:'Реакция',voice:'Голосовое',acceptCall:'Принять',declineCall:'Отклонить',inCall:'входящий звонок…',calling:'звонок…',connected:'✓ Соединено',typeMessage:'Сообщение...',mutedByAdmin:'🔇 Заглушены',addToContacts:'Добавить в контакты?',add:'Добавить',block:'Заблокировать',blocked:'Заблокированные',unblock:'Разблокировать',noContacts:'Нет контактов',search:'Поиск',searchFriends:'Найти',twofa:'2FA',twofaOn:'2FA включена',twofaOff:'2FA выключена',twofaHint:'Введите код из письма',twofaCode:'Код',verify:'Подтвердить',storyTtl:'Время жизни историй',hours:'ч',reply:'Ответить',storyDeleteConfirm:'Удалить историю?',youBlocked:'Вы заблокировали',settingsGroup:'Настройки группы',contactAdd:'Добавить',contactRemove:'Убрать',searchEmpty:'Введите имя, логин или телефон',noResults:'Ничего не найдено',profileView:'Профиль',deleteAcc:'Удалить аккаунт',missedCall:'Пропущенный',missedCalls:'Пропущенные',callBack:'Перезвонить',notification:'Уведомления',allowNotif:'Разрешить уведомления',notifBlocked:'Заблокированы',outgoing:'Исходящий',incoming:'Входящий',noCalls:'Нет звонков',searchMsgs:'Поиск по сообщениям',pinMsg:'📌 Закрепить',unpinMsg:'📌 Открепить',searchContacts:'Поиск по контактам',searchAll:'Введите имя, логин или телефон',noAnswer:'Нет ответа',minimize:'Свернуть',secAppearance:'🎨 Внешний вид',secPrivacy:'🔒 Приватность',secNotif:'🔔 Уведомления',secTwofa:'🔐 Безопасность',secMemory:'💾 Память и хранилище',secDanger:'⚠️ Опасная зона',storiesTitle:'Истории',story:'История',storyUnavailable:'История недоступна',viewedBy:'Просмотрели',noViews:'Пока никто не смотрел',memoryTitle:'Память и хранилище',cacheSize:'Размер кэша',messagesCount:'Сообщений в кэше',storiesCount:'Историй в кэше',clearCache:'Очистить кэш приложения',clearOld:'Удалить старые сообщения (30+ дней)',clearStories:'Удалить все прочитанные истории',tapPhoto:'Нажмите на фото, чтобы изменить',scrollDown:'Вниз',you:'Вы'},en:{chats:'Chats',calls:'Calls',memory:'Memory',contacts:'Contacts',settings:'Settings',login:'Log in',register:'Sign up',createAcc:'Create',haveAcc:'Have account',email:'Email or phone',usernameOrEmail:'Username, email or phone',password:'Password',username:'Username',displayName:'Name',online:'online',wasOnline:'last seen',yesterday:'yesterday',daysAgo:'days ago',members:'Members',leaveGroup:'Leave',deleteGroup:'Delete',kick:'Kick',groupName:'Name',groupDesc:'Description',groupAvatar:'Avatar',save:'Save',newChat:'+ Chat',newGroup:'👥 Group',create:'Create',soundsOn:'🔔 Sounds on',soundsOff:'🔕 Sounds off',notifOn:'🔔 Notif on',notifOff:'🔕 Notif off',lang:'🌐 Lang',privacy:'Privacy',appearance:'Appearance',theme:'🎨 Theme',lastSeenPrivacy:'Last seen',messagesPrivacy:'Who can message',groupsPrivacy:'Who can add to groups',everyone:'Everyone',contacts:'Contacts',nobody:'Nobody',aiGreeting:'Hi!',aiThinking:'AI…',aiPlaceholder:'Ask...',aiClear:'Clear',describeImage:'Describe...',generate:'Generate',improving:'Improving…',generating:'Generating…',download:'Download',toChat:'To chat',leaveConfirm:'Leave?',back:'Back',close:'Close',noChats:'No chats',commonChats:'Common',noCommon:'No common',write:'Write',bio:'About...',noUsers:'No users',pickMembers:'Select contacts',cache:'Clear cache',logout:'Logout',saveProfile:'Save',accent:'Accent',addStory:'+ Add',noStories:'No stories',newStory:'New',caption:'Caption...',publish:'Publish',photo:'📷 Photo',edit:'Edit',del:'Delete',reaction:'Reaction',voice:'Voice',acceptCall:'Accept',declineCall:'Decline',inCall:'incoming…',calling:'calling…',connected:'✓ Connected',typeMessage:'Message...',mutedByAdmin:'🔇 Muted',addToContacts:'Add to contacts?',add:'Add',block:'Block',blocked:'Blocked',unblock:'Unblock',noContacts:'No contacts',search:'Search',searchFriends:'Find',twofa:'2FA',twofaOn:'2FA on',twofaOff:'2FA off',twofaHint:'Enter code from email',twofaCode:'Code',verify:'Verify',storyTtl:'Story lifetime',hours:'h',reply:'Reply',storyDeleteConfirm:'Delete?',youBlocked:'You blocked',settingsGroup:'Group settings',contactAdd:'Add',contactRemove:'Remove',searchEmpty:'Enter name, username or phone',noResults:'Nothing found',profileView:'Profile',deleteAcc:'Delete',missedCall:'Missed',missedCalls:'Missed',callBack:'Call back',notification:'Notifications',allowNotif:'Allow',notifBlocked:'Blocked',outgoing:'Outgoing',incoming:'Incoming',noCalls:'No calls',searchMsgs:'Search messages',pinMsg:'📌 Pin',unpinMsg:'📌 Unpin',searchContacts:'Search contacts',searchAll:'Enter name, username or phone',noAnswer:'No answer',minimize:'Minimize',secAppearance:'🎨 Appearance',secPrivacy:'🔒 Privacy',secNotif:'🔔 Notifications',secTwofa:'🔐 Security',secMemory:'💾 Memory & storage',secDanger:'⚠️ Danger zone',storiesTitle:'Stories',story:'Story',storyUnavailable:'Story unavailable',viewedBy:'Viewed by',noViews:'No views yet',memoryTitle:'Memory & storage',cacheSize:'Cache size',messagesCount:'Messages in cache',storiesCount:'Stories in cache',clearCache:'Clear app cache',clearOld:'Delete old messages (30+ days)',clearStories:'Delete read stories',tapPhoto:'Tap photo to change',scrollDown:'Down',you:'You'}};
+const L={ru:{chats:'Чаты',calls:'Звонки',memory:'Память',contacts:'Контакты',settings:'Настройки',login:'Войти',register:'Зарегистрироваться',createAcc:'Создать аккаунт',haveAcc:'У меня есть аккаунт',email:'Email или телефон',usernameOrEmail:'Логин, email или телефон',password:'Пароль',username:'Логин',displayName:'Имя',online:'в сети',wasOnline:'был(а)',yesterday:'вчера',daysAgo:'дн.назад',members:'Участники',leaveGroup:'Выйти',deleteGroup:'Удалить группу',kick:'Исключить',groupName:'Название',groupDesc:'Описание',groupAvatar:'Аватар группы',save:'Сохранить',newChat:'+ Чат',newGroup:'👥 Группа',create:'Создать',soundsOn:'🔔 Звуки: вкл',soundsOff:'🔕 Звуки: выкл',notifOn:'🔔 Уведомления: вкл',notifOff:'🔕 Уведомления: выкл',lang:'🌐 Язык',privacy:'Приватность',appearance:'Внешний вид',theme:'🎨 Тема',lastSeenPrivacy:'Кто видит «в сети»',messagesPrivacy:'Кто может писать',groupsPrivacy:'Кто может добавлять в группы',everyone:'Все',contacts:'Контакты',nobody:'Никто',aiGreeting:'Привет! Я AI-ассистент.',aiThinking:'AI думает…',aiPlaceholder:'Спросите что угодно...',aiClear:'Очистить',describeImage:'Опишите картинку...',generate:'Сгенерировать',improving:'Улучшаю промпт…',generating:'Генерирую…',download:'Скачать',toChat:'В AI-чат',leaveConfirm:'Выйти?',back:'Назад',close:'Закрыть',noChats:'Пока нет чатов.',commonChats:'Общие чаты',noCommon:'Нет общих чатов',write:'Написать',bio:'О себе...',noUsers:'Нет пользователей',pickMembers:'Выберите из контактов',cache:'Очистить кэш',logout:'Выйти',saveProfile:'Сохранить профиль',accent:'Акцентный цвет',addStory:'+ Добавить',noStories:'Историй нет',newStory:'Новая история',caption:'Подпись...',publish:'Опубликовать',photo:'📷 Фото',edit:'Редактировать',del:'Удалить',reaction:'Реакция',voice:'Голосовое',acceptCall:'Принять',declineCall:'Отклонить',inCall:'входящий звонок…',calling:'звонок…',connected:'✓ Соединено',typeMessage:'Сообщение...',mutedByAdmin:'🔇 Заглушены',addToContacts:'Добавить в контакты?',add:'Добавить',block:'Заблокировать',blocked:'Заблокированные',unblock:'Разблокировать',noContacts:'Нет контактов',search:'Поиск',searchFriends:'Найти',twofa:'2FA',twofaOn:'2FA включена',twofaOff:'2FA выключена',twofaHint:'Введите код из письма',twofaCode:'Код',verify:'Подтвердить',storyTtl:'Время жизни историй',hours:'ч',reply:'Ответить',storyDeleteConfirm:'Удалить историю?',youBlocked:'Вы заблокировали',settingsGroup:'Настройки группы',contactAdd:'Добавить',contactRemove:'Убрать',searchEmpty:'Введите имя, логин или телефон',noResults:'Ничего не найдено',profileView:'Профиль',deleteAcc:'Удалить аккаунт',missedCall:'Пропущенный',missedCalls:'Пропущенные',callBack:'Перезвонить',notification:'Уведомления',allowNotif:'Разрешить уведомления',notifBlocked:'Заблокированы',outgoing:'Исходящий',incoming:'Входящий',noCalls:'Нет звонков',searchMsgs:'Поиск по сообщениям',pinMsg:'📌 Закрепить',unpinMsg:'📌 Открепить',searchContacts:'Поиск по контактам',searchAll:'Введите имя, логин или телефон',noAnswer:'Нет ответа',minimize:'Свернуть',secAppearance:'🎨 Внешний вид',secPrivacy:'🔒 Приватность',secNotif:'🔔 Уведомления',secTwofa:'🔐 Безопасность',secMemory:'💾 Память и хранилище',secDanger:'⚠️ Опасная зона',storiesTitle:'Истории',story:'История',storyUnavailable:'История недоступна',viewedBy:'Просмотрели',noViews:'Пока никто не смотрел',memoryTitle:'Память и хранилище',cacheSize:'Размер кэша',messagesCount:'Сообщений в кэше',storiesCount:'Историй в кэше',clearCache:'Очистить кэш приложения',clearOld:'Удалить старые сообщения (30+ дней)',clearStories:'Удалить все прочитанные истории',tapPhoto:'Нажмите на фото, чтобы изменить',scrollDown:'Вниз',you:'Вы',transferOwner:'Передать права владельца',transferOwnerTitle:'Передача прав владельца',pickNewOwner:'Выберите нового владельца — он сможет назначать админов, удалять группу и передавать права дальше',ownerBadge:'Владелец',transfer:'Передать',deleteInstead:'Удалить группу вместо этого'},en:{chats:'Chats',calls:'Calls',memory:'Memory',contacts:'Contacts',settings:'Settings',login:'Log in',register:'Sign up',createAcc:'Create',haveAcc:'Have account',email:'Email or phone',usernameOrEmail:'Username, email or phone',password:'Password',username:'Username',displayName:'Name',online:'online',wasOnline:'last seen',yesterday:'yesterday',daysAgo:'days ago',members:'Members',leaveGroup:'Leave',deleteGroup:'Delete',kick:'Kick',groupName:'Name',groupDesc:'Description',groupAvatar:'Avatar',save:'Save',newChat:'+ Chat',newGroup:'👥 Group',create:'Create',soundsOn:'🔔 Sounds on',soundsOff:'🔕 Sounds off',notifOn:'🔔 Notif on',notifOff:'🔕 Notif off',lang:'🌐 Lang',privacy:'Privacy',appearance:'Appearance',theme:'🎨 Theme',lastSeenPrivacy:'Last seen',messagesPrivacy:'Who can message',groupsPrivacy:'Who can add to groups',everyone:'Everyone',contacts:'Contacts',nobody:'Nobody',aiGreeting:'Hi!',aiThinking:'AI…',aiPlaceholder:'Ask...',aiClear:'Clear',describeImage:'Describe...',generate:'Generate',improving:'Improving…',generating:'Generating…',download:'Download',toChat:'To chat',leaveConfirm:'Leave?',back:'Back',close:'Close',noChats:'No chats',commonChats:'Common',noCommon:'No common',write:'Write',bio:'About...',noUsers:'No users',pickMembers:'Select contacts',cache:'Clear cache',logout:'Logout',saveProfile:'Save',accent:'Accent',addStory:'+ Add',noStories:'No stories',newStory:'New',caption:'Caption...',publish:'Publish',photo:'📷 Photo',edit:'Edit',del:'Delete',reaction:'Reaction',voice:'Voice',acceptCall:'Accept',declineCall:'Decline',inCall:'incoming…',calling:'calling…',connected:'✓ Connected',typeMessage:'Message...',mutedByAdmin:'🔇 Muted',addToContacts:'Add to contacts?',add:'Add',block:'Block',blocked:'Blocked',unblock:'Unblock',noContacts:'No contacts',search:'Search',searchFriends:'Find',twofa:'2FA',twofaOn:'2FA on',twofaOff:'2FA off',twofaHint:'Enter code from email',twofaCode:'Code',verify:'Verify',storyTtl:'Story lifetime',hours:'h',reply:'Reply',storyDeleteConfirm:'Delete?',youBlocked:'You blocked',settingsGroup:'Group settings',contactAdd:'Add',contactRemove:'Remove',searchEmpty:'Enter name, username or phone',noResults:'Nothing found',profileView:'Profile',deleteAcc:'Delete',missedCall:'Missed',missedCalls:'Missed',callBack:'Call back',notification:'Notifications',allowNotif:'Allow',notifBlocked:'Blocked',outgoing:'Outgoing',incoming:'Incoming',noCalls:'No calls',searchMsgs:'Search messages',pinMsg:'📌 Pin',unpinMsg:'📌 Unpin',searchContacts:'Search contacts',searchAll:'Enter name, username or phone',noAnswer:'No answer',minimize:'Minimize',secAppearance:'🎨 Appearance',secPrivacy:'🔒 Privacy',secNotif:'🔔 Notifications',secTwofa:'🔐 Security',secMemory:'💾 Memory & storage',secDanger:'⚠️ Danger zone',storiesTitle:'Stories',story:'Story',storyUnavailable:'Story unavailable',viewedBy:'Viewed by',noViews:'No views yet',memoryTitle:'Memory & storage',cacheSize:'Cache size',messagesCount:'Messages in cache',storiesCount:'Stories in cache',clearCache:'Clear app cache',clearOld:'Delete old messages (30+ days)',clearStories:'Delete read stories',tapPhoto:'Tap photo to change',scrollDown:'Down',you:'You',transferOwner:'Transfer ownership',transferOwnerTitle:'Transfer ownership',pickNewOwner:'Pick a new owner — they will be able to appoint admins, delete the group and transfer ownership further',ownerBadge:'Owner',transfer:'Transfer',deleteInstead:'Delete group instead'}};
 function t(k){return (L[S.lang]||L.ru)[k]||k}
 const EMOJI=['❤️','😂','👍','😮','😢','🔥'];
 const ALL_EMOJI=['😀','😁','😂','🤣','😃','😄','😅','😆','😉','😊','😋','😎','😍','😘','🥰','😗','😙','😚','🙂','🤗','🤩','🤔','🤨','😐','😑','😶','🙄','😏','😣','😥','😮','🤐','😯','😪','😫','🥱','😴','😌','😛','😜','😝','🤤','😒','😓','😔','😕','🙃','🤑','😲','🙁','😖','😞','😟','😤','😢','😭','😦','😧','😨','😩','🤯','😬','😰','😱','🥵','🥶','😳','🤪','😵','🥴','😠','😡','🤬','😷','🤒','🤕','🤢','🤮','🤧','😇','🥳','🥺','🤠','🤡','🤥','🤫','🤭','🧐','🤓','👻','💀','👽','🤖','💩','❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','💔','👍','👎','👌','✌️','🤞','🤟','🤘','🤙','👏','🙌','🤝','💪','🔥','✨','⭐','🌟','💫','💥','💯','🎉','🎊','🎁','🎂'];
-const state={user:null,profile:null,tab:'chats',chatId:null,chat:null,chats:[],messages:[],stories:[],profiles:{},members:{},contacts:[],blocks:[],unreadCounts:{},missedCalls:[],allCalls:[],chatReads:{},typingUsers:{},modal:null,pickMode:'chat',createGroup:false,groupName:'',groupMembers:[],searchQuery:'',searchResults:null,contactsSearchQuery:'',viewMembers:false,storyCompose:false,storyMedia:null,storyMediaFile:null,storyMediaType:'image',storyBg:'#6366f1',storyPlayer:null,storyViewers:{},storyViewersModal:null,incoming:null,call:null,callMinimized:false,muted:false,cameraOn:false,screenOn:false,msgMenu:null,authMode:'login',authErr:'',recording:false,recordStart:0,recordInterval:null,mediaRecorder:null,recordedChunks:[],recordStream:null,lightbox:null,aiMessages:[],aiLoading:false,aiModal:null,viewProfile:null,groupSettings:null,showAI:false,showBlocked:false,pending2FA:null,replyTo:null,searchMsgs:null,searchMsgsQuery:'',showEmoji:false,callReactions:[],settingsSection:null,showStories:false,scrollAtBottom:true,newMsgsBadge:0,stream:null};
+const state={user:null,profile:null,tab:'chats',chatId:null,chat:null,chats:[],messages:[],stories:[],profiles:{},members:{},contacts:[],blocks:[],unreadCounts:{},missedCalls:[],allCalls:[],chatReads:{},typingUsers:{},modal:null,pickMode:'chat',createGroup:false,groupName:'',groupMembers:[],searchQuery:'',searchResults:null,contactsSearchQuery:'',viewMembers:false,storyCompose:false,storyMedia:null,storyMediaFile:null,storyMediaType:'image',storyBg:'#6366f1',storyPlayer:null,storyViewers:{},storyViewersModal:null,incoming:null,call:null,callMinimized:false,muted:false,cameraOn:false,screenOn:false,msgMenu:null,authMode:'login',authErr:'',recording:false,recordStart:0,recordInterval:null,mediaRecorder:null,recordedChunks:[],recordStream:null,lightbox:null,aiMessages:[],aiLoading:false,aiModal:null,viewProfile:null,groupSettings:null,showAI:false,showBlocked:false,pending2FA:null,replyTo:null,searchMsgs:null,searchMsgsQuery:'',showEmoji:false,callReactions:[],settingsSection:null,showStories:false,scrollAtBottom:true,newMsgsBadge:0,stream:null,ownerTransferPending:null};
 function getThemePref(){return state.profile?.theme || S.theme || 'dark'}
-function getEffectiveTheme(){
-  const p = getThemePref();
-  if(p === 'system'){
-    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
-  }
-  return p === 'light' ? 'light' : 'dark';
-}
+function getEffectiveTheme(){const p=getThemePref();if(p==='system'){return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light'}return p === 'light' ? 'light' : 'dark'}
 function cycleTheme(){const cur=getThemePref();return cur==='dark'?'light':(cur==='light'?'system':'dark')}
-function themeIcon(pref){
-  if(!pref) pref = getThemePref();
-  return pref === 'light' ? '☀️' : (pref === 'system' ? '🌓' : '🌙');
-}
-if(window.matchMedia){
-  try{
-    const mq = window.matchMedia('(prefers-color-scheme: dark)');
-    const sysHandler = ()=>{
-      if(getThemePref() === 'system'){
-        document.body.classList.toggle('light', !mq.matches);
-      }
-    };
-    if(mq.addEventListener) mq.addEventListener('change', sysHandler);
-    else if(mq.addListener) mq.addListener(sysHandler);
-  }catch(e){}
-}
+function themeIcon(pref){if(!pref) pref = getThemePref();return pref === 'light' ? '☀️' : (pref === 'system' ? '🌓' : '🌙')}
+if(window.matchMedia){try{const mq = window.matchMedia('(prefers-color-scheme: dark)');const sysHandler = ()=>{if(getThemePref() === 'system'){document.body.classList.toggle('light', !mq.matches)}};if(mq.addEventListener) mq.addEventListener('change', sysHandler);else if(mq.addListener) mq.addListener(sysHandler)}catch(e){}}
 let callTimer=null,ringInterval=null,dialInterval=null,ringTimeout=null,callerTimeout=null,pc=null,cameraTrack=null,screenTrack=null,videoSender=null,remoteStream=null,makingOffer=false,ignoreOffer=false;
 let msgChannel=null,globalMsgChannel=null,callsChannel=null,sigChannel=null,sigPollTimer=null,heartbeatTimer=null,profilesChannel=null,refreshInterval=null,typingChannel=null,typingTimer=null,callReactChannel=null,callsListChannel=null,callPollTimer=null;
 let pendingSignals=[],processed=new Set();
@@ -336,31 +304,18 @@ async function loadSess(){try{const {data:{session},error}=await sb.auth.getSess
 async function loadProf(retries=3){if(!state.user)return;for(let i=0;i<retries;i++){try{const {data,error}=await sb.from('profiles').select('*').eq('id',state.user.id).single();if(!error&&data){state.profile=data;state.profiles[data.id]=data;return}if(error&&error.code!=='PGRST116'){await new Promise(r=>setTimeout(r,1000*(i+1)));continue}return}catch(e){await new Promise(r=>setTimeout(r,1000))}}}
 async function signUp(e,p,un,dn){const {data,error}=await sb.auth.signUp({email:e,password:p,options:{data:{username:un,display_name:dn}}});if(error)throw error;return data}
 async function tryLogin(input, password){
-  const raw = String(input||'').trim();
-  const low = raw.toLowerCase();
-  if(!low || !password) return {data:null, error:new Error('Пустой логин или пароль')};
-  const attempts = [];
-  const ph = nPhone(low);
-  if(ph){
-    attempts.push(ph.replace(/\D/g,'')+'@nova.local');
-    attempts.push(low);
-  }
-  if(low.includes('@')) attempts.push(low);
-  if(/^[a-zA-Z0-9_]{3,20}$/.test(low)){
-    attempts.push(low+'@nova.app');
-    attempts.push(low+'@nova.local');
-  }
+  const raw=String(input||'').trim();const low=raw.toLowerCase();
+  if(!low||!password)return {data:null,error:new Error('Пустой логин или пароль')};
+  const attempts=[];
+  const ph=nPhone(low);
+  if(ph){attempts.push(ph.replace(/\D/g,'')+'@nova.local');attempts.push(low)}
+  if(low.includes('@'))attempts.push(low);
+  if(/^[a-zA-Z0-9_]{3,20}$/.test(low)){attempts.push(low+'@nova.app');attempts.push(low+'@nova.local')}
   attempts.push(low);
-  const unique = [...new Set(attempts)];
-  let lastErr = null;
-  for(const email of unique){
-    try{
-      const {data,error} = await sb.auth.signInWithPassword({email, password});
-      if(!error && data?.session) return {data, error:null};
-      if(error) lastErr = error;
-    }catch(e){ lastErr = e; }
-  }
-  return {data:null, error:lastErr};
+  const unique=[...new Set(attempts)];
+  let lastErr=null;
+  for(const email of unique){try{const {data,error}=await sb.auth.signInWithPassword({email,password});if(!error&&data?.session)return {data,error:null};if(error)lastErr=error}catch(e){lastErr=e}}
+  return {data:null,error:lastErr};
 }
 async function signOut(){
 try{if(msgChannel)sb.removeChannel(msgChannel)}catch(e){}
@@ -379,7 +334,7 @@ if(callerTimeout){clearTimeout(callerTimeout);callerTimeout=null}
 if(callPollTimer){clearInterval(callPollTimer);callPollTimer=null}
 stopStoryTimer();
 await sb.auth.signOut();
-state.user=null;state.profile=null;state.chats=[];state.messages=[];state.contacts=[];state.blocks=[];state.unreadCounts={};state.missedCalls=[];state.allCalls=[];state.authErr='';state.settingsSection=null;state.storyPlayer=null;state.storyViewers={};state.storyViewersModal=null;
+state.user=null;state.profile=null;state.chats=[];state.messages=[];state.contacts=[];state.blocks=[];state.unreadCounts={};state.missedCalls=[];state.allCalls=[];state.authErr='';state.settingsSection=null;state.storyPlayer=null;state.storyViewers={};state.storyViewersModal=null;state.ownerTransferPending=null;
 render();
 }
 function startHeartbeat(){if(heartbeatTimer)clearInterval(heartbeatTimer);const b=async()=>{if(!state.user)return;try{await sb.from('profiles').update({last_seen:new Date().toISOString()}).eq('id',state.user.id)}catch(e){}};b();heartbeatTimer=setInterval(b,30000)}
@@ -396,11 +351,7 @@ const ids=state.chats.map(c=>c.id);
 const {data:ms}=await sb.from('chat_members').select('chat_id,last_read_at').eq('user_id',state.user.id).in('chat_id',ids);
 const lr={};(ms||[]).forEach(m=>lr[m.chat_id]=m.last_read_at||'1970-01-01T00:00:00Z');
 const counts={};
-for(const cid of ids){
-if(state.chatId===cid){counts[cid]=0;continue}
-const {count}=await sb.from('messages').select('*',{count:'exact',head:true}).eq('chat_id',cid).gt('created_at',lr[cid]).neq('sender_id',state.user.id);
-counts[cid]=count||0;
-}
+for(const cid of ids){if(state.chatId===cid){counts[cid]=0;continue}const {count}=await sb.from('messages').select('*',{count:'exact',head:true}).eq('chat_id',cid).gt('created_at',lr[cid]).neq('sender_id',state.user.id);counts[cid]=count||0}
 state.unreadCounts=counts;
 }catch(e){console.warn('unread',e)}
 }
@@ -443,32 +394,16 @@ async function checkMissedCalls(){
 try{
 const since=new Date(Date.now()-60*1000).toISOString();
 const {data}=await sb.from('calls').select('*').eq('callee_id',state.user.id).eq('status','ringing').lt('created_at',since);
-if(data&&data.length){
-for(const c of data){await sb.from('calls').update({status:'missed'}).eq('id',c.id)}
-await loadMissedCalls();await loadAllCalls();
-}
+if(data&&data.length){for(const c of data){await sb.from('calls').update({status:'missed'}).eq('id',c.id)}await loadMissedCalls();await loadAllCalls()}
 }catch(e){}
 }
 async function recoverActiveCalls(){
 try{
 const ringSince=new Date(Date.now()-RING_TIMEOUT).toISOString();
 const {data:inc}=await sb.from('calls').select('*').eq('callee_id',state.user.id).eq('status','ringing').gte('created_at',ringSince).order('created_at',{ascending:false}).limit(1);
-if(inc&&inc[0]){
-await loadProfs([inc[0].caller_id]);
-state.incoming=inc[0];startRing();startRingTimeout(inc[0].id);render();
-}
+if(inc&&inc[0]){await loadProfs([inc[0].caller_id]);state.incoming=inc[0];startRing();startRingTimeout(inc[0].id);render()}
 const {data:out}=await sb.from('calls').select('*').eq('caller_id',state.user.id).in('status',['ringing','active']).order('created_at',{ascending:false}).limit(1);
-if(out&&out[0]){
-await loadProfs([out[0].callee_id]);
-if(out[0].status==='active'){
-state.call={...out[0],outbound:true,activeAt:new Date(out[0].accepted_at||Date.now()).getTime()};
-await ensureMic();setupWebRTC();pConn();
-}else{
-state.call={...out[0],outbound:true,activeAt:null};
-startCallerTimeout(out[0].id);startDial();
-}
-render();
-}
+if(out&&out[0]){await loadProfs([out[0].callee_id]);if(out[0].status==='active'){state.call={...out[0],outbound:true,activeAt:new Date(out[0].accepted_at||Date.now()).getTime()};await ensureMic();setupWebRTC();pConn()}else{state.call={...out[0],outbound:true,activeAt:null};startCallerTimeout(out[0].id);startDial()}render()}
 }catch(e){console.warn('recover',e)}
 }
 async function openChat(cid){
@@ -485,16 +420,7 @@ setTimeout(()=>markChatRead(cid),800);
 setTimeout(()=>{const m=document.getElementById('msgs');if(m)m.scrollTop=m.scrollHeight},100);
 }
 async function loadCurrentTypers(cid){
-try{
-const {data}=await sb.from('typing').select('*').eq('chat_id',cid);
-state.typingUsers={};
-(data||[]).forEach(tt=>{
-if(tt.user_id!==state.user.id){
-const age=Date.now()-new Date(tt.updated_at).getTime();
-if(age<5000)state.typingUsers[tt.user_id]=Date.now();
-}
-});
-}catch(e){state.typingUsers={}}
+try{const {data}=await sb.from('typing').select('*').eq('chat_id',cid);state.typingUsers={};(data||[]).forEach(tt=>{if(tt.user_id!==state.user.id){const age=Date.now()-new Date(tt.updated_at).getTime();if(age<5000)state.typingUsers[tt.user_id]=Date.now()}})}catch(e){state.typingUsers={}}
 }
 async function loadMsgs(cid){
 const {data}=await sb.from('messages').select('*').eq('chat_id',cid).order('created_at',{ascending:true});
@@ -511,11 +437,7 @@ const {data}=await sb.from('stories').select('*').gte('created_at',since).order(
 const uids=[...new Set((data||[]).map(s=>s.user_id))];
 await loadProfs(uids);
 state.stories=(data||[]).filter(s=>{const au=state.profiles[s.user_id];const ttl=au?.story_ttl_hours||24;return Date.now()-new Date(s.created_at).getTime()<ttl*3600*1000});
-if(state.stories.length){
-const {data:rx}=await sb.from('story_reactions').select('*').in('story_id',state.stories.map(s=>s.id));
-const map={};(rx||[]).forEach(r=>{if(!map[r.story_id])map[r.story_id]={};if(!map[r.story_id][r.emoji])map[r.story_id][r.emoji]=[];map[r.story_id][r.emoji].push(r.user_id)});
-state.stories.forEach(s=>s.reactions=map[s.id]||{});
-}
+if(state.stories.length){const {data:rx}=await sb.from('story_reactions').select('*').in('story_id',state.stories.map(s=>s.id));const map={};(rx||[]).forEach(r=>{if(!map[r.story_id])map[r.story_id]={};if(!map[r.story_id][r.emoji])map[r.story_id][r.emoji]=[];map[r.story_id][r.emoji].push(r.user_id)});state.stories.forEach(s=>s.reactions=map[s.id]||{})}
 }
 async function refresh(){await loadChats();await loadUnread();if(state.chatId){const c=state.chats.find(x=>x.id===state.chatId);if(!c){state.chatId=null;state.chat=null}else state.chat=c}}
 async function upMedia(path,blob,ct){if(blob.size>MAX)throw new Error('Файл больше '+fSize(MAX));const {error}=await sb.storage.from('media').upload(path,blob,{upsert:false,contentType:ct});if(error)throw new Error(error.message);const {data}=sb.storage.from('media').getPublicUrl(path);if(!data?.publicUrl)throw new Error('Bucket не публичный');return data.publicUrl}
@@ -531,54 +453,28 @@ function openUserStories(userId, specificStoryId){
 const stories=getUserStoriesWithMine(userId);
 if(!stories.length)return;
 let startIdx=0;
-if(specificStoryId){
-const idx=stories.findIndex(s=>s.id===specificStoryId);
-startIdx = idx>=0 ? idx : 0;
-}else{
-for(let i=0;i<stories.length;i++){if(!isStoryViewed(stories[i].id)){startIdx=i;break}}
-}
+if(specificStoryId){const idx=stories.findIndex(s=>s.id===specificStoryId);startIdx = idx>=0 ? idx : 0}else{for(let i=0;i<stories.length;i++){if(!isStoryViewed(stories[i].id)){startIdx=i;break}}}
 state.storyPlayer={userId,stories,index:startIdx,progress:0,timer:null,timer2:null,startedAt:0};
 render();
 startStoryTimer();
-if(userId === state.user.id){ loadStoryViewers(stories.map(s=>s.id)); }
+if(userId === state.user.id){ loadStoryViewers(stories.map(s=>s.id)) }
 }
 function stopStoryTimer(){const p=state.storyPlayer;if(!p)return;if(p.timer){clearTimeout(p.timer);p.timer=null}if(p.timer2){clearInterval(p.timer2);p.timer2=null}}
 function closeStoryPlayer(){stopStoryTimer();state.storyPlayer=null;state.storyViewersModal=null;render()}
 function nextStory(){const p=state.storyPlayer;if(!p)return;stopStoryTimer();if(p.index<p.stories.length-1){p.index++;p.progress=0;render();startStoryTimer()}else{closeStoryPlayer()}}
 function prevStory(){const p=state.storyPlayer;if(!p)return;stopStoryTimer();if(p.index>0){p.index--;p.progress=0;render();startStoryTimer()}else{p.progress=0;startStoryTimer()}}
-function updateStoryProgressUI(){
-const p=state.storyPlayer;
-if(!p)return;
-const bars=document.querySelectorAll('#story-progress-bars .story-progress-fill');
-bars.forEach((bar,i)=>{
-if(i<p.index)bar.style.width='100%';
-else if(i===p.index)bar.style.width=p.progress+'%';
-else bar.style.width='0%';
-});
-}
-async function recordStoryView(storyId, ownerId){
-if(!state.user || ownerId === state.user.id) return;
-try{
-await sb.from('story_views').upsert(
-{story_id: storyId, viewer_id: state.user.id},
-{onConflict: 'story_id,viewer_id', ignoreDuplicates: true}
-);
-}catch(e){}
-}
+function updateStoryProgressUI(){const p=state.storyPlayer;if(!p)return;const bars=document.querySelectorAll('#story-progress-bars .story-progress-fill');bars.forEach((bar,i)=>{if(i<p.index)bar.style.width='100%';else if(i===p.index)bar.style.width=p.progress+'%';else bar.style.width='0%'})}
+async function recordStoryView(storyId, ownerId){if(!state.user||ownerId===state.user.id)return;try{await sb.from('story_views').upsert({story_id:storyId,viewer_id:state.user.id},{onConflict:'story_id,viewer_id',ignoreDuplicates:true})}catch(e){}}
 async function loadStoryViewers(storyIds){
-if(!storyIds.length) return;
+if(!storyIds.length)return;
 try{
-const {data} = await sb.from('story_views').select('*').in('story_id', storyIds);
-const map = {};
-(data||[]).forEach(v => {
-if(!map[v.story_id]) map[v.story_id] = [];
-map[v.story_id].push(v);
-});
-const viewerIds = [...new Set((data||[]).map(v => v.viewer_id))];
+const {data}=await sb.from('story_views').select('*').in('story_id',storyIds);
+const map={};(data||[]).forEach(v=>{if(!map[v.story_id])map[v.story_id]=[];map[v.story_id].push(v)});
+const viewerIds=[...new Set((data||[]).map(v=>v.viewer_id))];
 await loadProfs(viewerIds);
-state.storyViewers = {...state.storyViewers, ...map};
+state.storyViewers={...state.storyViewers,...map};
 render();
-}catch(e){ console.warn('viewers', e); }
+}catch(e){console.warn('viewers',e)}
 }
 function startStoryTimer(){
 const p=state.storyPlayer;
@@ -594,45 +490,15 @@ updateStoryProgressUI();
 const isVideo=/\.(mp4|webm|mov|ogv)(\?|$)/i.test(s.media_url||'');
 if(isVideo){
 const v=document.getElementById('story-video-player');
-if(v){
-v.currentTime=0;
-v.play().catch(()=>{});
-v.onended=()=>{nextStory()};
-v.ontimeupdate=()=>{
-if(v.duration&&isFinite(v.duration)){
-p.progress=Math.min(100,(v.currentTime/v.duration)*100);
-updateStoryProgressUI();
-}
-};
-p.timer=setTimeout(()=>{nextStory()},15000);
-}else{
-p.timer=setTimeout(()=>{nextStory()},5000);
-}
-}else{
-const DURATION=5000;
-p.timer=setTimeout(()=>{nextStory()},DURATION);
-p.timer2=setInterval(()=>{
-const elapsed=Date.now()-p.startedAt;
-p.progress=Math.min(100,(elapsed/DURATION)*100);
-updateStoryProgressUI();
-},50);
-}
+if(v){v.currentTime=0;v.play().catch(()=>{});v.onended=()=>{nextStory()};v.ontimeupdate=()=>{if(v.duration&&isFinite(v.duration)){p.progress=Math.min(100,(v.currentTime/v.duration)*100);updateStoryProgressUI()}};p.timer=setTimeout(()=>{nextStory()},15000)}else{p.timer=setTimeout(()=>{nextStory()},5000)}
+}else{const DURATION=5000;p.timer=setTimeout(()=>{nextStory()},DURATION);p.timer2=setInterval(()=>{const elapsed=Date.now()-p.startedAt;p.progress=Math.min(100,(elapsed/DURATION)*100);updateStoryProgressUI()},50)}
 }
 async function deleteStoryPlayer(sid){
 if(!confirm(t('storyDeleteConfirm')))return;
 await sb.from('stories').delete().eq('id',sid).eq('user_id',state.user.id);
 await loadStories();
 const p=state.storyPlayer;
-if(p){
-p.stories=getUserStoriesWithMine(p.userId);
-if(!p.stories.length){closeStoryPlayer();return}
-if(p.index>=p.stories.length)p.index=p.stories.length-1;
-p.progress=0;
-render();
-startStoryTimer();
-}else{
-render();
-}
+if(p){p.stories=getUserStoriesWithMine(p.userId);if(!p.stories.length){closeStoryPlayer();return}if(p.index>=p.stories.length)p.index=p.stories.length-1;p.progress=0;render();startStoryTimer()}else{render()}
 }
 
 function runEasterEgg(){
@@ -641,22 +507,14 @@ const emojis=['🎉','✨','🎊','⭐','💫','🌟','🎈','🎁','🥳','💥
 const container=document.createElement('div');
 container.id='easter-egg-container';
 container.style.cssText='position:fixed;inset:0;pointer-events:none;z-index:99999;overflow:hidden';
-for(let i=0;i<50;i++){
-const el=document.createElement('div');
-el.textContent=emojis[Math.floor(Math.random()*emojis.length)];
-el.style.cssText=`position:absolute;left:${Math.random()*100}%;top:-40px;font-size:${20+Math.random()*24}px;animation:ee-fall ${2+Math.random()*2}s linear forwards;animation-delay:${Math.random()*1.2}s;`;
-container.appendChild(el);
-}
+for(let i=0;i<50;i++){const el=document.createElement('div');el.textContent=emojis[Math.floor(Math.random()*emojis.length)];el.style.cssText=`position:absolute;left:${Math.random()*100}%;top:-40px;font-size:${20+Math.random()*24}px;animation:ee-fall ${2+Math.random()*2}s linear forwards;animation-delay:${Math.random()*1.2}s;`;container.appendChild(el)}
 document.body.appendChild(container);
 const title=document.querySelector('.top-title');
 const orig=title?title.textContent:'';
-const userName = state.profile?.display_name || state.profile?.username || 'друг';
+const userName=state.profile?.display_name || state.profile?.username || 'друг';
 const messages=['🎉 Nova!','✨ Магия!','🚀 Поехали!','◈ Пасхалка!',`👋 Привет, ${userName}!`,'🎊 Ура!','💜 Nova любит тебя','🌟 Ты нашёл секрет!'];
 if(title)title.textContent=messages[Math.floor(Math.random()*messages.length)];
-setTimeout(()=>{
-if(title)title.textContent=orig;
-container.remove();
-},3200);
+setTimeout(()=>{if(title)title.textContent=orig;container.remove()},3200);
 }
 
 function notify(title,body,tag,isCall){
@@ -666,14 +524,7 @@ if(Notification.permission!=='granted'){try{Notification.requestPermission()}cat
 const hidden=document.hidden||!document.hasFocus();
 if(!hidden&&!isCall)return;
 try{
-if(navigator.serviceWorker&&navigator.serviceWorker.controller){
-navigator.serviceWorker.ready.then(reg=>{
-reg.showNotification(title,{body,tag,requireInteraction:!!isCall,silent:false,data:{url:'./index.html'}});
-}).catch(()=>{const n=new Notification(title,{body,tag,requireInteraction:!!isCall});n.onclick=()=>{window.focus();try{n.close()}catch(e){}}});
-}else{
-const n=new Notification(title,{body,tag,requireInteraction:!!isCall});
-n.onclick=()=>{window.focus();try{n.close()}catch(e){}};
-}
+if(navigator.serviceWorker&&navigator.serviceWorker.controller){navigator.serviceWorker.ready.then(reg=>{reg.showNotification(title,{body,tag,requireInteraction:!!isCall,silent:false,data:{url:'./index.html'}})}).catch(()=>{const n=new Notification(title,{body,tag,requireInteraction:!!isCall});n.onclick=()=>{window.focus();try{n.close()}catch(e){}}})}else{const n=new Notification(title,{body,tag,requireInteraction:!!isCall});n.onclick=()=>{window.focus();try{n.close()}catch(e){}}}
 }catch(e){console.warn('notify',e)}
 }
 function flashTitle(msg){
@@ -694,11 +545,7 @@ if(!active.length){el.classList.remove('on');el.innerHTML='';return}
 el.classList.add('on');
 if(!el.innerHTML)el.innerHTML='<span class="typing-dot"></span><span class="typing-dot"></span><span class="typing-dot"></span>';
 }
-setInterval(()=>{
-const now=Date.now();let changed=false;
-for(const uid in state.typingUsers||{}){if(now-state.typingUsers[uid]>5000){delete state.typingUsers[uid];changed=true}}
-if(changed)updateTypingIndicator();
-},2000);
+setInterval(()=>{const now=Date.now();let changed=false;for(const uid in state.typingUsers||{}){if(now-state.typingUsers[uid]>5000){delete state.typingUsers[uid];changed=true}}if(changed)updateTypingIndicator()},2000);
 function subChat(cid){
 if(msgChannel){sb.removeChannel(msgChannel);msgChannel=null}
 if(typingChannel){sb.removeChannel(typingChannel);typingChannel=null}
@@ -706,60 +553,22 @@ msgChannel=sb.channel('chat_'+cid).on('postgres_changes',{event:'*',schema:'publ
 const bl=state.blocks.map(b=>b.blocked_id);
 if(p.eventType==='INSERT'){
 if(bl.includes(p.new.sender_id))return;
-if(p.new.sender_id!==state.user.id){
-pRecv();
-const snd=state.profiles[p.new.sender_id];
-const title=snd?.display_name||'Nova';
-notify(title,p.new.content||'📎','msg_'+p.new.id,false);
-if(state.chatId!==cid)flashTitle(title+': '+(p.new.content||'📎'));
-}
+if(p.new.sender_id!==state.user.id){pRecv();const snd=state.profiles[p.new.sender_id];const title=snd?.display_name||'Nova';notify(title,p.new.content||'📎','msg_'+p.new.id,false);if(state.chatId!==cid)flashTitle(title+': '+(p.new.content||'📎'))}
 await loadProfs([p.new.sender_id]);
-if(!state.messages.find(m=>m.id===p.new.id)){
-p.new.reactions={};p.new._isNew=true;state.messages.push(p.new);
-if(state.chatId===cid){
-markChatRead(cid);
-if(state.scrollAtBottom){
-render();
-setTimeout(()=>{const m=document.getElementById('msgs');if(m)m.scrollTop=m.scrollHeight},50);
-}else{
-state.newMsgsBadge=(state.newMsgsBadge||0)+1;
-updateScrollBtn();
-}
-}else{
-render();
-}
-}
+if(!state.messages.find(m=>m.id===p.new.id)){p.new.reactions={};p.new._isNew=true;state.messages.push(p.new);if(state.chatId===cid){markChatRead(cid);if(state.scrollAtBottom){render();setTimeout(()=>{const m=document.getElementById('msgs');if(m)m.scrollTop=m.scrollHeight},50)}else{state.newMsgsBadge=(state.newMsgsBadge||0)+1;updateScrollBtn()}}else{render()}}
 }else if(p.eventType==='UPDATE'){const i=state.messages.findIndex(m=>m.id===p.new.id);if(i>=0){state.messages[i]={...state.messages[i],...p.new};render()}}
 else if(p.eventType==='DELETE'){state.messages=state.messages.filter(m=>m.id!==p.old.id);render()}
-}).on('postgres_changes',{event:'*',schema:'public',table:'reactions'},async()=>{await loadMsgs(cid);render()})
-.on('postgres_changes',{event:'*',schema:'public',table:'chat_members',filter:`chat_id=eq.${cid}`},async()=>{await refresh();render()})
-.subscribe();
-typingChannel=sb.channel('typing_'+cid).on('postgres_changes',{event:'*',schema:'public',table:'typing',filter:`chat_id=eq.${cid}`},(p)=>{
-if(p.new&&p.new.user_id!==state.user.id){
-const age=Date.now()-new Date(p.new.updated_at).getTime();
-if(age<5000)state.typingUsers[p.new.user_id]=Date.now();
-}
-updateTypingIndicator();
-}).subscribe();
+}).on('postgres_changes',{event:'*',schema:'public',table:'reactions'},async()=>{await loadMsgs(cid);render()}).on('postgres_changes',{event:'*',schema:'public',table:'chat_members',filter:`chat_id=eq.${cid}`},async()=>{await refresh();render()}).subscribe();
+typingChannel=sb.channel('typing_'+cid).on('postgres_changes',{event:'*',schema:'public',table:'typing',filter:`chat_id=eq.${cid}`},(p)=>{if(p.new&&p.new.user_id!==state.user.id){const age=Date.now()-new Date(p.new.updated_at).getTime();if(age<5000)state.typingUsers[p.new.user_id]=Date.now()}updateTypingIndicator()}).subscribe();
 }
 function updateScrollBtn(){
 const btn=document.getElementById('scroll-down-btn');
 if(!btn)return;
-if(!state.scrollAtBottom){
-btn.classList.add('show');
-const badge=btn.querySelector('.badge');
-if(badge)badge.textContent=state.newMsgsBadge||'';
-if(!state.newMsgsBadge&&badge)badge.style.display='none';
-else if(badge)badge.style.display='';
-}else{
-btn.classList.remove('show');
-state.newMsgsBadge=0;
-}
+if(!state.scrollAtBottom){btn.classList.add('show');const badge=btn.querySelector('.badge');if(badge)badge.textContent=state.newMsgsBadge||'';if(!state.newMsgsBadge&&badge)badge.style.display='none';else if(badge)badge.style.display=''}else{btn.classList.remove('show');state.newMsgsBadge=0}
 }
 function subGlobalMessages(){
 if(globalMsgChannel){sb.removeChannel(globalMsgChannel);globalMsgChannel=null}
-globalMsgChannel=sb.channel('global_msgs_'+state.user.id)
-.on('postgres_changes',{event:'INSERT',schema:'public',table:'messages'},async(p)=>{
+globalMsgChannel=sb.channel('global_msgs_'+state.user.id).on('postgres_changes',{event:'INSERT',schema:'public',table:'messages'},async(p)=>{
 if(p.new.sender_id===state.user.id)return;
 if(!state.chats.some(c=>c.id===p.new.chat_id))return;
 const bl=state.blocks.map(b=>b.blocked_id);
@@ -774,30 +583,20 @@ if(document.hidden||!document.hasFocus())flashTitle(title+': '+(p.new.content||'
 if(!state.unreadCounts[p.new.chat_id])state.unreadCounts[p.new.chat_id]=0;
 state.unreadCounts[p.new.chat_id]++;
 render();
-})
-.subscribe();
+}).subscribe();
 }
 function subProfiles(){if(profilesChannel){sb.removeChannel(profilesChannel);profilesChannel=null}profilesChannel=sb.channel('profiles_updates').on('postgres_changes',{event:'UPDATE',schema:'public',table:'profiles'},(p)=>{if(p.new&&state.profiles[p.new.id])state.profiles[p.new.id]={...state.profiles[p.new.id],...p.new};if(p.new&&state.profile&&p.new.id===state.profile.id)state.profile={...state.profile,...p.new};if(!state.chatId)render()}).subscribe()}
 function startRingTimeout(callId){
 stopRingTimeout();
 ringTimeout=setTimeout(async()=>{
-if(state.incoming&&state.incoming.id===callId){
-try{await sb.from('calls').update({status:'missed'}).eq('id',callId)}catch(e){}
-state.incoming=null;stopRing();
-toast(t('missedCall'),'#ef4444');
-await loadMissedCalls();await loadAllCalls();render();
-}
+if(state.incoming&&state.incoming.id===callId){try{await sb.from('calls').update({status:'missed'}).eq('id',callId)}catch(e){}state.incoming=null;stopRing();toast(t('missedCall'),'#ef4444');await loadMissedCalls();await loadAllCalls();render()}
 },RING_TIMEOUT);
 }
 function stopRingTimeout(){if(ringTimeout){clearTimeout(ringTimeout);ringTimeout=null}}
 function startCallerTimeout(callId){
 if(callerTimeout){clearTimeout(callerTimeout);callerTimeout=null}
 callerTimeout=setTimeout(async()=>{
-if(state.call&&state.call.id===callId&&!state.call.activeAt){
-try{await sb.from('calls').update({status:'missed'}).eq('id',callId)}catch(e){}
-cleanupCall();toast(t('noAnswer'),'#ef4444');
-await loadAllCalls();
-}
+if(state.call&&state.call.id===callId&&!state.call.activeAt){try{await sb.from('calls').update({status:'missed'}).eq('id',callId)}catch(e){}cleanupCall();toast(t('noAnswer'),'#ef4444');await loadAllCalls()}
 },RING_TIMEOUT);
 }
 function startCallPoll(){
@@ -805,22 +604,8 @@ stopCallPoll();
 callPollTimer=setInterval(async()=>{
 if(!state.call&&!state.incoming)return;
 try{
-if(state.incoming){
-const {data}=await sb.from('calls').select('status,created_at').eq('id',state.incoming.id).single();
-if(!data||data.status!=='ringing'){
-stopRingTimeout();stopRing();state.incoming=null;render();
-}else if(Date.now()-new Date(data.created_at).getTime()>RING_TIMEOUT){
-await sb.from('calls').update({status:'missed'}).eq('id',state.incoming.id);
-stopRingTimeout();stopRing();state.incoming=null;
-loadMissedCalls();loadAllCalls();render();
-}
-}
-if(state.call&&!state.call.activeAt){
-const {data}=await sb.from('calls').select('status').eq('id',state.call.id).single();
-if(!data||(data.status!=='ringing'&&data.status!=='active')){
-cleanupCall();loadAllCalls();
-}
-}
+if(state.incoming){const {data}=await sb.from('calls').select('status,created_at').eq('id',state.incoming.id).single();if(!data||data.status!=='ringing'){stopRingTimeout();stopRing();state.incoming=null;render()}else if(Date.now()-new Date(data.created_at).getTime()>RING_TIMEOUT){await sb.from('calls').update({status:'missed'}).eq('id',state.incoming.id);stopRingTimeout();stopRing();state.incoming=null;loadMissedCalls();loadAllCalls();render()}}
+if(state.call&&!state.call.activeAt){const {data}=await sb.from('calls').select('status').eq('id',state.call.id).single();if(!data||(data.status!=='ringing'&&data.status!=='active')){cleanupCall();loadAllCalls()}}
 }catch(e){}
 },3000);
 }
@@ -829,25 +614,10 @@ function subCalls(){
 if(callsChannel){sb.removeChannel(callsChannel);callsChannel=null}
 if(callsListChannel){sb.removeChannel(callsListChannel);callsListChannel=null}
 callsChannel=sb.channel('calls_'+state.user.id).on('postgres_changes',{event:'INSERT',schema:'public',table:'calls',filter:`callee_id=eq.${state.user.id}`},async(p)=>{
-if(p.new.status==='ringing'){
-await loadProfs([p.new.caller_id]);
-state.incoming=p.new;startRing();
-startRingTimeout(p.new.id);
-const caller=state.profiles[p.new.caller_id];
-notify('📞 '+t('inCall'),(caller?.display_name||'Кто-то')+' звонит','call_'+p.new.id,true);
-flashTitle('📞 '+(caller?.display_name||''));
-render();
-}
+if(p.new.status==='ringing'){await loadProfs([p.new.caller_id]);state.incoming=p.new;startRing();startRingTimeout(p.new.id);const caller=state.profiles[p.new.caller_id];notify('📞 '+t('inCall'),(caller?.display_name||'Кто-то')+' звонит','call_'+p.new.id,true);flashTitle('📞 '+(caller?.display_name||''));render()}
 }).on('postgres_changes',{event:'UPDATE',schema:'public',table:'calls'},async(p)=>{
-if(state.call&&p.new.id===state.call.id){
-if(p.new.status==='active'&&!state.call.activeAt){state.call.activeAt=new Date(p.new.accepted_at||Date.now()).getTime();stopAll();pConn();setupWebRTC();render()}
-else if(p.new.status==='ended'||p.new.status==='declined'||p.new.status==='missed')cleanupCall();
-}
-if(state.incoming&&p.new.id===state.incoming.id&&p.new.status!=='ringing'){
-state.incoming=null;stopRing();stopRingTimeout();
-if(p.new.status==='missed'){loadMissedCalls();loadAllCalls();toast(t('missedCall'),'#ef4444')}
-render();
-}
+if(state.call&&p.new.id===state.call.id){if(p.new.status==='active'&&!state.call.activeAt){state.call.activeAt=new Date(p.new.accepted_at||Date.now()).getTime();stopAll();pConn();setupWebRTC();render()}else if(p.new.status==='ended'||p.new.status==='declined'||p.new.status==='missed')cleanupCall()}
+if(state.incoming&&p.new.id===state.incoming.id&&p.new.status!=='ringing'){state.incoming=null;stopRing();stopRingTimeout();if(p.new.status==='missed'){loadMissedCalls();loadAllCalls();toast(t('missedCall'),'#ef4444')}render()}
 if(p.new.status==='ended'||p.new.status==='missed'||p.new.status==='declined')loadAllCalls();
 }).subscribe();
 callsListChannel=sb.channel('calls_list_'+state.user.id).on('postgres_changes',{event:'INSERT',schema:'public',table:'calls',filter:`caller_id=eq.${state.user.id}`},()=>{loadAllCalls()}).subscribe();
@@ -912,46 +682,16 @@ pc=new RTCPeerConnection({iceServers:[{urls:'stun:stun.l.google.com:19302'},{url
 state.stream.getTracks().forEach(t=>pc.addTrack(t,state.stream));
 if(cameraTrack||screenTrack){const tr=cameraTrack||screenTrack;try{videoSender=pc.addTrack(tr,state.stream)}catch(e){}}
 makingOffer=false;ignoreOffer=false;
-pc.onnegotiationneeded=async()=>{
-try{
-makingOffer=true;
-await pc.setLocalDescription();
-await sendSig('offer',{sdp:pc.localDescription.toJSON()});
-}catch(e){
-console.warn('[WebRTC] negotiation failed',e);
-try{await pc.setLocalDescription({type:'rollback'})}catch(e2){}
-}finally{makingOffer=false}
-};
+pc.onnegotiationneeded=async()=>{try{makingOffer=true;await pc.setLocalDescription();await sendSig('offer',{sdp:pc.localDescription.toJSON()})}catch(e){console.warn('[WebRTC] negotiation failed',e);try{await pc.setLocalDescription({type:'rollback'})}catch(e2){}}finally{makingOffer=false}};
 pc.ontrack=e=>{
-if(e.track.kind==='audio'){
-let a=document.getElementById('remote-audio');
-if(!a){a=document.createElement('audio');a.id='remote-audio';a.autoplay=true;a.playsInline=true;document.body.appendChild(a)}
-a.srcObject=e.streams[0]||new MediaStream([e.track]);
-a.play().catch(()=>{});
-}else if(e.track.kind==='video'){
-remoteStream=e.streams[0]||new MediaStream([e.track]);
-e.track.onunmute=()=>attachRemote();
-attachRemote();
-}
+if(e.track.kind==='audio'){let a=document.getElementById('remote-audio');if(!a){a=document.createElement('audio');a.id='remote-audio';a.autoplay=true;a.playsInline=true;document.body.appendChild(a)}a.srcObject=e.streams[0]||new MediaStream([e.track]);a.play().catch(()=>{})}else if(e.track.kind==='video'){remoteStream=e.streams[0]||new MediaStream([e.track]);e.track.onunmute=()=>attachRemote();attachRemote()}
 };
 pc.onicecandidate=e=>{if(e.candidate)sendSig('ice',{candidate:e.candidate.toJSON()})};
-pc.onconnectionstatechange=()=>{
-const el=document.getElementById('call-status');
-if(el)el.textContent=pc.connectionState==='connected'?t('connected'):pc.connectionState;
-};
+pc.onconnectionstatechange=()=>{const el=document.getElementById('call-status');if(el)el.textContent=pc.connectionState==='connected'?t('connected'):pc.connectionState};
 subSigs(state.call.id);startSigPoll(state.call.id);
 if(callReactChannel){sb.removeChannel(callReactChannel);callReactChannel=null}
-callReactChannel=sb.channel('call_react_'+state.call.id).on('postgres_changes',{event:'INSERT',schema:'public',table:'call_reactions',filter:`call_id=eq.${state.call.id}`},(p)=>{
-if(p.new.user_id===state.user.id)return;
-state.callReactions.push(p.new);render();
-setTimeout(()=>{state.callReactions=state.callReactions.filter(r=>r.id!==p.new.id);render()},2000);
-}).subscribe();
-(async()=>{
-if(pendingSignals.length){
-const ps=[...pendingSignals];pendingSignals=[];
-for(const s of ps){await procSig(s)}
-}
-})();
+callReactChannel=sb.channel('call_react_'+state.call.id).on('postgres_changes',{event:'INSERT',schema:'public',table:'call_reactions',filter:`call_id=eq.${state.call.id}`},(p)=>{if(p.new.user_id===state.user.id)return;state.callReactions.push(p.new);render();setTimeout(()=>{state.callReactions=state.callReactions.filter(r=>r.id!==p.new.id);render()},2000)}).subscribe();
+(async()=>{if(pendingSignals.length){const ps=[...pendingSignals];pendingSignals=[];for(const s of ps){await procSig(s)}}})();
 }
 function subSigs(cid){if(sigChannel)sb.removeChannel(sigChannel);sigChannel=sb.channel('sig_'+cid).on('postgres_changes',{event:'INSERT',schema:'public',table:'call_signals',filter:`call_id=eq.${cid}`},async p=>{if(p.new.sender_id===state.user.id)return;if(processed.has(p.new.id))return;const ok=await procSig(p.new);if(ok)processed.add(p.new.id)}).subscribe()}
 function startSigPoll(cid){if(sigPollTimer)clearInterval(sigPollTimer);sigPollTimer=setInterval(async()=>{if(!state.call||state.call.id!==cid)return;try{const {data}=await sb.from('call_signals').select('*').eq('call_id',cid).order('created_at');for(const s of data||[]){if(processed.has(s.id))continue;if(s.sender_id===state.user.id)continue;const ok=await procSig(s);if(ok)processed.add(s.id)}}catch(e){}},900)}
@@ -963,45 +703,21 @@ if(s.type==='offer'){
 const polite=!state.call?.outbound;
 const offerCollision=makingOffer||pc.signalingState!=='stable';
 ignoreOffer=!polite&&offerCollision;
-if(ignoreOffer){
-console.log('[WebRTC] ignore colliding offer (impolite)');
-return true;
-}
-if(offerCollision&&polite){
-console.log('[WebRTC] rollback (polite)');
-try{await pc.setLocalDescription({type:'rollback'})}catch(e){
-console.warn('[WebRTC] rollback failed',e);
-return false;
-}
-}
+if(ignoreOffer){console.log('[WebRTC] ignore colliding offer (impolite)');return true}
+if(offerCollision&&polite){console.log('[WebRTC] rollback (polite)');try{await pc.setLocalDescription({type:'rollback'})}catch(e){console.warn('[WebRTC] rollback failed',e);return false}}
 await pc.setRemoteDescription(new RTCSessionDescription(s.payload.sdp));
 await pc.setLocalDescription();
 await sendSig('answer',{sdp:pc.localDescription.toJSON()});
 return true;
-}else if(s.type==='answer'){
-if(pc.signalingState==='have-local-offer'){
-await pc.setRemoteDescription(new RTCSessionDescription(s.payload.sdp));
-}
-return true;
-}else if(s.type==='ice'){
-try{await pc.addIceCandidate(new RTCIceCandidate(s.payload.candidate))}catch(e){if(!ignoreOffer)console.warn('ice',e)}
-return true;
-}
+}else if(s.type==='answer'){if(pc.signalingState==='have-local-offer'){await pc.setRemoteDescription(new RTCSessionDescription(s.payload.sdp))}return true}
+else if(s.type==='ice'){try{await pc.addIceCandidate(new RTCIceCandidate(s.payload.candidate))}catch(e){if(!ignoreOffer)console.warn('ice',e)}return true}
 return true;
 }catch(e){console.warn('[WebRTC] sig error',e);return false}
 }
 async function updVS(){
 const tr=screenTrack||cameraTrack;
-if(!tr){
-if(videoSender){try{await videoSender.replaceTrack(null)}catch(e){}}
-attLocal();
-return;
-}
-if(!videoSender){
-try{videoSender=pc.addTrack(tr,state.stream||new MediaStream([tr]))}catch(e){console.warn('addTrack video',e)}
-}else{
-try{await videoSender.replaceTrack(tr)}catch(e){console.error('replaceTrack fail',e)}
-}
+if(!tr){if(videoSender){try{await videoSender.replaceTrack(null)}catch(e){}}attLocal();return}
+if(!videoSender){try{videoSender=pc.addTrack(tr,state.stream||new MediaStream([tr]))}catch(e){console.warn('addTrack video',e)}}else{try{await videoSender.replaceTrack(tr)}catch(e){console.error('replaceTrack fail',e)}}
 attLocal();
 }
 async function tMute(){
@@ -1011,38 +727,17 @@ tr.enabled=!tr.enabled;state.muted=!tr.enabled;pMute(!state.muted);
 document.querySelectorAll('[data-act="t-mute"]').forEach(b=>{b.className='call-btn'+(state.muted?' off':'');b.textContent=state.muted?'🔇':'🎤'});
 }
 async function tCam(){
-if(state.cameraOn){
-cameraTrack?.stop();cameraTrack=null;state.cameraOn=false;
-await updVS();pCam(false);
-}else{
-try{
-const st=await navigator.mediaDevices.getUserMedia({video:{width:{ideal:640},height:{ideal:480},facingMode:'user'}});
-cameraTrack=st.getVideoTracks()[0];state.cameraOn=true;
-await updVS();pCam(true);
-}catch(e){toast('Камера: '+e.message);return}
-}
+if(state.cameraOn){cameraTrack?.stop();cameraTrack=null;state.cameraOn=false;await updVS();pCam(false)}else{try{const st=await navigator.mediaDevices.getUserMedia({video:{width:{ideal:640},height:{ideal:480},facingMode:'user'}});cameraTrack=st.getVideoTracks()[0];state.cameraOn=true;await updVS();pCam(true)}catch(e){toast('Камера: '+e.message);return}}
 document.querySelectorAll('[data-act="t-cam"]').forEach(b=>b.className='call-btn'+(state.cameraOn?' on':''));
 }
 async function tScreen(){
-if(state.screenOn){
-screenTrack?.stop();screenTrack=null;state.screenOn=false;
-await updVS();pScreen(false);
-}else{
-try{
-const st=await navigator.mediaDevices.getDisplayMedia({video:true});
-screenTrack=st.getVideoTracks()[0];
-screenTrack.onended=()=>{screenTrack=null;state.screenOn=false;updVS();document.querySelectorAll('[data-act="t-scr"]').forEach(b=>b.className='call-btn')};
-state.screenOn=true;
-await updVS();pScreen(true);
-}catch(e){return}
-}
+if(state.screenOn){screenTrack?.stop();screenTrack=null;state.screenOn=false;await updVS();pScreen(false)}else{try{const st=await navigator.mediaDevices.getDisplayMedia({video:true});screenTrack=st.getVideoTracks()[0];screenTrack.onended=()=>{screenTrack=null;state.screenOn=false;updVS();document.querySelectorAll('[data-act="t-scr"]').forEach(b=>b.className='call-btn')};state.screenOn=true;await updVS();pScreen(true)}catch(e){return}}
 document.querySelectorAll('[data-act="t-scr"]').forEach(b=>b.className='call-btn'+(state.screenOn?' on':''));
 }
 function attLocal(){
 const v=document.getElementById('local-video');if(!v)return;
 const tr=screenTrack||cameraTrack;
-if(tr){v.style.display='block';if(!v.srcObject||v.srcObject.getVideoTracks()[0]!==tr){v.srcObject=new MediaStream([tr])}v.muted=true;v.playsInline=true;v.play().catch(()=>{})}
-else{v.style.display='none';v.srcObject=null}
+if(tr){v.style.display='block';if(!v.srcObject||v.srcObject.getVideoTracks()[0]!==tr){v.srcObject=new MediaStream([tr])}v.muted=true;v.playsInline=true;v.play().catch(()=>{})}else{v.style.display='none';v.srcObject=null}
 }
 function attachRemote(){
 const v=document.getElementById('remote-video');if(!v||!remoteStream)return;
@@ -1054,26 +749,39 @@ async function createGroup(n,ids){const {data,error}=await sb.rpc('create_group'
 async function startDM(oid){const {data,error}=await sb.rpc('get_or_create_dm',{other_id:oid});if(error){toast(error.message);return null}await refresh();return data}
 async function setRole(cid,uid2,role){const {error}=await sb.rpc('set_member_role',{target_chat:cid,target_user:uid2,new_role:role});if(error){toast(error.message);return}await refresh();render()}
 async function setMuted(cid,uid2,m){const {error}=await sb.rpc('set_member_muted',{target_chat:cid,target_user:uid2,muted_state:m});if(error){toast(error.message);return}await refresh();render()}
-async function leaveGroup(cid){if(!confirm('Выйти из группы?'))return;const {error}=await sb.rpc('leave_chat',{target_chat:cid});if(error){toast(error.message);return}state.chatId=null;state.chat=null;state.groupSettings=null;await refresh();render()}
+async function transferOwnership(cid,newOwnerId){
+try{const {error}=await sb.rpc('transfer_ownership',{target_chat:cid,new_owner:newOwnerId});if(error)throw error;await refresh();toast('Права владельца переданы','#10b981');return true}catch(e){toast('Ошибка: '+(e.message||e));return false}
+}
+async function leaveGroup(cid){
+const c=state.chats.find(x=>x.id===cid);
+if(!c)return;
+const isOwner=c.created_by===state.user.id;
+const others=(state.members[cid]||[]).filter(m=>m.user_id!==state.user.id);
+if(isOwner){
+if(others.length===0){if(confirm('Вы единственный участник. Удалить группу?')){await deleteGroup(cid)}return}
+state.ownerTransferPending={chatId:cid,action:'leave'};
+render();
+return;
+}
+if(!confirm('Выйти из группы?'))return;
+const {error}=await sb.rpc('leave_chat',{target_chat:cid});
+if(error){toast(error.message);return}
+state.chatId=null;state.chat=null;state.groupSettings=null;
+await refresh();render();
+}
 async function kickMember(cid,uid2){const p=state.profiles[uid2];if(!confirm(`Исключить ${p?.display_name||p?.username||'участника'}?`))return;const {error}=await sb.rpc('kick_member',{target_chat:cid,target_user:uid2});if(error){toast(error.message);return}await refresh();render()}
 async function deleteGroup(cid){if(!confirm('⚠️ УДАЛИТЬ ГРУППУ? Нельзя отменить.'))return;if(!confirm('Вы ТОЧНО уверены?'))return;const {error}=await sb.rpc('delete_group',{target_chat:cid});if(error){toast(error.message);return}state.chatId=null;state.chat=null;state.groupSettings=null;await refresh();render()}
-
-/* ============ DELETE ACCOUNT (RPC) ============ */
 async function deleteAccount(){
-  if(!confirm('⚠️ УДАЛИТЬ АККАУНТ? Все данные будут удалены безвозвратно.'))return;
-  if(!confirm('Вы ТОЧНО уверены? Это действие нельзя отменить.'))return;
-  try{
-    const { error } = await sb.rpc('delete_user');
-    if(error) throw error;
-    try { await sb.auth.signOut(); } catch(e) {}
-    toast('Аккаунт удалён','#10b981');
-    setTimeout(()=>location.reload(), 1500);
-  }catch(e){
-    toast('Ошибка удаления: ' + (e.message||e));
-  }
+if(!confirm('⚠️ УДАЛИТЬ АККАУНТ? Все данные будут удалены безвозвратно.'))return;
+if(!confirm('Вы ТОЧНО уверены? Это действие нельзя отменить.'))return;
+try{
+const {error}=await sb.rpc('delete_user');
+if(error)throw error;
+try{await sb.auth.signOut()}catch(e){}
+toast('Аккаунт удалён','#10b981');
+setTimeout(()=>location.reload(),1500);
+}catch(e){toast('Ошибка удаления: '+(e.message||e))}
 }
-/* ============ END DELETE ACCOUNT ============ */
-
 function isAdmin(cid){const m=(state.members[cid]||[]).find(x=>x.user_id===state.user.id);return m?.role==='admin'}
 function isCreator(cid){const c=state.chats.find(x=>x.id===cid);return c&&c.created_by===state.user.id}
 function isContact(uid2){return state.contacts.some(c=>c.contact_id===uid2)}
@@ -1089,11 +797,7 @@ const c=state.chat;if(!c)return false;
 const members=state.members[c.id]||[];
 const others=members.filter(x=>x.user_id!==state.user.id);
 if(!others.length)return false;
-return others.every(o=>{
-const lr=state.chatReads?.[o.user_id];
-if(!lr)return false;
-return new Date(lr)>=new Date(m.created_at);
-});
+return others.every(o=>{const lr=state.chatReads?.[o.user_id];if(!lr)return false;return new Date(lr)>=new Date(m.created_at)});
 }
 function msgTs(m){
 const ts=tm(m.created_at);
@@ -1118,14 +822,7 @@ const sys=S.lang==='en'?'You are a helpful AI assistant.':'Ты полезный
 const msgs=[{role:'system',content:sys},...state.aiMessages.slice(-20).map(m=>({role:m.role,content:m.content||''}))];
 let attempts=0,lastErr=null;
 while(attempts<3){
-try{
-const r=await fetch('https://text.pollinations.ai/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:msgs,model:'openai',referrer:'nova-messenger'})});
-if(r.status===402){attempts++;lastErr='AI перегружен, попробуйте через минуту';if(attempts<3){await new Promise(res=>setTimeout(res,3000*attempts));continue}break}
-if(!r.ok)throw new Error('HTTP '+r.status);
-const a=(await r.text()).trim();
-state.aiMessages.push({role:'assistant',content:a||'...'});
-lastErr=null;break;
-}catch(e){lastErr=e.message;attempts++;if(attempts<3)await new Promise(res=>setTimeout(res,2000*attempts))}
+try{const r=await fetch('https://text.pollinations.ai/',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:msgs,model:'openai',referrer:'nova-messenger'})});if(r.status===402){attempts++;lastErr='AI перегружен, попробуйте через минуту';if(attempts<3){await new Promise(res=>setTimeout(res,3000*attempts));continue}break}if(!r.ok)throw new Error('HTTP '+r.status);const a=(await r.text()).trim();state.aiMessages.push({role:'assistant',content:a||'...'});lastErr=null;break}catch(e){lastErr=e.message;attempts++;if(attempts<3)await new Promise(res=>setTimeout(res,2000*attempts))}
 }
 if(lastErr)state.aiMessages.push({role:'assistant',content:'⚠ '+lastErr});
 state.aiLoading=false;saveAI();render();
@@ -1138,7 +835,7 @@ const s=state.stories.find(x=>x.id===sid);
 if(!s)return;
 const x=prompt(t('reply')+':');
 if(!x||!x.trim())return;
-try{ await sb.from('story_replies').insert({story_id:sid,user_id:state.user.id,content:x.trim()}); }catch(e){}
+try{await sb.from('story_replies').insert({story_id:sid,user_id:state.user.id,content:x.trim()})}catch(e){}
 const cid=await startDM(s.user_id);
 if(!cid)return;
 const marker=`[[story:${sid}:${s.user_id}]]`;
@@ -1161,34 +858,18 @@ saveIds.forEach(fid=>{const el=document.getElementById(fid);if(el&&saved[fid]!==
 if(focusId){const el=document.getElementById(focusId);if(el)el.focus()}
 if(state.chatId){
 const m=document.getElementById('msgs');
-if(m){
-if(state.scrollAtBottom)m.scrollTop=m.scrollHeight;
-m.onscroll=()=>{
-const near=m.scrollHeight-m.scrollTop-m.clientHeight<80;
-if(near!==state.scrollAtBottom){
-state.scrollAtBottom=near;
-if(near)state.newMsgsBadge=0;
-updateScrollBtn();
-}
-};
-}
+if(m){if(state.scrollAtBottom)m.scrollTop=m.scrollHeight;m.onscroll=()=>{const near=m.scrollHeight-m.scrollTop-m.clientHeight<80;if(near!==state.scrollAtBottom){state.scrollAtBottom=near;if(near)state.newMsgsBadge=0;updateScrollBtn()}}}
 updateScrollBtn();
 }
 attLocal();attachRemote();
 updateTypingIndicator();
-if(state.call&&state.call.activeAt&&!callTimer){callTimer=setInterval(()=>{
-document.querySelectorAll('#call-timer').forEach(el=>{
-if(!state.call?.activeAt)return;
-const s=Math.floor((Date.now()-state.call.activeAt)/1000);
-el.textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
-});
-},500)}
+if(state.call&&state.call.activeAt&&!callTimer){callTimer=setInterval(()=>{document.querySelectorAll('#call-timer').forEach(el=>{if(!state.call?.activeAt)return;const s=Math.floor((Date.now()-state.call.activeAt)/1000);el.textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')})},500)}
 setTimeout(()=>{state.messages.forEach(m=>delete m._isNew)},600);
 }
 function renderProfLoad(){return `<div class="boot"><div class="ring"></div><div class="msg">Загрузка профиля…</div><div class="hint">Если висит долго — проверьте, что Confirm email отключён в Supabase.</div><button class="btn primary" data-act="retry-prof" style="margin-top:14px">Повторить</button><button class="btn ghost" data-act="force-logout" style="margin-top:8px">← Назад</button></div>`}
 function renderAuth(){
-const _pref = S.theme || 'dark';
-const _lbl = _pref==='light'?'Светлая':(_pref==='system'?'Системная':'Тёмная');
+const _pref=S.theme || 'dark';
+const _lbl=_pref==='light'?'Светлая':(_pref==='system'?'Системная':'Тёмная');
 const _themeBtn=`<button class="icon" data-act="auth-theme-toggle" title="Тема: ${_lbl}" style="position:fixed;top:14px;right:14px;z-index:100;width:44px;height:44px;border-radius:50%;background:var(--card);border:1px solid var(--line);box-shadow:0 4px 14px rgba(0,0,0,.15);font-size:20px;display:grid;place-items:center">${themeIcon(_pref)}</button>`;
 if(state.pending2FA)return `${_themeBtn}<div class="auth-wrap"><div class="auth-card"><div class="logo">🔐 2FA</div><div class="muted small">${t('twofaHint')}: <b>${esc(state.pending2FA.email)}</b></div><input id="twofa-code" placeholder="${t('twofaCode')}" maxlength="6" style="text-align:center;font-size:22px;letter-spacing:6px"><button class="btn primary" data-act="verify-2fa">${t('verify')}</button><button class="btn ghost" data-act="cancel-2fa">${t('back')}</button><div class="err">${esc(state.authErr)}</div></div></div>`;
 const reg=state.authMode==='register';
@@ -1204,6 +885,7 @@ if(state.showAI)ex+=renderAI();
 if(state.showBlocked)ex+=renderBlocked();
 if(state.aiModal==='image')ex+=renderImgModal();
 if(state.storyViewersModal)ex+=renderStoryViewers();
+if(state.ownerTransferPending)ex+=renderOwnerTransfer();
 const showTop=!state.chatId;
 return `<header class="top"><div class="grow"><div class="top-title" data-act="logo-easter-egg">◈ Nova</div></div>${showTop&&state.tab==='chats'?`<button class="icon" data-act="open-stories" title="${t('storiesTitle')}">✨</button>`:''}${showTop?`<button class="icon" data-act="theme-quick" title="Тема: ${u.theme==='light'?'Светлая':(u.theme==='system'?'Системная':'Тёмная')}">${themeIcon(u.theme)}</button>`:''}${showTop?`<button class="icon" data-act="logout" title="${t('logout')}">🚪</button>`:''}</header><main class="content ${state.chatId?'chat':''}">${state.chatId?renderChat():renderTab()}</main>${state.chatId?'':`<nav class="tabs">${tabs.map(([k,l,label])=>{let badge='';if(k==='chats'&&totalUnread>0)badge=`<span class="tab-badge">${totalUnread>99?'99+':totalUnread}</span>`;if(k==='calls'&&missedCount>0)badge=`<span class="tab-badge">${missedCount>99?'99+':missedCount}</span>`;return `<button class="tab ${state.tab===k?'on':''}" data-act="tab" data-tab="${k}"><span class="tab-icon">${l}</span>${label}${badge}</button>`}).join('')}</nav>`}${state.tab==='chats'&&!state.chatId?`<button class="floating-ai" data-act="open-ai">🤖</button>`:''}${state.modal==='pick'?renderPick():''}${state.modal==='search'?renderSearchModal():''}${state.createGroup?renderCreate():''}${state.viewMembers?renderMembers():''}${state.groupSettings?renderGroupSet():''}${state.showStories?renderStoriesPage():''}${state.storyCompose?renderStoryComp():''}${state.storyPlayer?renderStoryPlayer():''}${state.msgMenu?renderMsgMenu():''}${state.viewProfile?renderProfileView():''}${state.incoming?renderIncoming():''}${state.call?renderCall():''}${state.lightbox?`<div class="lightbox" data-act="close-lb"><img src="${state.lightbox}"></div>`:''}${state.searchMsgs!==null?renderSearchMsgs():''}${state.showEmoji?renderEmojiPicker():''}${ex}`;
 }
@@ -1257,10 +939,7 @@ o+=`<div class="reply-quote" style="display:flex;gap:8px;align-items:center;curs
 }
 if(m.reply_to_id){
 const parent=state.messages.find(x=>x.id===m.reply_to_id);
-if(parent){
-const psnd=state.profiles[parent.sender_id];
-o+=`<div class="reply-quote" data-act="scroll-to" data-id="${parent.id}"><div class="reply-name">${esc(psnd?.display_name||'?')}</div><div class="reply-text">${esc((parent.content||'📎').slice(0,80))}</div></div>`;
-}
+if(parent){const psnd=state.profiles[parent.sender_id];o+=`<div class="reply-quote" data-act="scroll-to" data-id="${parent.id}"><div class="reply-name">${esc(psnd?.display_name||'?')}</div><div class="reply-text">${esc((parent.content||'📎').slice(0,80))}</div></div>`}
 }
 const u=m.media_url||'';
 const n=m.media_name||'file';
@@ -1293,15 +972,7 @@ const comp=state.recording?`<div class="rec-bar"><span>●</span><span class="ti
  class="btn primary" data-act="send" ${mm?'disabled':''} style="padding:12px 18px">➤</button>`;
 const ringClass=op?storyRing(op.id):'';
 let ab;
-if(c.is_group){
-ab=`<span data-act="open-gs" style="cursor:pointer">${aHtml(av,'sm')}</span>`;
-}else{
-if(ringClass){
-ab=`<span data-act="open-user-stories" data-id="${o?.user_id||''}" style="cursor:pointer">${aHtml(av,'sm '+ringClass)}</span>`;
-}else{
-ab=`<span data-act="view-prof" data-id="${o?.user_id||''}" style="cursor:pointer">${aHtml(av,'sm')}</span>`;
-}
-}
+if(c.is_group){ab=`<span data-act="open-gs" style="cursor:pointer">${aHtml(av,'sm')}</span>`}else{if(ringClass){ab=`<span data-act="open-user-stories" data-id="${o?.user_id||''}" style="cursor:pointer">${aHtml(av,'sm '+ringClass)}</span>`}else{ab=`<span data-act="view-prof" data-id="${o?.user_id||''}" style="cursor:pointer">${aHtml(av,'sm')}</span>`}}
 const sb2=c.is_group?`${m.length} ${t('members').toLowerCase()}`:(op?fLastSeen(op)||('@'+esc(op.username)):'—');
 const eb=c.is_group&&isAdmin(c.id)?`<button class="icon" data-act="open-gs">⚙️</button>`:'';
 const badge=state.newMsgsBadge>0?`<span class="badge">${state.newMsgsBadge}</span>`:'';
@@ -1309,49 +980,16 @@ return `<div class="chat-head"><button class="icon" data-act="back">←</button>
 }
 function renderStoriesPage(){
 const alive=[];
-for(const s of state.stories){
-const au=state.profiles[s.user_id];
-if(!au)continue;
-const ttl=au.story_ttl_hours||24;
-if(Date.now()-new Date(s.created_at).getTime()>=ttl*3600*1000)continue;
-alive.push(s);
-}
-alive.sort((a,b)=>{
-const aV=isStoryViewed(a.id)?1:0;
-const bV=isStoryViewed(b.id)?1:0;
-if(aV!==bV)return aV-bV;
-return new Date(b.created_at)-new Date(a.created_at);
-});
+for(const s of state.stories){const au=state.profiles[s.user_id];if(!au)continue;const ttl=au.story_ttl_hours||24;if(Date.now()-new Date(s.created_at).getTime()>=ttl*3600*1000)continue;alive.push(s)}
+alive.sort((a,b)=>{const aV=isStoryViewed(a.id)?1:0;const bV=isStoryViewed(b.id)?1:0;if(aV!==bV)return aV-bV;return new Date(b.created_at)-new Date(a.created_at)});
 let h=`<div class="overlay" data-act="close-stories-bg"><div class="card modal" style="max-width:560px">
 <div class="row between"><b>✨ ${t('storiesTitle')}</b><button class="icon" data-act="close-stories">✕</button></div>
 <button class="btn primary wide" data-act="add-story">+ ${t('addStory').replace('+ ','')}</button>`;
-if(!alive.length){
-h+=`<div class="empty">${t('noStories')}</div>`;
-}else{
+if(!alive.length){h+=`<div class="empty">${t('noStories')}</div>`}else{
 h+=`<div class="stories-grid-thumbs">`;
 let si=0;
-for(const s of alive){
-const au=state.profiles[s.user_id];
-const viewed=isStoryViewed(s.id);
-const isVid=/\.(mp4|webm|mov|ogv)(\?|$)/i.test(s.media_url||'');
-const cls='story-thumb '+(viewed?'story-thumb-viewed':'story-thumb-unviewed');
-let mediaHtml='';
-if(s.media_url){
-if(isVid){
-mediaHtml=`<video src="${s.media_url}" muted playsinline preload="metadata" style="width:100%;height:100%;object-fit:cover;border-radius:10px"></video><div style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.6);color:#fff;padding:2px 6px;border-radius:8px;font-size:11px;font-weight:700">▶</div>`;
-}else{
-mediaHtml=`<img src="${s.media_url}" style="width:100%;height:100%;object-fit:cover;border-radius:10px">`;
-}
-}else{
-mediaHtml=`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:${s.background_color||'var(--accent)'};border-radius:10px;color:#fff;font-weight:600;font-size:12px;padding:8px;text-align:center;overflow:hidden">${esc((s.content||'').slice(0,60))}</div>`;
-}
-h+=`<div class="${cls}" data-act="open-story-from-thumb" data-uid="${s.user_id}" data-sid="${s.id}" style="--d:${si*0.025}s">
-<div class="story-thumb-media">${mediaHtml}</div>
-<div class="story-thumb-author">
-<div class="ava" style="${aStyle(au)};width:18px;height:18px;font-size:9px;border-radius:5px;flex:none">${au.avatar_url?'':esc(au.display_name?.[0]?.toUpperCase()||'?')}</div>
-<span>${esc(s.user_id===state.user.id?t('you'):(au.display_name||au.username))}</span>
-</div>
-</div>`;
+for(const s of alive){const au=state.profiles[s.user_id];const viewed=isStoryViewed(s.id);const isVid=/\.(mp4|webm|mov|ogv)(\?|$)/i.test(s.media_url||'');const cls='story-thumb '+(viewed?'story-thumb-viewed':'story-thumb-unviewed');let mediaHtml='';if(s.media_url){if(isVid){mediaHtml=`<video src="${s.media_url}" muted playsinline preload="metadata" style="width:100%;height:100%;object-fit:cover;border-radius:10px"></video><div style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.6);color:#fff;padding:2px 6px;border-radius:8px;font-size:11px;font-weight:700">▶</div>`}else{mediaHtml=`<img src="${s.media_url}" style="width:100%;height:100%;object-fit:cover;border-radius:10px">`}}else{mediaHtml=`<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:${s.background_color||'var(--accent)'};border-radius:10px;color:#fff;font-weight:600;font-size:12px;padding:8px;text-align:center;overflow:hidden">${esc((s.content||'').slice(0,60))}</div>`}
+h+=`<div class="${cls}" data-act="open-story-from-thumb" data-uid="${s.user_id}" data-sid="${s.id}" style="--d:${si*0.025}s"><div class="story-thumb-media">${mediaHtml}</div><div class="story-thumb-author"><div class="ava" style="${aStyle(au)};width:18px;height:18px;font-size:9px;border-radius:5px;flex:none">${au.avatar_url?'':esc(au.display_name?.[0]?.toUpperCase()||'?')}</div><span>${esc(s.user_id===state.user.id?t('you'):(au.display_name||au.username))}</span></div></div>`;
 si++;
 }
 h+=`</div>`;
@@ -1367,254 +1005,155 @@ if(!s)return '';
 const au=state.profiles[s.user_id];
 const isMine=s.user_id===state.user.id;
 const isVideo=/\.(mp4|webm|mov|ogv)(\?|$)/i.test(s.media_url||'');
-const bars=p.stories.map((st,i)=>{
-let fill=0;
-if(i<p.index)fill=100;
-else if(i===p.index)fill=p.progress;
-return `<div style="flex:1;height:3px;background:rgba(255,255,255,.25);border-radius:2px;overflow:hidden"><div class="story-progress-fill" style="height:100%;background:#fff;width:${fill}%;transition:width .05s linear;border-radius:2px"></div></div>`;
-}).join('');
-const media=s.media_url
-?(isVideo
-?`<video id="story-video-player" src="${s.media_url}" playsinline autoplay style="max-width:100%;max-height:100%;border-radius:16px"></video>`
-:`<img src="${s.media_url}" style="max-width:100%;max-height:100%;object-fit:contain;border-radius:16px">`)
-:'';
-return `<div class="story-full" style="background:#000">
-<div id="story-progress-bars" style="position:absolute;top:0;left:0;right:0;padding:14px;display:flex;gap:4px;z-index:10">${bars}</div>
-<div style="position:absolute;top:40px;left:14px;right:14px;display:flex;align-items:center;gap:10px;z-index:10">
-${aHtml(au,'xs')}
-<b style="font-size:14px">${esc(au?.display_name||'?')}</b>
-<div class="small" style="opacity:.7">${tm(s.created_at)}</div>
-<div class="grow"></div>
-${isMine?`<button class="icon" data-act="story-viewers" data-id="${s.id}" style="color:#fff;font-size:13px;gap:2px">👁 ${(state.storyViewers[s.id]||[]).length}</button><button class="icon" data-act="del-story-player" data-id="${s.id}" style="color:#fff">🗑️</button>`:''}
-<button class="icon" data-act="close-story-player" style="color:#fff">✕</button>
-</div>
-<div style="position:absolute;inset:80px 20px 130px;display:flex;align-items:center;justify-content:center">
-${media}
-</div>
-${s.content?`<div style="position:absolute;bottom:110px;left:30px;right:30px;text-align:center;text-shadow:0 2px 8px rgba(0,0,0,.9);font-size:18px;color:#fff;font-weight:600">${esc(s.content)}</div>`:''}
-<div style="position:absolute;bottom:20px;left:0;right:0;padding:0 20px;z-index:10">
-${!isMine?`<div class="chips" style="justify-content:center;gap:10px">
-${EMOJI.map(e=>`<button class="reaction-chip" data-act="react-story" data-id="${s.id}" data-v="${e}" style="background:rgba(255,255,255,.15);border:none;color:#fff;font-size:18px;padding:8px 12px">${e}</button>`).join('')}
-<button class="reaction-chip" data-act="reply-story" data-id="${s.id}" style="background:rgba(255,255,255,.15);border:none;color:#fff;font-size:16px;padding:8px 14px">💬</button>
-</div>`:''}
-</div>
-<div data-act="story-prev" style="position:absolute;top:80px;bottom:120px;left:0;width:40%;z-index:5;cursor:pointer"></div>
-<div data-act="story-next" style="position:absolute;top:80px;bottom:120px;right:0;width:40%;z-index:5;cursor:pointer"></div>
-</div>`;
+const bars=p.stories.map((st,i)=>{let fill=0;if(i<p.index)fill=100;else if(i===p.index)fill=p.progress;return `<div style="flex:1;height:3px;background:rgba(255,255,255,.25);border-radius:2px;overflow:hidden"><div class="story-progress-fill" style="height:100%;background:#fff;width:${fill}%;transition:width .05s linear;border-radius:2px"></div></div>`}).join('');
+const media=s.media_url?(isVideo?`<video id="story-video-player" src="${s.media_url}" playsinline autoplay style="max-width:100%;max-height:100%;border-radius:16px"></video>`:`<img src="${s.media_url}" style="max-width:100%;max-height:100%;object-fit:contain;border-radius:16px">`):'';
+return `<div class="story-full" style="background:#000"><div id="story-progress-bars" style="position:absolute;top:0;left:0;right:0;padding:14px;display:flex;gap:4px;z-index:10">${bars}</div><div style="position:absolute;top:40px;left:14px;right:14px;display:flex;align-items:center;gap:10px;z-index:10">${aHtml(au,'xs')}<b style="font-size:14px">${esc(au?.display_name||'?')}</b><div class="small" style="opacity:.7">${tm(s.created_at)}</div><div class="grow"></div>${isMine?`<button class="icon" data-act="story-viewers" data-id="${s.id}" style="color:#fff;font-size:13px;gap:2px">👁 ${(state.storyViewers[s.id]||[]).length}</button><button class="icon" data-act="del-story-player" data-id="${s.id}" style="color:#fff">🗑️</button>`:''}<button class="icon" data-act="close-story-player" style="color:#fff">✕</button></div><div style="position:absolute;inset:80px 20px 130px;display:flex;align-items:center;justify-content:center">${media}</div>${s.content?`<div style="position:absolute;bottom:110px;left:30px;right:30px;text-align:center;text-shadow:0 2px 8px rgba(0,0,0,.9);font-size:18px;color:#fff;font-weight:600">${esc(s.content)}</div>`:''}<div style="position:absolute;bottom:20px;left:0;right:0;padding:0 20px;z-index:10">${!isMine?`<div class="chips" style="justify-content:center;gap:10px">${EMOJI.map(e=>`<button class="reaction-chip" data-act="react-story" data-id="${s.id}" data-v="${e}" style="background:rgba(255,255,255,.15);border:none;color:#fff;font-size:18px;padding:8px 12px">${e}</button>`).join('')}<button class="reaction-chip" data-act="reply-story" data-id="${s.id}" style="background:rgba(255,255,255,.15);border:none;color:#fff;font-size:16px;padding:8px 14px">💬</button></div>`:''}</div><div data-act="story-prev" style="position:absolute;top:80px;bottom:120px;left:0;width:40%;z-index:5;cursor:pointer"></div><div data-act="story-next" style="position:absolute;top:80px;bottom:120px;right:0;width:40%;z-index:5;cursor:pointer"></div></div>`;
 }
 function renderStoryViewers(){
 const sid=state.storyViewersModal;
-if(!sid) return '';
-const viewers = state.storyViewers[sid] || [];
-const list = viewers.map(v=>state.profiles[v.viewer_id]).filter(Boolean);
-return `<div class="overlay" data-act="close-story-viewers-bg">
-<div class="card modal" style="max-width:360px">
-<div class="row between"><b>👁 ${t('viewedBy')} (${list.length})</b><button class="icon" data-act="close-story-viewers">✕</button></div>
-${list.length?list.map(p=>`<div class="member-row">${aHtml(p,'sm')}<div class="grow"><b>${esc(p.display_name||p.username)}</b></div></div>`).join(''):`<div class="empty">${t('noViews')}</div>`}
-</div>
-</div>`;
+if(!sid)return '';
+const viewers=state.storyViewers[sid]||[];
+const list=viewers.map(v=>state.profiles[v.viewer_id]).filter(Boolean);
+return `<div class="overlay" data-act="close-story-viewers-bg"><div class="card modal" style="max-width:360px"><div class="row between"><b>👁 ${t('viewedBy')} (${list.length})</b><button class="icon" data-act="close-story-viewers">✕</button></div>${list.length?list.map(p=>`<div class="member-row">${aHtml(p,'sm')}<div class="grow"><b>${esc(p.display_name||p.username)}</b></div></div>`).join(''):`<div class="empty">${t('noViews')}</div>`}</div></div>`;
+}
+function renderOwnerTransfer(){
+const p=state.ownerTransferPending;
+if(!p)return '';
+const c=state.chats.find(x=>x.id===p.chatId);
+if(!c)return '';
+const others=(state.members[p.chatId]||[]).filter(m=>m.user_id!==state.user.id).map(m=>state.profiles[m.user_id]).filter(Boolean);
+return `<div class="overlay" data-act="close-owner-transfer-bg"><div class="card modal"><div class="row between"><b>👑 ${t('transferOwnerTitle')}</b><button class="icon" data-act="close-owner-transfer">✕</button></div><div class="small muted">${t('pickNewOwner')} — «${esc(c.name||'')}»</div>${others.length?others.map(u=>`<div class="member-row">${aHtml(u,'sm')}<div class="grow"><b>${esc(u.display_name||u.username)}</b></div><button class="btn small primary" data-act="pick-owner" data-id="${u.id}">${t('transfer')}</button></div>`).join(''):`<div class="empty">Нет других участников</div>`}<button class="btn danger wide" data-act="delete-group-from-transfer" data-id="${p.chatId}">🗑️ ${t('deleteInstead')}</button></div></div>`;
 }
 function renderProfile(){
-  const u=state.profile;
-  const ac=['#6366f1','#ec4899','#10b981','#f59e0b','#3b82f6','#ef4444','#8b5cf6','#14b8a6'];
-  const lg=[['ru','Русский'],['en','English']];
-  const notifState=('Notification' in window)?Notification.permission:'denied';
-  const s=state.settingsSection||null;
-  const sec=(icon,title,body)=>`
-    <div class="settings-section" style="padding:0;overflow:hidden">
-      <div class="settings-header" data-act="settings-toggle" data-v="${title}" style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px;cursor:pointer;user-select:none">
-        <div class="settings-title"><span class="settings-icon">${icon}</span><span>${title}</span></div>
-        <span style="color:var(--muted)">${s===title?'▲':'▼'}</span>
-      </div>
-      ${s===title?`<div style="padding:0 20px 20px;display:flex;flex-direction:column;gap:12px">${body}</div>`:''}
-    </div>`;
-  let cacheSize='0 Б';
-  try{let total=0;for(const k of Object.keys(localStorage)){total+=(localStorage.getItem(k)||'').length*2}cacheSize=fSize(total)}catch(e){}
-  const msgCount=state.messages.length;
-  const stCount=state.stories.length;
-  return `<div class="profile-hero">
-    <div class="avatar-wrap" data-act="pick-av">
-      <div class="ava big" style="${aStyle(u)}">${u.avatar_url?'':esc(u.display_name?.[0]?.toUpperCase()||'?')}</div>
-      <div class="avatar-badge">📷</div>
-    </div>
-    <input type="file" id="avatar-file" accept="image/*" style="display:none">
-    <div>
-      <div class="profile-hero-name">${esc(u.display_name||u.username)}</div>
-      <div class="profile-hero-username">@${esc(u.username)}</div>
-    </div>
-    ${u.bio?`<div class="profile-hero-bio">${esc(u.bio)}</div>`:''}
-    <div class="small muted">${fLastSeen(u)}</div>
-  </div>
-  ${sec('✏️', 'Имя и телефон', `
-    <input id="p-name" value="${esc(u.display_name||'')}" placeholder="${t('displayName')}">
-    <input id="p-bio" value="${esc(u.bio||'')}" placeholder="${t('bio')}">
-    <input id="p-phone" value="${esc(u.phone||'')}" placeholder="+7 ...">
-    <button class="btn primary wide" data-act="save-prof">${t('saveProfile')}</button>
-  `)}
-  ${sec('🎨', 'Внешний вид', `
-    <button class="btn ghost wide" data-act="toggle-theme">${u.theme==='light'?'☀️ Светлая тема':(u.theme==='system'?'🌓 Системная тема':'🌙 Тёмная тема')}</button>
-    ${u.theme==='system'?`<div class="small muted" style="text-align:center;margin-top:-6px">Следует за системой: ${getEffectiveTheme()==='dark'?'🌙 тёмная':'☀️ светлая'}</div>`:''}
-    <div class="lbl">${t('accent')}</div>
-    <div class="chips">${ac.map(c=>`<button class="dot ${u.accent_color===c?'on':''}" style="background:${c};color:${c}" data-act="set-accent" data-v="${c}"></button>`).join('')}</div>
-    <div class="lbl">${t('lang')}</div>
-    <div class="chips">${lg.map(([k,l])=>`<button class="btn small ${S.lang===k?'primary':'ghost'}" data-act="set-lang" data-v="${k}">${l}</button>`).join('')}</div>
-    <div class="lbl">Размер шрифта</div>
-    <div class="row" style="gap:8px"><button class="btn ghost grow" data-act="fs-minus">A −</button><button class="btn ghost grow" data-act="fs-plus">A +</button></div>
-  `)}
-  ${sec('🔒', 'Приватность', `
-    <div class="lbl">${t('lastSeenPrivacy')}</div>
-    <select data-act="set-priv-ls">${['everyone','contacts','nobody'].map(v=>`<option value="${v}" ${(u.privacy_last_seen||'everyone')===v?'selected':''}>${t(v)}</option>`).join('')}</select>
-    <div class="lbl">${t('messagesPrivacy')}</div>
-    <select data-act="set-priv-msg">${['everyone','contacts','nobody'].map(v=>`<option value="${v}" ${(u.privacy_messages||'everyone')===v?'selected':''}>${t(v)}</option>`).join('')}</select>
-    <div class="lbl">${t('groupsPrivacy')}</div>
-    <select data-act="set-priv-groups">${['everyone','contacts','nobody'].map(v=>`<option value="${v}" ${(u.privacy_groups||'everyone')===v?'selected':''}>${t(v)}</option>`).join('')}</select>
-    <div class="lbl">${t('storyTtl')}</div>
-    <select data-act="set-ttl">${[1,6,12,24,48,72].map(h=>`<option value="${h}" ${(u.story_ttl_hours||24)===h?'selected':''}>${h} ${t('hours')}</option>`).join('')}</select>
-  `)}
-  ${sec('🔔', 'Уведомления', `
-    ${notifState==='granted'?`<div class="small" style="color:var(--online)">✓ ${t('notifOn')}</div>`:notifState==='denied'?`<div class="small" style="color:#ef4444">${t('notifBlocked')}</div>`:`<button class="btn primary wide" data-act="allow-notif">${t('allowNotif')}</button>`}
-    <button class="btn ghost wide" data-act="toggle-sounds">${S.sounds?t('soundsOn'):t('soundsOff')}</button>
-    <button class="btn ghost wide" data-act="toggle-notif">${S.notifications?t('notifOn'):t('notifOff')}</button>
-  `)}
-  ${sec('🔐', 'Безопасность (2FA)', `
-    <button class="btn ghost wide" data-act="${u.twofa_enabled?'disable-2fa':'enable-2fa'}">${u.twofa_enabled?t('twofaOn'):t('twofaOff')}</button>
-  `)}
-  ${sec('💾', 'Память и хранилище', `
-    <div class="memory-box"><span>${t('cacheSize')}</span><span class="memory-val">${cacheSize}</span></div>
-    <div class="memory-box"><span>${t('messagesCount')}</span><span class="memory-val">${msgCount}</span></div>
-    <div class="memory-box"><span>${t('storiesCount')}</span><span class="memory-val">${stCount}</span></div>
-    <button class="btn ghost wide" data-act="clear-cache">🧹 ${t('clearCache')}</button>
-    <button class="btn ghost wide" data-act="clear-old-msgs">🗑️ ${t('clearOld')}</button>
-    <button class="btn ghost wide" data-act="clear-stories">✨ ${t('clearStories')}</button>
-  `)}
-  ${sec('⚠️', 'Опасная зона', `
-    <button class="btn ghost wide" data-act="show-blocked">🚫 ${t('blocked')} (${state.blocks.length})</button>
-    <button class="btn ghost wide" data-act="logout">🚪 ${t('logout')}</button>
-    <button class="btn danger wide" data-act="delete-account">🗑️ ${t('deleteAcc')}</button>
-  `)}`;
+const u=state.profile;
+const ac=['#6366f1','#ec4899','#10b981','#f59e0b','#3b82f6','#ef4444','#8b5cf6','#14b8a6'];
+const lg=[['ru','Русский'],['en','English']];
+const notifState=('Notification' in window)?Notification.permission:'denied';
+const s=state.settingsSection||null;
+const sec=(icon,title,body)=>`<div class="settings-section" style="padding:0;overflow:hidden"><div class="settings-header" data-act="settings-toggle" data-v="${title}" style="display:flex;justify-content:space-between;align-items:center;padding:16px 20px;cursor:pointer;user-select:none"><div class="settings-title"><span class="settings-icon">${icon}</span><span>${title}</span></div><span style="color:var(--muted)">${s===title?'▲':'▼'}</span></div>${s===title?`<div style="padding:0 20px 20px;display:flex;flex-direction:column;gap:12px">${body}</div>`:''}</div>`;
+let cacheSize='0 Б';
+try{let total=0;for(const k of Object.keys(localStorage)){total+=(localStorage.getItem(k)||'').length*2}cacheSize=fSize(total)}catch(e){}
+const msgCount=state.messages.length;
+const stCount=state.stories.length;
+return `<div class="profile-hero"><div class="avatar-wrap" data-act="pick-av"><div class="ava big" style="${aStyle(u)}">${u.avatar_url?'':esc(u.display_name?.[0]?.toUpperCase()||'?')}</div><div class="avatar-badge">📷</div></div><input type="file" id="avatar-file" accept="image/*" style="display:none"><div><div class="profile-hero-name">${esc(u.display_name||u.username)}</div><div class="profile-hero-username">@${esc(u.username)}</div></div>${u.bio?`<div class="profile-hero-bio">${esc(u.bio)}</div>`:''}<div class="small muted">${fLastSeen(u)}</div></div>
+${sec('✏️', 'Имя и телефон', `<input id="p-name" value="${esc(u.display_name||'')}" placeholder="${t('displayName')}"><input id="p-bio" value="${esc(u.bio||'')}" placeholder="${t('bio')}"><input id="p-phone" value="${esc(u.phone||'')}" placeholder="+7 ..."><button class="btn primary wide" data-act="save-prof">${t('saveProfile')}</button>`)}
+${sec('🎨', 'Внешний вид', `<button class="btn ghost wide" data-act="toggle-theme">${u.theme==='light'?'☀️ Светлая тема':(u.theme==='system'?'🌓 Системная тема':'🌙 Тёмная тема')}</button>${u.theme==='system'?`<div class="small muted" style="text-align:center;margin-top:-6px">Следует за системой: ${getEffectiveTheme()==='dark'?'🌙 тёмная':'☀️ светлая'}</div>`:''}<div class="lbl">${t('accent')}</div><div class="chips">${ac.map(c=>`<button class="dot ${u.accent_color===c?'on':''}" style="background:${c};color:${c}" data-act="set-accent" data-v="${c}"></button>`).join('')}</div><div class="lbl">${t('lang')}</div><div class="chips">${lg.map(([k,l])=>`<button class="btn small ${S.lang===k?'primary':'ghost'}" data-act="set-lang" data-v="${k}">${l}</button>`).join('')}</div><div class="lbl">Размер шрифта</div><div class="row" style="gap:8px"><button class="btn ghost grow" data-act="fs-minus">A −</button><button class="btn ghost grow" data-act="fs-plus">A +</button></div>`)}
+${sec('🔒', 'Приватность', `<div class="lbl">${t('lastSeenPrivacy')}</div><select data-act="set-priv-ls">${['everyone','contacts','nobody'].map(v=>`<option value="${v}" ${(u.privacy_last_seen||'everyone')===v?'selected':''}>${t(v)}</option>`).join('')}</select><div class="lbl">${t('messagesPrivacy')}</div><select data-act="set-priv-msg">${['everyone','contacts','nobody'].map(v=>`<option value="${v}" ${(u.privacy_messages||'everyone')===v?'selected':''}>${t(v)}</option>`).join('')}</select><div class="lbl">${t('groupsPrivacy')}</div><select data-act="set-priv-groups">${['everyone','contacts','nobody'].map(v=>`<option value="${v}" ${(u.privacy_groups||'everyone')===v?'selected':''}>${t(v)}</option>`).join('')}</select><div class="lbl">${t('storyTtl')}</div><select data-act="set-ttl">${[1,6,12,24,48,72].map(h=>`<option value="${h}" ${(u.story_ttl_hours||24)===h?'selected':''}>${h} ${t('hours')}</option>`).join('')}</select>`)}
+${sec('🔔', 'Уведомления', `${notifState==='granted'?`<div class="small" style="color:var(--online)">✓ ${t('notifOn')}</div>`:notifState==='denied'?`<div class="small" style="color:#ef4444">${t('notifBlocked')}</div>`:`<button class="btn primary wide" data-act="allow-notif">${t('allowNotif')}</button>`}<button class="btn ghost wide" data-act="toggle-sounds">${S.sounds?t('soundsOn'):t('soundsOff')}</button><button class="btn ghost wide" data-act="toggle-notif">${S.notifications?t('notifOn'):t('notifOff')}</button>`)}
+${sec('🔐', 'Безопасность (2FA)', `<button class="btn ghost wide" data-act="${u.twofa_enabled?'disable-2fa':'enable-2fa'}">${u.twofa_enabled?t('twofaOn'):t('twofaOff')}</button>`)}
+${sec('💾', 'Память и хранилище', `<div class="memory-box"><span>${t('cacheSize')}</span><span class="memory-val">${cacheSize}</span></div><div class="memory-box"><span>${t('messagesCount')}</span><span class="memory-val">${msgCount}</span></div><div class="memory-box"><span>${t('storiesCount')}</span><span class="memory-val">${stCount}</span></div><button class="btn ghost wide" data-act="clear-cache">🧹 ${t('clearCache')}</button><button class="btn ghost wide" data-act="clear-old-msgs">🗑️ ${t('clearOld')}</button><button class="btn ghost wide" data-act="clear-stories">✨ ${t('clearStories')}</button>`)}
+${sec('⚠️', 'Опасная зона', `<button class="btn ghost wide" data-act="show-blocked">🚫 ${t('blocked')} (${state.blocks.length})</button><button class="btn ghost wide" data-act="logout">🚪 ${t('logout')}</button><button class="btn danger wide" data-act="delete-account">🗑️ ${t('deleteAcc')}</button>`)}`;
 }
 function renderPick(){return `<div class="overlay"><div class="card modal"><div class="row between"><b>${state.pickMode==='call'?'📞':t('newChat')}</b><button class="icon" data-act="close-modal">✕</button></div><input id="pick-search" placeholder="${t('searchAll')}" value="${esc(state.searchQuery||'')}" data-act="pick-search-input" autofocus><div id="pick-list">${renderPickList()}</div></div></div>`}
 function renderPickList(){const q=(state.searchQuery||'').toLowerCase().trim();if(!q)return `<div class="empty">${t('searchAll')}</div>`;const u=Object.values(state.profiles).filter(p=>p.id!==state.user.id);const f=u.filter(x=>(x.display_name||'').toLowerCase().includes(q)||(x.username||'').toLowerCase().includes(q)||(x.phone||'').includes(q)||(x.email||'').toLowerCase().includes(q));if(!f.length)return `<div class="empty">${t('noResults')}</div>`;return f.map(x=>`<div class="item" data-act="pick-user" data-id="${x.id}">${aHtml(x)}<div class="grow"><b>${esc(x.display_name||x.username)}</b><div class="muted small">${fLastSeen(x)||('@'+esc(x.username))}${x.phone?' · '+esc(x.phone):''}</div></div></div>`).join('')}
 function renderCreate(){const contactIds=state.contacts.map(c=>c.contact_id);const u=Object.values(state.profiles).filter(p=>p.id!==state.user.id&&contactIds.includes(p.id));if(!u.length)return `<div class="overlay"><div class="card modal"><div class="row between"><b>${t('newGroup')}</b><button class="icon" data-act="close-modal">✕</button></div><div class="empty">Добавьте контакты сначала</div></div></div>`;return `<div class="overlay"><div class="card modal"><div class="row between"><b>${t('newGroup')}</b><button class="icon" data-act="close-modal">✕</button></div><input id="g-name" placeholder="${t('groupName')}" value="${esc(state.groupName)}"><div class="lbl">${t('pickMembers')}</div>${u.map(x=>`<label class="item" style="cursor:pointer">${aHtml(x,'xs')}<div class="grow"><b>${esc(x.display_name||x.username)}</b></div><input type="checkbox" data-act="toggle-member" data-id="${x.id}" ${state.groupMembers.includes(x.id)?'checked':''} style="width:auto"></label>`).join('')}<button class="btn primary wide" data-act="create-group-btn">${t('create')}</button></div></div>`}
-function renderMembers(){const c=state.chat;if(!c)return '';const m=state.members[c.id]||[];const ad=isAdmin(c.id);const cr=isCreator(c.id);return `<div class="overlay"><div class="card modal"><div class="row between"><b>${t('members')} (${m.length})</b><button class="icon" data-act="close-modal">✕</button></div>${m.map(x=>{const p=state.profiles[x.user_id];const im=x.user_id===state.user.id;return `<div class="member-row"><span data-act="view-prof" data-id="${x.user_id}" style="cursor:pointer">${aHtml(p,'sm')}</span><div class="grow"><b>${esc(p?.display_name||'?')}${im?' (вы)':''}</b><div class="row"><span class="badge ${x.role==='admin'?'admin':''}">${x.role}</span>${x.muted?'<span class="badge muted">🔇</span>':''}</div></div>${ad&&!im?`<div class="member-actions">${x.role==='admin'?`<button class="btn small ghost" data-act="demote" data-id="${x.user_id}">−</button>`:`<button class="btn small ghost" data-act="promote" data-id="${x.user_id}">+</button>`}${x.muted?`<button class="btn small ghost" data-act="unmute" data-id="${x.user_id}">🔊</button>`:`<button class="btn small danger" data-act="mute" data-id="${x.user_id}">🔇</button>`}${!cr||x.user_id!==c.created_by?`<button class="btn small danger" data-act="kick" data-id="${x.user_id}">✕</button>`:''}</div>`:''}</div>`}).join('')}${c.is_group?`<button class="btn danger wide" data-act="leave-group">${t('leaveGroup')}</button>`:''}</div></div>`}
-function renderGroupSet(){const cid=state.groupSettings;const c=state.chats.find(x=>x.id===cid);if(!c)return '';const ad=isAdmin(cid);const cr=isCreator(cid);return `<div class="overlay"><div class="card modal"><div class="row between"><b>⚙️ ${t('settingsGroup')}</b><button class="icon" data-act="close-gs">✕</button></div><div class="row" style="justify-content:center">${aHtml({avatar_url:c.avatar_url,display_name:c.name,accent_color:'#f59e0b'},'big')}</div>${ad?`<button class="btn ghost" data-act="pick-gav">${t('groupAvatar')}</button><input type="file" id="group-avatar-file" accept="image/*" style="display:none">`:''}<div class="lbl">${t('groupName')}</div><input id="gs-name" value="${esc(c.name||'')}" ${ad?'':'disabled'}><div class="lbl">${t('groupDesc')}</div><textarea id="gs-desc" rows="2" style="resize:none" ${ad?'':'disabled'}>${esc(c.description||'')}</textarea>${ad?`<button class="btn primary wide" data-act="save-gs">${t('save')}</button>`:''}<button class="btn ghost wide" data-act="view-members">${t('members')} (${(state.members[cid]||[]).length})</button><button class="btn danger wide" data-act="leave-group">${t('leaveGroup')}</button>${cr?`<button class="btn danger wide" data-act="delete-group" data-id="${cid}">🗑️ ${t('deleteGroup')}</button>`:''}</div></div>`}
+function renderMembers(){
+const c=state.chat;if(!c)return '';
+const m=state.members[c.id]||[];
+const ad=isAdmin(c.id);
+const cr=isCreator(c.id);
+return `<div class="overlay"><div class="card modal"><div class="row between"><b>${t('members')} (${m.length})</b><button class="icon" data-act="close-modal">✕</button></div>${m.map(x=>{
+const p=state.profiles[x.user_id];
+const im=x.user_id===state.user.id;
+const targetIsOwner=x.user_id===c.created_by;
+const targetIsAdmin=x.role==='admin';
+const canAct=!im&&!targetIsOwner&&(cr||(ad&&!targetIsAdmin));
+return `<div class="member-row"><span data-act="view-prof" data-id="${x.user_id}" style="cursor:pointer">${aHtml(p,'sm')}</span><div class="grow"><b>${esc(p?.display_name||'?')}${im?' (вы)':''}${targetIsOwner?' 👑':''}</b><div class="row"><span class="badge ${targetIsAdmin?'admin':''}">${targetIsAdmin?'admin':'member'}</span>${x.muted?'<span class="badge muted">🔇</span>':''}</div></div>${canAct?`<div class="member-actions">${cr?`${targetIsAdmin?`<button class="btn small ghost" data-act="demote" data-id="${x.user_id}" title="Снять админа">−</button>`:`<button class="btn small ghost" data-act="promote" data-id="${x.user_id}" title="Сделать админом">+</button>`}`:''}${x.muted?`<button class="btn small ghost" data-act="unmute" data-id="${x.user_id}">🔊</button>`:`<button class="btn small danger" data-act="mute" data-id="${x.user_id}">🔇</button>`}<button class="btn small danger" data-act="kick" data-id="${x.user_id}">✕</button></div>`:''}</div>`;
+}).join('')}${cr&&m.length>1?`<button class="btn ghost wide" data-act="open-transfer-owner">👑 ${t('transferOwner')}</button>`:''}${c.is_group?`<button class="btn danger wide" data-act="leave-group">${t('leaveGroup')}</button>`:''}</div></div>`;
+}
+function renderGroupSet(){
+const cid=state.groupSettings;
+const c=state.chats.find(x=>x.id===cid);
+if(!c)return '';
+const ad=isAdmin(cid);
+const cr=isCreator(cid);
+return `<div class="overlay"><div class="card modal"><div class="row between"><b>⚙️ ${t('settingsGroup')}</b><button class="icon" data-act="close-gs">✕</button></div><div class="row" style="justify-content:center">${aHtml({avatar_url:c.avatar_url,display_name:c.name,accent_color:'#f59e0b'},'big')}</div>${ad?`<button class="btn ghost" data-act="pick-gav">${t('groupAvatar')}</button><input type="file" id="group-avatar-file" accept="image/*" style="display:none">`:''}<div class="lbl">${t('groupName')}</div><input id="gs-name" value="${esc(c.name||'')}" ${ad?'':'disabled'}><div class="lbl">${t('groupDesc')}</div><textarea id="gs-desc" rows="2" style="resize:none" ${ad?'':'disabled'}>${esc(c.description||'')}</textarea>${ad?`<button class="btn primary wide" data-act="save-gs">${t('save')}</button>`:''}<button class="btn ghost wide" data-act="view-members">${t('members')} (${(state.members[cid]||[]).length})</button>${cr?`<button class="btn ghost wide" data-act="open-transfer-owner">👑 ${t('transferOwner')}</button>`:''}<button class="btn danger wide" data-act="leave-group">${t('leaveGroup')}</button>${cr?`<button class="btn danger wide" data-act="delete-group" data-id="${cid}">🗑️ ${t('deleteGroup')}</button>`:''}</div></div>`;
+}
 function renderProfileView(){const u=state.profiles[state.viewProfile];if(!u)return '';const mc=state.chats.filter(c=>(state.members[c.id]||[]).some(m=>m.user_id===u.id));const me=u.id===state.user.id;return `<div class="overlay"><div class="card modal"><div class="row between"><b>${t('profileView')}</b><button class="icon" data-act="close-pv">✕</button></div><div class="row" style="align-items:flex-start">${aHtml(u,'big')}<div class="grow"><h2 style="margin:0 0 4px;font-size:20px">${esc(u.display_name||u.username)}</h2><div class="muted small">@${esc(u.username)}</div><div class="muted small" style="margin-top:4px">${fLastSeen(u)}</div>${u.bio?`<div style="margin-top:8px">${esc(u.bio)}</div>`:`<div class="muted small" style="margin-top:8px">${t('bio')}</div>`}</div></div><div class="lbl">${t('commonChats')} (${mc.length})</div><div class="list">${mc.length?mc.map(c=>{const m=state.members[c.id]||[];const o=m.find(x=>x.user_id!==state.user.id);const op=o?state.profiles[o.user_id]:null;const ti=c.is_group?c.name:(op?.display_name||'Чат');const av=c.is_group?{display_name:c.name,accent_color:'#f59e0b'}:(op||{});return `<div class="item" data-act="pv-chat" data-id="${c.id}">${aHtml(av,'xs')}<div class="grow"><b>${esc(ti)}</b></div></div>`}).join(''):`<div class="empty">${t('noCommon')}</div>`}</div>${!me?`<div class="row" style="gap:8px;flex-wrap:wrap"><button class="btn primary grow" data-act="dm-pv" data-id="${u.id}">${t('write')}</button>${isContact(u.id)?`<button class="btn ghost" data-act="rm-contact-pv" data-id="${u.id}">${t('contactRemove')}</button>`:`<button class="btn success" data-act="add-contact-pv" data-id="${u.id}">${t('contactAdd')}</button>`}${isBlocked(u.id)?`<button class="btn ghost" data-act="unblock-pv" data-id="${u.id}">${t('unblock')}</button>`:`<button class="btn danger" data-act="block-pv" data-id="${u.id}">${t('block')}</button>`}</div>`:''}</div></div>`}
 function renderStoryComp(){
 let pr='';
-if(state.storyMedia){
-const isVid = state.storyMediaType === 'video';
-pr = isVid
-? `<div style="position:relative"><video class="preview-media" src="${state.storyMedia}" controls muted playsinline></video><button class="btn small danger" data-act="rm-story-media" style="position:absolute;top:6px;right:6px">✕</button></div>`
-: `<div style="position:relative"><img class="preview-media" src="${state.storyMedia}"><button class="btn small danger" data-act="rm-story-media" style="position:absolute;top:6px;right:6px">✕</button></div>`;
-}
+if(state.storyMedia){const isVid=state.storyMediaType==='video';pr=isVid?`<div style="position:relative"><video class="preview-media" src="${state.storyMedia}" controls muted playsinline></video><button class="btn small danger" data-act="rm-story-media" style="position:absolute;top:6px;right:6px">✕</button></div>`:`<div style="position:relative"><img class="preview-media" src="${state.storyMedia}"><button class="btn small danger" data-act="rm-story-media" style="position:absolute;top:6px;right:6px">✕</button></div>`}
 return `<div class="overlay" style="z-index:55" data-act="close-story-comp-bg"><div class="card modal"><div class="row between"><b>${t('newStory')}</b><button class="icon" data-act="close-modal">✕</button></div>${pr}<textarea id="story-text" rows="3" placeholder="${t('caption')}" style="resize:none"></textarea><button class="btn ghost" data-act="pick-story-media">${t('photo')} / 🎬</button><input type="file" id="story-file" accept="image/*,video/*" style="display:none"><button class="btn primary wide" data-act="publish-story">${t('publish')}</button></div></div>`;
 }
 function renderMsgMenu(){const m=state.messages.find(x=>x.id===state.msgMenu);if(!m)return '';const mine=m.sender_id===state.user.id;return `<div class="overlay"><div class="card modal"><div class="row between"><b>${t('reaction')}</b><button class="icon" data-act="close-mm">✕</button></div><div class="chips" style="font-size:22px">${EMOJI.map(e=>`<button class="chip" data-act="react-msg" data-id="${m.id}" data-v="${e}">${e}</button>`).join('')}</div><button class="btn ghost wide" data-act="reply-msg" data-id="${m.id}">↩️ ${t('reply')}</button>${m.pinned?`<button class="btn ghost wide" data-act="unpin-msg" data-id="${m.id}">${t('unpinMsg')}</button>`:`<button class="btn ghost wide" data-act="pin-msg" data-id="${m.id}">${t('pinMsg')}</button>`}${mine&&m.content?`<button class="btn ghost wide" data-act="edit-msg" data-id="${m.id}">✏️ ${t('edit')}</button>`:''}${mine?`<button class="btn danger wide" data-act="del-msg" data-id="${m.id}">🗑️ ${t('del')}</button>`:''}</div></div>`}
 function renderCall(){
-  const o=state.profiles[state.call.outbound?state.call.callee_id:state.call.caller_id];
-  const timerText=state.call.activeAt?'00:00':t('calling');
-  if(state.callMinimized){
-    return `<div class="call-mini" data-act="expand-call">
-      <div class="name">${esc(o?.display_name||'?')}</div>
-      <video id="remote-video" autoplay playsinline muted></video>
-      <div class="timer" id="call-timer">${timerText}</div>
-      <div class="call-mini-controls">
-        <button data-act="t-mute" class="${state.muted?'off':''}">${state.muted?'🔇':'🎤'}</button>
-        <button data-act="t-cam" class="${state.cameraOn?'on':''}">📹</button>
-        <button data-act="t-scr" class="${state.screenOn?'on':''}">🖥️</button>
-        <button data-act="end-call">📵</button>
-      </div>
-    </div>`;
-  }
-  return `<div class="overlay" data-act="minimize-call"><div class="call"><div class="video-wrap"><video id="remote-video" autoplay playsinline muted></video><video id="local-video" autoplay playsinline muted></video>${state.callReactions.map(r=>`<div class="call-reaction">${r.emoji}</div>`).join('')}</div><div class="row" style="justify-content:center">${aHtml(o,'sm')}<b>${esc(o?.display_name||'?')}</b></div><div class="muted" id="call-timer">${timerText}</div><div id="call-status" class="muted small"></div><div class="call-controls"><button class="call-btn ${state.muted?'off':''}" data-act="t-mute">${state.muted?'🔇':'🎤'}</button><button class="call-btn ${state.cameraOn?'on':''}" data-act="t-cam">📹</button><button class="call-btn ${state.screenOn?'on':''}" data-act="t-scr">🖥️</button><button class="call-btn" data-act="call-react-menu">😀</button><button class="call-btn" data-act="minimize-btn">⬇️</button><button class="call-btn danger" data-act="end-call">📵</button></div></div></div>`;
+const o=state.profiles[state.call.outbound?state.call.callee_id:state.call.caller_id];
+const timerText=state.call.activeAt?'00:00':t('calling');
+if(state.callMinimized){return `<div class="call-mini" data-act="expand-call"><div class="name">${esc(o?.display_name||'?')}</div><video id="remote-video" autoplay playsinline muted></video><div class="timer" id="call-timer">${timerText}</div><div class="call-mini-controls"><button data-act="t-mute" class="${state.muted?'off':''}">${state.muted?'🔇':'🎤'}</button><button data-act="t-cam" class="${state.cameraOn?'on':''}">📹</button><button data-act="t-scr" class="${state.screenOn?'on':''}">🖥️</button><button data-act="end-call">📵</button></div></div>`}
+return `<div class="overlay" data-act="minimize-call"><div class="call"><div class="video-wrap"><video id="remote-video" autoplay playsinline muted></video><video id="local-video" autoplay playsinline muted></video>${state.callReactions.map(r=>`<div class="call-reaction">${r.emoji}</div>`).join('')}</div><div class="row" style="justify-content:center">${aHtml(o,'sm')}<b>${esc(o?.display_name||'?')}</b></div><div class="muted" id="call-timer">${timerText}</div><div id="call-status" class="muted small"></div><div class="call-controls"><button class="call-btn ${state.muted?'off':''}" data-act="t-mute">${state.muted?'🔇':'🎤'}</button><button class="call-btn ${state.cameraOn?'on':''}" data-act="t-cam">📹</button><button class="call-btn ${state.screenOn?'on':''}" data-act="t-scr">🖥️</button><button class="call-btn" data-act="call-react-menu">😀</button><button class="call-btn" data-act="minimize-btn">⬇️</button><button class="call-btn danger" data-act="end-call">📵</button></div></div></div>`;
 }
 function renderIncoming(){const c=state.profiles[state.incoming.caller_id];return `<div class="overlay"><div class="call">${aHtml(c,'huge')}<h2>${esc(c?.display_name||'?')}</h2><div class="muted">${t('inCall')}</div><div class="row" style="width:100%;gap:10px"><button class="btn success grow" data-act="accept-call">${t('acceptCall')}</button><button class="btn danger grow" data-act="decline-call">${t('declineCall')}</button></div></div></div>`}
 async function doAuth(){
-  const pwEl=document.getElementById('a-pass');
-  const errEl=document.querySelector('.err');
-  if(!pwEl)return;
-  const pw=pwEl.value;
-  const showErr=m=>{if(errEl)errEl.textContent=m;state.authErr=m};
-  if(!pw){showErr('Введите пароль');return}
-  try{
-    if(state.authMode==='register'){
-      const unEl=document.getElementById('a-user');
-      const nmEl=document.getElementById('a-name');
-      const un=unEl?.value.trim();
-      const nm=nmEl?.value.trim();
-      if(!un){showErr('Введите логин');return}
-      if(!/^[a-zA-Z0-9_]{3,20}$/.test(un)){showErr('Логин: 3–20 символов (a-z, 0-9, _)');return}
-      if(pw.length<6){showErr('Пароль: минимум 6 символов');return}
-      const fakeEmail=un.toLowerCase()+'@nova.app';
-      const {user,session}=await signUp(fakeEmail,pw,un.toLowerCase(),nm||un);
-      if(!session){showErr('Отключите Confirm email в Supabase');return}
-      state.user=session.user||user;
-      await loadProf();
-      if(!state.profile){showErr('Профиль не создан');return}
-    }else{
-      const lrEl=document.getElementById('a-login');
-      if(!lrEl)return;
-      const lr=lrEl.value.trim();
-      if(!lr){showErr('Введите логин, email или телефон');return}
-      const {data,error}=await tryLogin(lr,pw);
-      if(error||!data?.session){showErr('Неверный логин или пароль');return}
-      state.user=data.session.user;
-      await loadProf();
-      if(!state.profile){showErr('Профиль не найден');return}
-    }
-    state.authErr='';
-    await boot();
-  }catch(e){
-    const msg=e.message||String(e);
-    if(/already|duplicate|unique|registered/i.test(msg)){
-      showErr('Этот логин уже занят');
-    }else{
-      showErr(msg);
-    }
-  }
+const pwEl=document.getElementById('a-pass');
+const errEl=document.querySelector('.err');
+if(!pwEl)return;
+const pw=pwEl.value;
+const showErr=m=>{if(errEl)errEl.textContent=m;state.authErr=m};
+if(!pw){showErr('Введите пароль');return}
+try{
+if(state.authMode==='register'){
+const unEl=document.getElementById('a-user');
+const nmEl=document.getElementById('a-name');
+const un=unEl?.value.trim();
+const nm=nmEl?.value.trim();
+if(!un){showErr('Введите логин');return}
+if(!/^[a-zA-Z0-9_]{3,20}$/.test(un)){showErr('Логин: 3–20 символов (a-z, 0-9, _)');return}
+if(pw.length<6){showErr('Пароль: минимум 6 символов');return}
+const fakeEmail=un.toLowerCase()+'@nova.app';
+const {user,session}=await signUp(fakeEmail,pw,un.toLowerCase(),nm||un);
+if(!session){showErr('Отключите Confirm email в Supabase');return}
+state.user=session.user||user;
+await loadProf();
+if(!state.profile){showErr('Профиль не создан');return}
+}else{
+const lrEl=document.getElementById('a-login');
+if(!lrEl)return;
+const lr=lrEl.value.trim();
+if(!lr){showErr('Введите логин, email или телефон');return}
+const {data,error}=await tryLogin(lr,pw);
+if(error||!data?.session){showErr('Неверный логин или пароль');return}
+state.user=data.session.user;
+await loadProf();
+if(!state.profile){showErr('Профиль не найден');return}
+}
+state.authErr='';
+await boot();
+}catch(e){
+const msg=e.message||String(e);
+if(/already|duplicate|unique|registered/i.test(msg)){showErr('Этот логин уже занят')}else{showErr(msg)}
+}
 }
 async function boot(){
-  await loadProf();if(!state.profile){render();return}
-  if(state.profile.theme){S.theme=state.profile.theme;saveS();}
-  await loadChats();await loadStories();await loadAll();await loadContacts();await loadBlocks();
-  await loadUnread();await loadMissedCalls();await loadAllCalls();
-  await checkMissedCalls();
-  subCalls();subProfiles();subGlobalMessages();startHeartbeat();
-  await recoverActiveCalls();
-  if('Notification' in window&&Notification.permission==='default'){try{await Notification.requestPermission()}catch(e){}}
-  if(refreshInterval)clearInterval(refreshInterval);
-  refreshInterval=setInterval(async()=>{if(!document.hidden){await loadUnread();render()}},15000);
-  render();
+await loadProf();if(!state.profile){render();return}
+if(state.profile.theme){S.theme=state.profile.theme;saveS()}
+await loadChats();await loadStories();await loadAll();await loadContacts();await loadBlocks();
+await loadUnread();await loadMissedCalls();await loadAllCalls();
+await checkMissedCalls();
+subCalls();subProfiles();subGlobalMessages();startHeartbeat();
+await recoverActiveCalls();
+if('Notification' in window&&Notification.permission==='default'){try{await Notification.requestPermission()}catch(e){}}
+if(refreshInterval)clearInterval(refreshInterval);
+refreshInterval=setInterval(async()=>{if(!document.hidden){await loadUnread();render()}},15000);
+render();
 }
 async function sendMsg(){
-  const i=document.getElementById('msg-input');if(!i)return;
-  const x=i.value.trim();if(!x||!state.chatId)return;
-  const payload={chat_id:state.chatId,sender_id:state.user.id,content:x};
-  if(state.replyTo)payload.reply_to_id=state.replyTo;
-  const {error}=await sb.from('messages').insert(payload);
-  if(error){toast(error.message);return}
-  i.value='';state.replyTo=null;state.scrollAtBottom=true;render();pSend();clearTyping();
-  setTimeout(()=>{const m=document.getElementById('msgs');if(m)m.scrollTop=m.scrollHeight},50);
+const i=document.getElementById('msg-input');if(!i)return;
+const x=i.value.trim();if(!x||!state.chatId)return;
+const payload={chat_id:state.chatId,sender_id:state.user.id,content:x};
+if(state.replyTo)payload.reply_to_id=state.replyTo;
+const {error}=await sb.from('messages').insert(payload);
+if(error){toast(error.message);return}
+i.value='';state.replyTo=null;state.scrollAtBottom=true;render();pSend();clearTyping();
+setTimeout(()=>{const m=document.getElementById('msgs');if(m)m.scrollTop=m.scrollHeight},50);
 }
 async function clearOldMsgs(){
-  if(!confirm('Удалить сообщения старше 30 дней? Это затронет все чаты.'))return;
-  const since=new Date(Date.now()-30*24*3600*1000).toISOString();
-  try{
-    const {error}=await sb.from('messages').delete().lt('created_at',since).eq('sender_id',state.user.id);
-    if(error)throw error;
-    toast('Старые сообщения удалены','#10b981');
-    if(state.chatId)await loadMsgs(state.chatId);
-    render();
-  }catch(e){toast(e.message)}
+if(!confirm('Удалить сообщения старше 30 дней? Это затронет все чаты.'))return;
+const since=new Date(Date.now()-30*24*3600*1000).toISOString();
+try{const {error}=await sb.from('messages').delete().lt('created_at',since).eq('sender_id',state.user.id);if(error)throw error;toast('Старые сообщения удалены','#10b981');if(state.chatId)await loadMsgs(state.chatId);render()}catch(e){toast(e.message)}
 }
 async function clearAllStories(){
-  if(!confirm('Удалить все ваши истории?'))return;
-  try{
-    const {error}=await sb.from('stories').delete().eq('user_id',state.user.id);
-    if(error)throw error;
-    toast('Истории удалены','#10b981');
-    await loadStories();render();
-  }catch(e){toast(e.message)}
+if(!confirm('Удалить все ваши истории?'))return;
+try{const {error}=await sb.from('stories').delete().eq('user_id',state.user.id);if(error)throw error;toast('Истории удалены','#10b981');await loadStories();render()}catch(e){toast(e.message)}
 }
 document.addEventListener('click',async e=>{
 const el=e.target.closest('[data-act]');if(!el)return;
@@ -1631,13 +1170,7 @@ case 'logout':signOut();break;
 case 'delete-account':await deleteAccount();break;
 case 'allow-notif':{if('Notification' in window){try{const p=await Notification.requestPermission();if(p==='granted'){toast('Включены','#10b981');notify('Nova','Уведомления работают','test',true)}else toast('Заблокированы','#ef4444')}catch(e){toast(e.message)}}render();break}
 case 'callback':await startCall(id);break;
-case 'tab':
-  state.tab=el.dataset.tab;state.chatId=null;state.chat=null;state.settingsSection=null;state.showStories=false;
-  if(state.storyPlayer){stopStoryTimer();state.storyPlayer=null;}
-  state.storyViewersModal=null;
-  if(state.tab==='calls'){setCallsSeenAt(new Date().toISOString());state.missedCalls=[];}
-  render();
-  break;
+case 'tab':state.tab=el.dataset.tab;state.chatId=null;state.chat=null;state.settingsSection=null;state.showStories=false;if(state.storyPlayer){stopStoryTimer();state.storyPlayer=null}state.storyViewersModal=null;state.ownerTransferPending=null;if(state.tab==='calls'){setCallsSeenAt(new Date().toISOString());state.missedCalls=[]}render();break;
 case 'open-stories':state.showStories=true;state.tab='chats';render();break;
 case 'close-stories':closeWithAnim('.overlay',()=>{state.showStories=false;render()});break;
 case 'close-stories-bg':if(e.target.closest('.card'))return;closeWithAnim('.overlay',()=>{state.showStories=false;render()});break;
@@ -1653,19 +1186,7 @@ case 'story-viewers':state.storyViewersModal=id;render();break;
 case 'close-story-viewers':closeWithAnim('.overlay',()=>{state.storyViewersModal=null;render()});break;
 case 'close-story-viewers-bg':if(e.target.closest('.card'))return;closeWithAnim('.overlay',()=>{state.storyViewersModal=null;render()});break;
 case 'open-chat':await openChat(id);break;
-case 'back':{
-if(state.recording)stopRec(false);
-if(msgChannel){sb.removeChannel(msgChannel);msgChannel=null}
-if(typingChannel){sb.removeChannel(typingChannel);typingChannel=null}
-document.body.classList.add('chat-closing');
-setTimeout(async()=>{
-state.chatId=null;state.chat=null;
-await loadUnread();
-render();
-document.body.classList.remove('chat-closing');
-},350);
-break;
-}
+case 'back':{if(state.recording)stopRec(false);if(msgChannel){sb.removeChannel(msgChannel);msgChannel=null}if(typingChannel){sb.removeChannel(typingChannel);typingChannel=null}document.body.classList.add('chat-closing');setTimeout(async()=>{state.chatId=null;state.chat=null;await loadUnread();render();document.body.classList.remove('chat-closing')},350);break}
 case 'send':sendMsg();break;
 case 'new-chat':state.modal='pick';state.pickMode='chat';state.searchQuery='';render();break;
 case 'new-group':state.createGroup=true;state.groupName='';state.groupMembers=[];render();break;
@@ -1674,6 +1195,11 @@ case 'close-modal':closeWithAnim('.overlay',()=>{state.modal=null;state.createGr
 case 'toggle-member':if(state.groupMembers.includes(id))state.groupMembers=state.groupMembers.filter(x=>x!==id);else state.groupMembers.push(id);break;
 case 'create-group-btn':{const n=document.getElementById('g-name').value.trim();if(!n||!state.groupMembers.length){toast('Выберите участников');return}el.disabled=true;const cid=await createGroup(n,state.groupMembers);el.disabled=false;if(cid){state.createGroup=false;await openChat(cid)}break}
 case 'view-members':state.viewMembers=true;state.groupSettings=null;render();break;
+case 'open-transfer-owner':{if(!state.chatId)break;state.ownerTransferPending={chatId:state.chatId,action:'manage'};render();break}
+case 'close-owner-transfer':{state.ownerTransferPending=null;render();break}
+case 'close-owner-transfer-bg':{if(e.target.closest('.card'))return;state.ownerTransferPending=null;render();break}
+case 'pick-owner':{const p=state.ownerTransferPending;if(!p)break;const ok=await transferOwnership(p.chatId,id);if(!ok)break;const action=p.action;state.ownerTransferPending=null;if(action==='leave'){const {error}=await sb.rpc('leave_chat',{target_chat:p.chatId});if(error){toast(error.message);break}state.chatId=null;state.chat=null;state.groupSettings=null;await refresh()}render();break}
+case 'delete-group-from-transfer':{const p=state.ownerTransferPending;if(!p)break;state.ownerTransferPending=null;await deleteGroup(p.chatId);break}
 case 'promote':await setRole(state.chatId||state.groupSettings,id,'admin');break;
 case 'demote':await setRole(state.chatId||state.groupSettings,id,'member');break;
 case 'mute':await setMuted(state.chatId||state.groupSettings,id,true);break;
@@ -1702,29 +1228,7 @@ case 'jump-to-msg':{state.searchMsgs=null;render();setTimeout(()=>{const m=docum
 case 'add-story':state.storyCompose=true;state.storyMedia=null;state.storyMediaFile=null;state.storyMediaType='image';render();break;
 case 'pick-story-media':document.getElementById('story-file')?.click();break;
 case 'rm-story-media':if(state.storyMedia&&state.storyMediaType==='video'&&state.storyMedia.startsWith('blob:')){try{URL.revokeObjectURL(state.storyMedia)}catch(e){}}state.storyMedia=null;state.storyMediaFile=null;state.storyMediaType='image';render();break;
-case 'publish-story':{
-  const x=document.getElementById('story-text').value.trim();
-  if(!x&&!state.storyMedia)return;
-  let mu=null;
-  if(state.storyMedia){
-    try{
-      if(state.storyMediaType==='video' && state.storyMediaFile){
-        const f=state.storyMediaFile;
-        const ext=(f.name.split('.').pop()||'mp4').toLowerCase().replace(/[^a-z0-9]/g,'');
-        const p=`stories/${state.user.id}/${uid()}.${ext||'mp4'}`;
-        mu = await upMedia(p, f, f.type||'video/mp4');
-      }else if(state.storyMediaType==='image'){
-        const b=d2b(state.storyMedia);
-        const p=`stories/${state.user.id}/${uid()}.jpg`;
-        mu = await upMedia(p, b, 'image/jpeg');
-      }
-    }catch(err){toast(err.message);return}
-  }
-  await sb.from('stories').insert({user_id:state.user.id,content:x,media_url:mu,background_color:state.storyBg});
-  state.storyCompose=false;state.storyMedia=null;state.storyMediaFile=null;state.storyMediaType='image';
-  await loadStories();
-  state.showStories=true;state.tab='chats';render();break
-}
+case 'publish-story':{const x=document.getElementById('story-text').value.trim();if(!x&&!state.storyMedia)return;let mu=null;if(state.storyMedia){try{if(state.storyMediaType==='video'&&state.storyMediaFile){const f=state.storyMediaFile;const ext=(f.name.split('.').pop()||'mp4').toLowerCase().replace(/[^a-z0-9]/g,'');const p=`stories/${state.user.id}/${uid()}.${ext||'mp4'}`;mu=await upMedia(p,f,f.type||'video/mp4')}else if(state.storyMediaType==='image'){const b=d2b(state.storyMedia);const p=`stories/${state.user.id}/${uid()}.jpg`;mu=await upMedia(p,b,'image/jpeg')}}catch(err){toast(err.message);return}}await sb.from('stories').insert({user_id:state.user.id,content:x,media_url:mu,background_color:state.storyBg});state.storyCompose=false;state.storyMedia=null;state.storyMediaFile=null;state.storyMediaType='image';await loadStories();state.showStories=true;state.tab='chats';render();break}
 case 'react-story':await reactStory(id,v);break;
 case 'reply-story':await replyStory(id);break;
 case 'pick-av':document.getElementById('avatar-file')?.click();break;
