@@ -27,14 +27,11 @@ input:focus,textarea:focus,select:focus{border-color:var(--accent);background:va
 .muted{color:var(--muted)}.small{font-size:12px}.grow{flex:1;min-width:0}
 .row{display:flex;align-items:center;gap:10px}.between{justify-content:space-between}
 .btn{background:var(--card);border:1px solid var(--line);padding:12px 18px;border-radius:14px;font-weight:500;transition:transform .25s cubic-bezier(.2,.9,.3,1.2),background .2s,box-shadow .2s,opacity .2s}
-.btn:hover{transform:translateY(-1px)}
-.btn:active{transform:scale(.93)}
+.btn:hover{transform:translateY(-1px)}.btn:active{transform:scale(.93)}
 .btn.primary{background:var(--accent-grad);border:0;color:#fff;font-weight:600;box-shadow:0 4px 14px rgba(99,102,241,.35)}
 .btn.success{background:var(--online);border-color:var(--online);color:#fff;font-weight:600}
-.btn.ghost{background:transparent}
-.btn.danger{background:var(--danger);border-color:var(--danger);color:#fff;font-weight:600}
-.btn.small{padding:8px 14px;font-size:13px;border-radius:11px}
-.btn.wide{width:100%}
+.btn.ghost{background:transparent}.btn.danger{background:var(--danger);border-color:var(--danger);color:#fff;font-weight:600}
+.btn.small{padding:8px 14px;font-size:13px;border-radius:11px}.btn.wide{width:100%}
 .icon{padding:10px;border-radius:12px;font-size:18px;display:grid;place-items:center;transition:background .2s,color .2s,transform .2s cubic-bezier(.2,.9,.3,1.2),opacity .2s}
 .auth-wrap{flex:1;display:grid;place-items:center;padding:20px;overflow-y:auto}
 .auth-card{width:100%;max-width:420px;background:var(--card);border:1px solid var(--line);border-radius:24px;padding:32px 24px;display:flex;flex-direction:column;gap:14px;box-shadow:0 12px 40px rgba(0,0,0,.4)}
@@ -44,14 +41,10 @@ body.light .auth-card{box-shadow:0 12px 40px rgba(0,0,0,.08)}
 .top{display:flex;align-items:center;gap:12px;padding:14px 18px;background:rgba(21,24,34,.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--line);position:relative;z-index:10}
 body.light .top{background:rgba(255,255,255,.82)}
 .top-title{font-size:22px;font-weight:800;letter-spacing:-.5px;background:var(--accent-grad);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;cursor:pointer;user-select:none;transition:transform .2s ease,filter .2s ease}
-.top-title:active{transform:scale(.94)}
-.top-title:hover{filter:brightness(1.15)}
+.top-title:active{transform:scale(.94)}.top-title:hover{filter:brightness(1.15)}
 .ava{width:42px;height:42px;border-radius:14px;display:grid;place-items:center;font-size:20px;flex:none;background-size:cover;background-position:center;overflow:hidden;position:relative;transition:box-shadow .25s ease,transform .25s ease}
-.ava.sm{width:36px;height:36px;font-size:17px;border-radius:12px}
-.ava.big{width:88px;height:88px;font-size:42px;border-radius:28px;cursor:pointer}
-.ava.big:hover{transform:scale(1.05)}
-.ava.xs{width:28px;height:28px;font-size:14px;border-radius:10px}
-.ava.huge{width:120px;height:120px;font-size:56px;border-radius:40px}
+.ava.sm{width:36px;height:36px;font-size:17px;border-radius:12px}.ava.big{width:88px;height:88px;font-size:42px;border-radius:28px;cursor:pointer}
+.ava.big:hover{transform:scale(1.05)}.ava.xs{width:28px;height:28px;font-size:14px;border-radius:10px}.ava.huge{width:120px;height:120px;font-size:56px;border-radius:40px}
 .ava.deleted{background:var(--line)!important;color:var(--muted)}
 .ava.story-ring-unviewed{box-shadow:0 0 0 3px var(--accent);animation:pulse 2.4s ease-in-out infinite}
 .ava.story-ring-viewed{box-shadow:0 0 0 3px #555}
@@ -62,8 +55,7 @@ body.light .top{background:rgba(255,255,255,.82)}
 body.light .tabs{background:rgba(255,255,255,.88)}
 .tab{flex:1;padding:8px 2px;font-size:10px;color:var(--muted);position:relative;transition:color .3s ease,transform .3s ease;display:flex;flex-direction:column;align-items:center;gap:2px}
 .tab-icon{font-size:22px;transition:transform .35s cubic-bezier(.2,.9,.3,1.2)}
-.tab.on{color:var(--accent);font-weight:600}
-.tab.on .tab-icon{transform:scale(1.15)}
+.tab.on{color:var(--accent);font-weight:600}.tab.on .tab-icon{transform:scale(1.15)}
 .tab-badge{position:absolute;top:2px;right:calc(50% - 24px);background:var(--danger);color:#fff;font-size:10px;padding:1px 6px;border-radius:10px;min-width:18px;text-align:center;font-weight:700}
 .list{display:flex;flex-direction:column;gap:8px}
 .item{display:flex;align-items:center;gap:12px;padding:12px;border-radius:18px;background:var(--card);border:1px solid var(--line);cursor:pointer;position:relative;transition:background .15s,transform .15s,box-shadow .15s}
@@ -88,8 +80,7 @@ body.light .pinned-bar{background:linear-gradient(90deg,color-mix(in srgb,var(--
 .scroll-down-btn.show{display:flex}
 .scroll-down-btn .badge{position:absolute;top:-4px;right:-4px;background:var(--danger);color:#fff;font-size:10px;padding:2px 6px;border-radius:10px;font-weight:700;min-width:18px;text-align:center}
 .msg-row{display:flex;gap:6px;align-items:flex-end;max-width:88%}
-.msg-row.in{align-self:flex-start}
-.msg-row.out{align-self:flex-end;flex-direction:row-reverse}
+.msg-row.in{align-self:flex-start}.msg-row.out{align-self:flex-end;flex-direction:row-reverse}
 .msg-row.new{animation:msgIn .45s cubic-bezier(.2,.9,.3,1.2) both}
 .msg-row.new .bubble{animation:bubblePop .45s cubic-bezier(.2,.9,.3,1.2) both}
 .msg-menu-btn{font-size:16px;color:var(--muted);opacity:0;padding:4px}
@@ -119,10 +110,8 @@ body.light .reply-quote{background:rgba(0,0,0,.04)}
 .sender-name.deleted{color:var(--muted);font-style:italic}
 .edited-mark{opacity:.7;font-size:11px;margin-left:4px}
 .ts{font-size:11px;color:var(--muted);margin-top:4px;display:flex;align-items:center;gap:3px}
-.ts .check{font-size:12px}
-.ts .check.read{color:var(--accent)}
-.msg.out .ts{color:rgba(255,255,255,.75)}
-.msg.out .ts .check.read{color:#fff}
+.ts .check{font-size:12px}.ts .check.read{color:var(--accent)}
+.msg.out .ts{color:rgba(255,255,255,.75)}.msg.out .ts .check.read{color:#fff}
 .reactions{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}
 .reaction-chip{padding:3px 9px;border-radius:12px;background:var(--card-2);border:1px solid var(--line);font-size:12px;cursor:pointer;transition:transform .15s,background .15s,border-color .15s;animation:bounceIn .4s ease both}
 .reaction-chip:hover{transform:scale(1.12)}
@@ -135,8 +124,7 @@ body.light .composer{background:rgba(255,255,255,.92)}
 .typing-indicator{display:none;padding:8px 16px;gap:4px;align-items:center;background:var(--card);border-top:1px solid var(--line)}
 .typing-indicator.on{display:flex;animation:fadeIn .3s ease both}
 .typing-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);animation:tb 1.4s infinite ease-in-out;display:inline-block}
-.typing-dot:nth-child(2){animation-delay:.2s}
-.typing-dot:nth-child(3){animation-delay:.4s}
+.typing-dot:nth-child(2){animation-delay:.2s}.typing-dot:nth-child(3){animation-delay:.4s}
 @keyframes tb{0%,60%,100%{transform:translateY(0);opacity:.4}30%{transform:translateY(-6px);opacity:1}}
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);display:grid;place-items:center;padding:20px;z-index:50;animation:fadeIn .45s ease both}
 body.light .overlay{background:rgba(15,17,23,.5)}
@@ -173,16 +161,14 @@ body.light .card{box-shadow:0 8px 32px rgba(0,0,0,.08)}
 .story-full>div{animation:popIn .55s cubic-bezier(.2,.9,.3,1.2) both}
 .preview-media{width:100%;max-height:200px;object-fit:cover;border-radius:14px;display:block;animation:slideUpIn .4s ease both}
 .badge{font-size:10px;padding:3px 8px;border-radius:8px;background:var(--line);color:var(--text);font-weight:600}
-.badge.admin{background:#f59e0b;color:#000}
-.badge.muted{background:var(--danger);color:#fff}
+.badge.admin{background:#f59e0b;color:#000}.badge.muted{background:var(--danger);color:#fff}
 .member-row{display:flex;align-items:center;gap:10px;padding:10px;border-radius:14px;background:var(--bg-2)}
 .member-actions{display:flex;gap:6px;flex-wrap:wrap}
 .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.94);z-index:80;display:flex;align-items:center;justify-content:center;padding:20px;cursor:zoom-out;overflow:hidden;animation:fadeIn .4s ease both}
 .lightbox img{max-width:88vw;max-height:88vh;width:auto;height:auto;object-fit:contain;border-radius:14px;animation:popIn .5s cubic-bezier(.2,.9,.3,1.2) both}
 .boot{height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:20px;text-align:center;background:var(--bg);transition:background .3s ease}
 .boot .ring{width:56px;height:56px;border:4px solid var(--line);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite}
-.boot .msg{font-size:15px;font-weight:600}
-.boot .hint{font-size:12px;color:var(--muted);max-width:340px;line-height:1.5}
+.boot .msg{font-size:15px;font-weight:600}.boot .hint{font-size:12px;color:var(--muted);max-width:340px;line-height:1.5}
 .boot .fatal-title{color:var(--danger);font-size:18px;font-weight:700;margin-bottom:8px}
 .boot .fatal-text{font-size:14px;line-height:1.6;max-width:480px}
 .boot .fatal-hint{font-size:13px;color:var(--muted);line-height:1.6;max-width:480px;margin-top:14px}
@@ -198,8 +184,7 @@ body.light .card{box-shadow:0 8px 32px rgba(0,0,0,.08)}
 .call-item{display:flex;align-items:center;gap:12px;padding:12px;border-radius:18px;background:var(--card);border:1px solid var(--line);cursor:pointer;transition:transform .15s,box-shadow .15s}
 .call-item:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.3)}
 .call-item.missed{background:linear-gradient(135deg,rgba(239,68,68,.1),var(--card));border-color:rgba(239,68,68,.3)}
-.call-icon{font-size:20px;color:var(--accent)}
-.call-icon.missed{color:var(--danger)}
+.call-icon{font-size:20px;color:var(--accent)}.call-icon.missed{color:var(--danger)}
 .settings-section{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:20px;display:flex;flex-direction:column;gap:12px;flex-shrink:0}
 .settings-title{font-size:16px;font-weight:700;display:flex;align-items:center;gap:10px;letter-spacing:-.3px;margin-bottom:4px}
 .settings-icon{font-size:22px;display:inline-grid;place-items:center;width:38px;height:38px;background:color-mix(in srgb,var(--accent) 15%,var(--card));border-radius:12px}
@@ -222,8 +207,7 @@ body.light .card{box-shadow:0 8px 32px rgba(0,0,0,.08)}
 .story-thumb-author{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);overflow:hidden}
 .story-thumb-author span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 @keyframes ee-fall{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
-@keyframes fadeOut{from{opacity:1}to{opacity:0}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}@keyframes fadeOut{from{opacity:1}to{opacity:0}}
 @keyframes popIn{0%{opacity:0;transform:scale(.85) translateY(20px)}65%{opacity:1;transform:scale(1.03) translateY(-3px)}100%{opacity:1;transform:scale(1) translateY(0)}}
 @keyframes popOut{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(.85) translateY(20px)}}
 @keyframes slideUpIn{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
@@ -237,6 +221,11 @@ body.light .card{box-shadow:0 8px 32px rgba(0,0,0,.08)}
 body.chat-opening .content.chat .messages{animation:chatSlideIn .45s cubic-bezier(.2,.9,.3,1.1) both}
 body.chat-opening .content.chat .chat-head{animation:slideDownIn .4s ease both}
 body.chat-closing .content.chat{animation:chatSlideOut .35s cubic-bezier(.4,0,1,1) both}
+@keyframes snowfall{0%{transform:translateY(-10vh) translateX(0) rotate(0deg)}100%{transform:translateY(110vh) translateX(var(--drift,30px)) rotate(360deg)}}
+#snowfall-container{position:fixed;inset:0;pointer-events:none;z-index:5;overflow:hidden}
+#snowfall-container>div{position:absolute;top:-30px;color:#fff;text-shadow:0 0 8px rgba(255,255,255,.7);animation:snowfall linear infinite;user-select:none}
+body.light #snowfall-container>div{color:#a5b4fc;text-shadow:0 0 6px rgba(165,180,252,.8)}
+.admin-badge{position:absolute;top:-4px;right:-4px;background:#f59e0b;color:#000;font-size:9px;padding:1px 4px;border-radius:6px;font-weight:700}
 </style>
 </head>
 <body>
@@ -249,6 +238,7 @@ const U='https://bvoepphraeisksupmdrx.supabase.co';
 const K='sb_publishable_dYr_FCMfpR0G6e7Q6giLFg_4ZP2orKt';
 const MAX=50*1024*1024;
 const RING_TIMEOUT=20000;
+const ADMIN_USERNAME='jasmute';
 function fatal(t,x,h){document.getElementById('app').innerHTML='<div class="boot"><div class="fatal-title">'+t+'</div><div class="fatal-text">'+x+'</div>'+(h?'<div class="fatal-hint">'+h+'</div>':'')+'<button class="btn primary" onclick="location.reload()" style="margin-top:16px">Перезагрузить</button></div>'}
 if(!window.supabase){fatal('supabase.js не загрузился','Файл должен лежать рядом с index.html');return}
 let sb;
@@ -257,15 +247,16 @@ let S={sounds:true,notifications:true,fontScale:1,lang:'ru',theme:'dark'};
 function loadS(){try{const s=JSON.parse(localStorage.getItem('nova_settings')||'null');if(s)S={...S,...s}}catch(e){}document.documentElement.style.setProperty('--fs',S.fontScale)}
 function saveS(){try{localStorage.setItem('nova_settings',JSON.stringify(S))}catch(e){}document.documentElement.style.setProperty('--fs',S.fontScale)}
 loadS();
-const L={ru:{chats:'Чаты',calls:'Звонки',memory:'Память',contacts:'Контакты',settings:'Настройки',login:'Войти',register:'Зарегистрироваться',createAcc:'Создать аккаунт',haveAcc:'У меня есть аккаунт',email:'Email или телефон',usernameOrEmail:'Логин, email или телефон',password:'Пароль',username:'Логин',displayName:'Имя',online:'в сети',wasOnline:'был(а)',yesterday:'вчера',daysAgo:'дн.назад',members:'Участники',leaveGroup:'Выйти',deleteGroup:'Удалить группу',kick:'Исключить',groupName:'Название',groupDesc:'Описание',groupAvatar:'Аватар группы',save:'Сохранить',newChat:'+ Чат',newGroup:'👥 Группа',create:'Создать',soundsOn:'🔔 Звуки: вкл',soundsOff:'🔕 Звуки: выкл',notifOn:'🔔 Уведомления: вкл',notifOff:'🔕 Уведомления: выкл',lang:'🌐 Язык',privacy:'Приватность',appearance:'Внешний вид',theme:'🎨 Тема',lastSeenPrivacy:'Кто видит «в сети»',messagesPrivacy:'Кто может писать',groupsPrivacy:'Кто может добавлять в группы',everyone:'Все',contacts:'Контакты',nobody:'Никто',aiGreeting:'Привет! Я AI-ассистент.',aiThinking:'AI думает…',aiPlaceholder:'Спросите что угодно...',aiClear:'Очистить',describeImage:'Опишите картинку...',generate:'Сгенерировать',improving:'Улучшаю промпт…',generating:'Генерирую…',download:'Скачать',toChat:'В AI-чат',leaveConfirm:'Выйти?',back:'Назад',close:'Закрыть',noChats:'Пока нет чатов.',commonChats:'Общие чаты',noCommon:'Нет общих чатов',write:'Написать',bio:'О себе...',noUsers:'Нет пользователей',pickMembers:'Выберите из контактов',cache:'Очистить кэш',logout:'Выйти',saveProfile:'Сохранить профиль',accent:'Акцентный цвет',addStory:'+ Добавить',noStories:'Историй нет',newStory:'Новая история',caption:'Подпись...',publish:'Опубликовать',photo:'📷 Фото',edit:'Редактировать',del:'Удалить',reaction:'Реакция',voice:'Голосовое',acceptCall:'Принять',declineCall:'Отклонить',inCall:'входящий звонок…',calling:'звонок…',connected:'✓ Соединено',typeMessage:'Сообщение...',mutedByAdmin:'🔇 Заглушены',addToContacts:'Добавить в контакты?',add:'Добавить',block:'Заблокировать',blocked:'Заблокированные',unblock:'Разблокировать',noContacts:'Нет контактов',search:'Поиск',searchFriends:'Найти',twofa:'2FA',twofaOn:'2FA включена',twofaOff:'2FA выключена',twofaHint:'Введите код из письма',twofaCode:'Код',verify:'Подтвердить',storyTtl:'Время жизни историй',hours:'ч',reply:'Ответить',storyDeleteConfirm:'Удалить историю?',youBlocked:'Вы заблокировали',settingsGroup:'Настройки группы',contactAdd:'Добавить',contactRemove:'Убрать',searchEmpty:'Введите имя, логин или телефон',noResults:'Ничего не найдено',profileView:'Профиль',deleteAcc:'Удалить аккаунт',missedCall:'Пропущенный',missedCalls:'Пропущенные',callBack:'Перезвонить',notification:'Уведомления',allowNotif:'Разрешить уведомления',notifBlocked:'Заблокированы',outgoing:'Исходящий',incoming:'Входящий',noCalls:'Нет звонков',searchMsgs:'Поиск по сообщениям',pinMsg:'📌 Закрепить',unpinMsg:'📌 Открепить',searchContacts:'Поиск по контактам',searchAll:'Введите имя, логин или телефон',noAnswer:'Нет ответа',minimize:'Свернуть',secAppearance:'🎨 Внешний вид',secPrivacy:'🔒 Приватность',secNotif:'🔔 Уведомления',secTwofa:'🔐 Безопасность',secMemory:'💾 Память и хранилище',secDanger:'⚠️ Опасная зона',storiesTitle:'Истории',story:'История',storyUnavailable:'История недоступна',viewedBy:'Просмотрели',noViews:'Пока никто не смотрел',memoryTitle:'Память и хранилище',cacheSize:'Размер кэша',messagesCount:'Сообщений в кэше',storiesCount:'Историй в кэше',clearCache:'Очистить кэш приложения',clearOld:'Удалить старые сообщения (30+ дней)',clearStories:'Удалить все прочитанные истории',tapPhoto:'Нажмите на фото, чтобы изменить',scrollDown:'Вниз',you:'Вы',transferOwner:'Передать права владельца',transferOwnerTitle:'Передача прав владельца',pickNewOwner:'Выберите нового владельца — он сможет назначать админов, удалять группу и передавать права дальше',ownerBadge:'Владелец',transfer:'Передать',deleteInstead:'Удалить группу вместо этого',deletedAccount:'Удалённый аккаунт',pinChat:'📌 Закрепить чат',unpinChat:'📌 Открепить чат',deleteChat:'🗑️ Удалить чат',deleteChatConfirm:'Удалить чат из списка?',chatReadOnly:'Аккаунт удалён, чат доступен только для чтения',chatActions:'Действия с чатом'},en:{chats:'Chats',calls:'Calls',memory:'Memory',contacts:'Contacts',settings:'Settings',login:'Log in',register:'Sign up',createAcc:'Create',haveAcc:'Have account',email:'Email or phone',usernameOrEmail:'Username, email or phone',password:'Password',username:'Username',displayName:'Name',online:'online',wasOnline:'last seen',yesterday:'yesterday',daysAgo:'days ago',members:'Members',leaveGroup:'Leave',deleteGroup:'Delete',kick:'Kick',groupName:'Name',groupDesc:'Description',groupAvatar:'Avatar',save:'Save',newChat:'+ Chat',newGroup:'👥 Group',create:'Create',soundsOn:'🔔 Sounds on',soundsOff:'🔕 Sounds off',notifOn:'🔔 Notif on',notifOff:'🔕 Notif off',lang:'🌐 Lang',privacy:'Privacy',appearance:'Appearance',theme:'🎨 Theme',lastSeenPrivacy:'Last seen',messagesPrivacy:'Who can message',groupsPrivacy:'Who can add to groups',everyone:'Everyone',contacts:'Contacts',nobody:'Nobody',aiGreeting:'Hi!',aiThinking:'AI…',aiPlaceholder:'Ask...',aiClear:'Clear',describeImage:'Describe...',generate:'Generate',improving:'Improving…',generating:'Generating…',download:'Download',toChat:'To chat',leaveConfirm:'Leave?',back:'Back',close:'Close',noChats:'No chats',commonChats:'Common',noCommon:'No common',write:'Write',bio:'About...',noUsers:'No users',pickMembers:'Select contacts',cache:'Clear cache',logout:'Logout',saveProfile:'Save',accent:'Accent',addStory:'+ Add',noStories:'No stories',newStory:'New',caption:'Caption...',publish:'Publish',photo:'📷 Photo',edit:'Edit',del:'Delete',reaction:'Reaction',voice:'Voice',acceptCall:'Accept',declineCall:'Decline',inCall:'incoming…',calling:'calling…',connected:'✓ Connected',typeMessage:'Message...',mutedByAdmin:'🔇 Muted',addToContacts:'Add to contacts?',add:'Add',block:'Block',blocked:'Blocked',unblock:'Unblock',noContacts:'No contacts',search:'Search',searchFriends:'Find',twofa:'2FA',twofaOn:'2FA on',twofaOff:'2FA off',twofaHint:'Enter code from email',twofaCode:'Code',verify:'Verify',storyTtl:'Story lifetime',hours:'h',reply:'Reply',storyDeleteConfirm:'Delete?',youBlocked:'You blocked',settingsGroup:'Group settings',contactAdd:'Add',contactRemove:'Remove',searchEmpty:'Enter name, username or phone',noResults:'Nothing found',profileView:'Profile',deleteAcc:'Delete',missedCall:'Missed',missedCalls:'Missed',callBack:'Call back',notification:'Notifications',allowNotif:'Allow',notifBlocked:'Blocked',outgoing:'Outgoing',incoming:'Incoming',noCalls:'No calls',searchMsgs:'Search messages',pinMsg:'📌 Pin',unpinMsg:'📌 Unpin',searchContacts:'Search contacts',searchAll:'Enter name, username or phone',noAnswer:'No answer',minimize:'Minimize',secAppearance:'🎨 Appearance',secPrivacy:'🔒 Privacy',secNotif:'🔔 Notifications',secTwofa:'🔐 Security',secMemory:'💾 Memory & storage',secDanger:'⚠️ Danger zone',storiesTitle:'Stories',story:'Story',storyUnavailable:'Story unavailable',viewedBy:'Viewed by',noViews:'No views yet',memoryTitle:'Memory & storage',cacheSize:'Cache size',messagesCount:'Messages in cache',storiesCount:'Stories in cache',clearCache:'Clear app cache',clearOld:'Delete old messages (30+ days)',clearStories:'Delete read stories',tapPhoto:'Tap photo to change',scrollDown:'Down',you:'You',transferOwner:'Transfer ownership',transferOwnerTitle:'Transfer ownership',pickNewOwner:'Pick a new owner — they will be able to appoint admins, delete the group and transfer ownership further',ownerBadge:'Owner',transfer:'Transfer',deleteInstead:'Delete group instead',deletedAccount:'Deleted account',pinChat:'📌 Pin chat',unpinChat:'📌 Unpin chat',deleteChat:'🗑️ Delete chat',deleteChatConfirm:'Remove this chat from your list?',chatReadOnly:'Account deleted, chat is read-only',chatActions:'Chat actions'}};
+const L={ru:{chats:'Чаты',calls:'Звонки',memory:'Память',contacts:'Контакты',settings:'Настройки',login:'Войти',register:'Зарегистрироваться',createAcc:'Создать аккаунт',haveAcc:'У меня есть аккаунт',email:'Email или телефон',usernameOrEmail:'Логин, email или телефон',password:'Пароль',username:'Логин',displayName:'Имя',online:'в сети',wasOnline:'был(а)',yesterday:'вчера',daysAgo:'дн.назад',members:'Участники',leaveGroup:'Выйти',deleteGroup:'Удалить группу',kick:'Исключить',groupName:'Название',groupDesc:'Описание',groupAvatar:'Аватар группы',save:'Сохранить',newChat:'+ Чат',newGroup:'👥 Группа',create:'Создать',soundsOn:'🔔 Звуки: вкл',soundsOff:'🔕 Звуки: выкл',notifOn:'🔔 Уведомления: вкл',notifOff:'🔕 Уведомления: выкл',lang:'🌐 Язык',privacy:'Приватность',appearance:'Внешний вид',theme:'🎨 Тема',lastSeenPrivacy:'Кто видит «в сети»',messagesPrivacy:'Кто может писать',groupsPrivacy:'Кто может добавлять в группы',everyone:'Все',contacts:'Контакты',nobody:'Никто',aiGreeting:'Привет! Я AI-ассистент.',aiThinking:'AI думает…',aiPlaceholder:'Спросите что угодно...',aiClear:'Очистить',describeImage:'Опишите картинку...',generate:'Сгенерировать',improving:'Улучшаю промпт…',generating:'Генерирую…',download:'Скачать',toChat:'В AI-чат',leaveConfirm:'Выйти?',back:'Назад',close:'Закрыть',noChats:'Пока нет чатов.',commonChats:'Общие чаты',noCommon:'Нет общих чатов',write:'Написать',bio:'О себе...',noUsers:'Нет пользователей',pickMembers:'Выберите из контактов',cache:'Очистить кэш',logout:'Выйти',saveProfile:'Сохранить профиль',accent:'Акцентный цвет',addStory:'+ Добавить',noStories:'Историй нет',newStory:'Новая история',caption:'Подпись...',publish:'Опубликовать',photo:'📷 Фото',edit:'Редактировать',del:'Удалить',reaction:'Реакция',voice:'Голосовое',acceptCall:'Принять',declineCall:'Отклонить',inCall:'входящий звонок…',calling:'звонок…',connected:'✓ Соединено',typeMessage:'Сообщение...',mutedByAdmin:'🔇 Заглушены',addToContacts:'Добавить в контакты?',add:'Добавить',block:'Заблокировать',blocked:'Заблокированные',unblock:'Разблокировать',noContacts:'Нет контактов',search:'Поиск',searchFriends:'Найти',twofa:'2FA',twofaOn:'2FA включена',twofaOff:'2FA выключена',twofaHint:'Введите код из письма',twofaCode:'Код',verify:'Подтвердить',storyTtl:'Время жизни историй',hours:'ч',reply:'Ответить',storyDeleteConfirm:'Удалить историю?',youBlocked:'Вы заблокировали',settingsGroup:'Настройки группы',contactAdd:'Добавить',contactRemove:'Убрать',searchEmpty:'Введите имя, логин или телефон',noResults:'Ничего не найдено',profileView:'Профиль',deleteAcc:'Удалить аккаунт',missedCall:'Пропущенный',missedCalls:'Пропущенные',callBack:'Перезвонить',notification:'Уведомления',allowNotif:'Разрешить уведомления',notifBlocked:'Заблокированы',outgoing:'Исходящий',incoming:'Входящий',noCalls:'Нет звонков',searchMsgs:'Поиск по сообщениям',pinMsg:'📌 Закрепить',unpinMsg:'📌 Открепить',searchContacts:'Поиск по контактам',searchAll:'Введите имя, логин или телефон',noAnswer:'Нет ответа',minimize:'Свернуть',secAppearance:'🎨 Внешний вид',secPrivacy:'🔒 Приватность',secNotif:'🔔 Уведомления',secTwofa:'🔐 Безопасность',secMemory:'💾 Память и хранилище',secDanger:'⚠️ Опасная зона',storiesTitle:'Истории',story:'История',storyUnavailable:'История недоступна',viewedBy:'Просмотрели',noViews:'Пока никто не смотрел',memoryTitle:'Память и хранилище',cacheSize:'Размер кэша',messagesCount:'Сообщений в кэше',storiesCount:'Историй в кэше',clearCache:'Очистить кэш приложения',clearOld:'Удалить старые сообщения (30+ дней)',clearStories:'Удалить все прочитанные истории',tapPhoto:'Нажмите на фото, чтобы изменить',scrollDown:'Вниз',you:'Вы',transferOwner:'Передать права владельца',transferOwnerTitle:'Передача прав владельца',pickNewOwner:'Выберите нового владельца — он сможет назначать админов, удалять группу и передавать права дальше',ownerBadge:'Владелец',transfer:'Передать',deleteInstead:'Удалить группу вместо этого',deletedAccount:'Удалённый аккаунт',pinChat:'📌 Закрепить чат',unpinChat:'📌 Открепить чат',deleteChat:'🗑️ Удалить чат',deleteChatConfirm:'Удалить чат из списка?',chatReadOnly:'Аккаунт удалён, чат доступен только для чтения',chatActions:'Действия с чатом',changePassword:'Сменить пароль',currentPassword:'Текущий пароль',newPassword:'Новый пароль',passwordChanged:'Пароль изменён',adminPanel:'Админ-панель',snowfallOn:'❄️ Снегопад включён',snowfallOff:'Включить снегопад',resetPass:'Сбросить пароль',newPassIs:'Новый пароль',adminOnly:'Только для администратора',deleteAnyMessage:'Удалить сообщение (админ)'},en:{chats:'Chats',calls:'Calls',memory:'Memory',contacts:'Contacts',settings:'Settings',login:'Log in',register:'Sign up',createAcc:'Create',haveAcc:'Have account',email:'Email or phone',usernameOrEmail:'Username, email or phone',password:'Password',username:'Username',displayName:'Name',online:'online',wasOnline:'last seen',yesterday:'yesterday',daysAgo:'days ago',members:'Members',leaveGroup:'Leave',deleteGroup:'Delete',kick:'Kick',groupName:'Name',groupDesc:'Description',groupAvatar:'Avatar',save:'Save',newChat:'+ Chat',newGroup:'👥 Group',create:'Create',soundsOn:'🔔 Sounds on',soundsOff:'🔕 Sounds off',notifOn:'🔔 Notif on',notifOff:'🔕 Notif off',lang:'🌐 Lang',privacy:'Privacy',appearance:'Appearance',theme:'🎨 Theme',lastSeenPrivacy:'Last seen',messagesPrivacy:'Who can message',groupsPrivacy:'Who can add to groups',everyone:'Everyone',contacts:'Contacts',nobody:'Nobody',aiGreeting:'Hi!',aiThinking:'AI…',aiPlaceholder:'Ask...',aiClear:'Clear',describeImage:'Describe...',generate:'Generate',improving:'Improving…',generating:'Generating…',download:'Download',toChat:'To chat',leaveConfirm:'Leave?',back:'Back',close:'Close',noChats:'No chats',commonChats:'Common',noCommon:'No common',write:'Write',bio:'About...',noUsers:'No users',pickMembers:'Select contacts',cache:'Clear cache',logout:'Logout',saveProfile:'Save',accent:'Accent',addStory:'+ Add',noStories:'No stories',newStory:'New',caption:'Caption...',publish:'Publish',photo:'📷 Photo',edit:'Edit',del:'Delete',reaction:'Reaction',voice:'Voice',acceptCall:'Accept',declineCall:'Decline',inCall:'incoming…',calling:'calling…',connected:'✓ Connected',typeMessage:'Message...',mutedByAdmin:'🔇 Muted',addToContacts:'Add to contacts?',add:'Add',block:'Block',blocked:'Blocked',unblock:'Unblock',noContacts:'No contacts',search:'Search',searchFriends:'Find',twofa:'2FA',twofaOn:'2FA on',twofaOff:'2FA off',twofaHint:'Enter code from email',twofaCode:'Code',verify:'Verify',storyTtl:'Story lifetime',hours:'h',reply:'Reply',storyDeleteConfirm:'Delete?',youBlocked:'You blocked',settingsGroup:'Group settings',contactAdd:'Add',contactRemove:'Remove',searchEmpty:'Enter name, username or phone',noResults:'Nothing found',profileView:'Profile',deleteAcc:'Delete',missedCall:'Missed',missedCalls:'Missed',callBack:'Call back',notification:'Notifications',allowNotif:'Allow',notifBlocked:'Blocked',outgoing:'Outgoing',incoming:'Incoming',noCalls:'No calls',searchMsgs:'Search messages',pinMsg:'📌 Pin',unpinMsg:'📌 Unpin',searchContacts:'Search contacts',searchAll:'Enter name, username or phone',noAnswer:'No answer',minimize:'Minimize',secAppearance:'🎨 Appearance',secPrivacy:'🔒 Privacy',secNotif:'🔔 Notifications',secTwofa:'🔐 Security',secMemory:'💾 Memory & storage',secDanger:'⚠️ Danger zone',storiesTitle:'Stories',story:'Story',storyUnavailable:'Story unavailable',viewedBy:'Viewed by',noViews:'No views yet',memoryTitle:'Memory & storage',cacheSize:'Cache size',messagesCount:'Messages in cache',storiesCount:'Stories in cache',clearCache:'Clear app cache',clearOld:'Delete old messages (30+ days)',clearStories:'Delete read stories',tapPhoto:'Tap photo to change',scrollDown:'Down',you:'You',transferOwner:'Transfer ownership',transferOwnerTitle:'Transfer ownership',pickNewOwner:'Pick a new owner — they will be able to appoint admins, delete the group and transfer ownership further',ownerBadge:'Owner',transfer:'Transfer',deleteInstead:'Delete group instead',deletedAccount:'Deleted account',pinChat:'📌 Pin chat',unpinChat:'📌 Unpin chat',deleteChat:'🗑️ Delete chat',deleteChatConfirm:'Remove this chat from your list?',chatReadOnly:'Account deleted, chat is read-only',chatActions:'Chat actions',changePassword:'Change password',currentPassword:'Current password',newPassword:'New password',passwordChanged:'Password changed',adminPanel:'Admin panel',snowfallOn:'❄️ Snowfall on',snowfallOff:'Enable snowfall',resetPass:'Reset password',newPassIs:'New password',adminOnly:'Admin only',deleteAnyMessage:'Delete message (admin)'}};
 function t(k){return (L[S.lang]||L.ru)[k]||k}
 const EMOJI=['❤️','😂','👍','😮','😢','🔥'];
 const ALL_EMOJI=['😀','😁','😂','🤣','😃','😄','😅','😆','😉','😊','😋','😎','😍','😘','🥰','😗','😙','😚','🙂','🤗','🤩','🤔','🤨','😐','😑','😶','🙄','😏','😣','😥','😮','🤐','😯','😪','😫','🥱','😴','😌','😛','😜','😝','🤤','😒','😓','😔','😕','🙃','🤑','😲','🙁','😖','😞','😟','😤','😢','😭','😦','😧','😨','😩','🤯','😬','😰','😱','🥵','🥶','😳','🤪','😵','🥴','😠','😡','🤬','😷','🤒','🤕','🤢','🤮','🤧','😇','🥳','🥺','🤠','🤡','🤥','🤫','🤭','🧐','🤓','👻','💀','👽','🤖','💩','❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','💔','👍','👎','👌','✌️','🤞','🤟','🤘','🤙','👏','🙌','🤝','💪','🔥','✨','⭐','🌟','💫','💥','💯','🎉','🎊','🎁','🎂'];
-const state={user:null,profile:null,tab:'chats',chatId:null,chat:null,chats:[],messages:[],stories:[],profiles:{},members:{},contacts:[],blocks:[],unreadCounts:{},missedCalls:[],allCalls:[],chatReads:{},typingUsers:{},modal:null,pickMode:'chat',createGroup:false,groupName:'',groupMembers:[],searchQuery:'',searchResults:null,contactsSearchQuery:'',viewMembers:false,storyCompose:false,storyMedia:null,storyMediaFile:null,storyMediaType:'image',storyBg:'#6366f1',storyPlayer:null,storyViewers:{},storyViewersModal:null,incoming:null,call:null,callMinimized:false,muted:false,cameraOn:false,screenOn:false,msgMenu:null,authMode:'login',authErr:'',recording:false,recordStart:0,recordInterval:null,mediaRecorder:null,recordedChunks:[],recordStream:null,lightbox:null,aiMessages:[],aiLoading:false,aiModal:null,viewProfile:null,groupSettings:null,showAI:false,showBlocked:false,pending2FA:null,replyTo:null,searchMsgs:null,searchMsgsQuery:'',showEmoji:false,callReactions:[],settingsSection:null,showStories:false,scrollAtBottom:true,newMsgsBadge:0,stream:null,ownerTransferPending:null,chatMenu:null};
+const state={user:null,profile:null,tab:'chats',chatId:null,chat:null,chats:[],messages:[],stories:[],profiles:{},members:{},contacts:[],blocks:[],unreadCounts:{},missedCalls:[],allCalls:[],chatReads:{},typingUsers:{},modal:null,pickMode:'chat',createGroup:false,groupName:'',groupMembers:[],searchQuery:'',searchResults:null,contactsSearchQuery:'',viewMembers:false,storyCompose:false,storyMedia:null,storyMediaFile:null,storyMediaType:'image',storyBg:'#6366f1',storyPlayer:null,storyViewers:{},storyViewersModal:null,incoming:null,call:null,callMinimized:false,muted:false,cameraOn:false,screenOn:false,msgMenu:null,authMode:'login',authErr:'',recording:false,recordStart:0,recordInterval:null,mediaRecorder:null,recordedChunks:[],recordStream:null,lightbox:null,aiMessages:[],aiLoading:false,aiModal:null,viewProfile:null,groupSettings:null,showAI:false,showBlocked:false,pending2FA:null,replyTo:null,searchMsgs:null,searchMsgsQuery:'',showEmoji:false,callReactions:[],settingsSection:null,showStories:false,scrollAtBottom:true,newMsgsBadge:0,stream:null,ownerTransferPending:null,chatMenu:null,snowfall:false,showAdmin:false,adminStats:null,adminUsers:null,appSettings:{}};
 function getThemePref(){return state.profile?.theme || S.theme || 'dark'}
 function getEffectiveTheme(){const p=getThemePref();if(p==='system'){return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light'}return p === 'light' ? 'light' : 'dark'}
 function cycleTheme(){const cur=getThemePref();return cur==='dark'?'light':(cur==='light'?'system':'dark')}
 function themeIcon(pref){if(!pref) pref = getThemePref();return pref === 'light' ? '☀️' : (pref === 'system' ? '🌓' : '🌙')}
+function isSuperAdmin(){return state.profile?.username === ADMIN_USERNAME}
 if(window.matchMedia){try{const mq = window.matchMedia('(prefers-color-scheme: dark)');const sysHandler = ()=>{if(getThemePref() === 'system'){document.body.classList.toggle('light', !mq.matches)}};if(mq.addEventListener) mq.addEventListener('change', sysHandler);else if(mq.addListener) mq.addListener(sysHandler)}catch(e){}}
 let callTimer=null,ringInterval=null,dialInterval=null,ringTimeout=null,callerTimeout=null,pc=null,cameraTrack=null,screenTrack=null,videoSender=null,remoteStream=null,makingOffer=false,ignoreOffer=false;
 let msgChannel=null,globalMsgChannel=null,callsChannel=null,sigChannel=null,sigPollTimer=null,heartbeatTimer=null,profilesChannel=null,refreshInterval=null,typingChannel=null,typingTimer=null,callReactChannel=null,callsListChannel=null,callPollTimer=null;
@@ -340,7 +331,7 @@ if(callerTimeout){clearTimeout(callerTimeout);callerTimeout=null}
 if(callPollTimer){clearInterval(callPollTimer);callPollTimer=null}
 stopStoryTimer();
 await sb.auth.signOut();
-state.user=null;state.profile=null;state.chats=[];state.messages=[];state.contacts=[];state.blocks=[];state.unreadCounts={};state.missedCalls=[];state.allCalls=[];state.authErr='';state.settingsSection=null;state.storyPlayer=null;state.storyViewers={};state.storyViewersModal=null;state.ownerTransferPending=null;state.chatMenu=null;
+state.user=null;state.profile=null;state.chats=[];state.messages=[];state.contacts=[];state.blocks=[];state.unreadCounts={};state.missedCalls=[];state.allCalls=[];state.authErr='';state.settingsSection=null;state.storyPlayer=null;state.storyViewers={};state.storyViewersModal=null;state.ownerTransferPending=null;state.chatMenu=null;state.showAdmin=false;
 render();
 }
 function startHeartbeat(){if(heartbeatTimer)clearInterval(heartbeatTimer);const b=async()=>{if(!state.user)return;try{await sb.from('profiles').update({last_seen:new Date().toISOString()}).eq('id',state.user.id)}catch(e){}};b();heartbeatTimer=setInterval(b,30000)}
@@ -350,16 +341,7 @@ async function loadAll(){const {data}=await sb.from('profiles').select('*').neq(
 async function loadContacts(){const {data}=await sb.from('contacts').select('*').eq('user_id',state.user.id);state.contacts=data||[];const ids=state.contacts.map(c=>c.contact_id);if(ids.length)await loadProfs(ids)}
 async function loadBlocks(){const {data}=await sb.from('blocks').select('*').eq('user_id',state.user.id);state.blocks=data||[];const ids=state.blocks.map(b=>b.blocked_id);if(ids.length)await loadProfs(ids)}
 async function loadChats(){const {data:m}=await sb.from('chat_members').select('*').eq('user_id',state.user.id);const ids=[...new Set((m||[]).map(x=>x.chat_id))];if(!ids.length){state.chats=[];return}const {data:c}=await sb.from('chats').select('*').in('id',ids);const seen=new Set();state.chats=(c||[]).filter(x=>{if(!x||seen.has(x.id))return false;seen.add(x.id);return true});const {data:am}=await sb.from('chat_members').select('*').in('chat_id',ids);const uids=[...new Set((am||[]).map(x=>x.user_id))];await loadProfs(uids);state.members={};(am||[]).forEach(x=>{if(!state.members[x.chat_id])state.members[x.chat_id]=[];state.members[x.chat_id].push(x)});
-state.chats.sort((a,b)=>{
-const am_= (state.members[a.id]||[]).find(x=>x.user_id===state.user.id);
-const bm_= (state.members[b.id]||[]).find(x=>x.user_id===state.user.id);
-const ap = am_?.pinned_at ? new Date(am_.pinned_at).getTime() : 0;
-const bp = bm_?.pinned_at ? new Date(bm_.pinned_at).getTime() : 0;
-if(ap && !bp) return -1;
-if(!ap && bp) return 1;
-if(ap && bp) return bp - ap;
-return new Date(b.created_at||0) - new Date(a.created_at||0);
-});
+state.chats.sort((a,b)=>{const am_= (state.members[a.id]||[]).find(x=>x.user_id===state.user.id);const bm_= (state.members[b.id]||[]).find(x=>x.user_id===state.user.id);const ap = am_?.pinned_at ? new Date(am_.pinned_at).getTime() : 0;const bp = bm_?.pinned_at ? new Date(bm_.pinned_at).getTime() : 0;if(ap && !bp) return -1;if(!ap && bp) return 1;if(ap && bp) return bp - ap;return new Date(b.created_at||0) - new Date(a.created_at||0)});
 }
 async function loadUnread(){
 if(!state.chats.length){state.unreadCounts={};return}
@@ -711,7 +693,7 @@ pc=new RTCPeerConnection({iceServers:[{urls:'stun:stun.l.google.com:19302'},{url
 state.stream.getTracks().forEach(t=>pc.addTrack(t,state.stream));
 if(cameraTrack||screenTrack){const tr=cameraTrack||screenTrack;try{videoSender=pc.addTrack(tr,state.stream)}catch(e){}}
 makingOffer=false;ignoreOffer=false;
-pc.onnegotiationneeded=async()=>{try{makingOffer=true;await pc.setLocalDescription();await sendSig('offer',{sdp:pc.localDescription.toJSON()})}catch(e){console.warn('[WebRTC] negotiation failed',e);try{await pc.setLocalDescription({type:'rollback'})}catch(e2){}}finally{makingOffer=false}};
+pc.onnegotiationneeded=async()=>{try{makingOffer=true;await pc.setLocalDescription();await sendSig('offer',{sdp:pc.localDescription.toJSON()})}catch(e){try{await pc.setLocalDescription({type:'rollback'})}catch(e2){}}finally{makingOffer=false}};
 pc.ontrack=e=>{
 if(e.track.kind==='audio'){let a=document.getElementById('remote-audio');if(!a){a=document.createElement('audio');a.id='remote-audio';a.autoplay=true;a.playsInline=true;document.body.appendChild(a)}a.srcObject=e.streams[0]||new MediaStream([e.track]);a.play().catch(()=>{})}else if(e.track.kind==='video'){remoteStream=e.streams[0]||new MediaStream([e.track]);e.track.onunmute=()=>attachRemote();attachRemote()}
 };
@@ -772,7 +754,7 @@ function attachRemote(){
 const v=document.getElementById('remote-video');if(!v||!remoteStream)return;
 if(v.srcObject!==remoteStream)v.srcObject=remoteStream;
 v.muted=true;v.playsInline=true;
-v.play().catch(e=>{console.warn('rv play fail',e);setTimeout(()=>v.play().catch(()=>{}),500)});
+v.play().catch(e=>{setTimeout(()=>v.play().catch(()=>{}),500)});
 }
 async function createGroup(n,ids){const {data,error}=await sb.rpc('create_group',{group_name:n,member_ids:ids});if(error){toast(error.message);return null}await new Promise(r=>setTimeout(r,400));await refresh();return data}
 async function startDM(oid){const {data,error}=await sb.rpc('get_or_create_dm',{other_id:oid});if(error){toast(error.message);return null}await refresh();return data}
@@ -813,6 +795,34 @@ try{await sb.auth.signOut()}catch(e){}
 toast('Аккаунт удалён','#10b981');
 setTimeout(()=>location.reload(),1500);
 }catch(e){toast('Ошибка удаления: '+(e.message||e))}
+}
+async function changePassword(){
+const curEl=document.getElementById('cp-current');
+const newEl=document.getElementById('cp-new');
+if(!curEl||!newEl)return;
+const cur=curEl.value;
+const nw=newEl.value;
+if(!cur||!nw){toast('Заполните оба поля');return}
+if(nw.length<6){toast('Пароль: минимум 6 символов');return}
+try{
+// Проверяем текущий пароль, перелогинившись
+const email=state.user.email;
+const {error:signErr}=await sb.auth.signInWithPassword({email,password:cur});
+if(signErr)throw new Error('Текущий пароль неверен');
+const {error}=await sb.auth.updateUser({password:nw});
+if(error)throw error;
+toast(t('passwordChanged'),'#10b981');
+curEl.value='';newEl.value='';
+}catch(e){toast(e.message||String(e))}
+}
+async function adminResetPassword(targetId,targetName){
+if(!isSuperAdmin())return;
+if(!confirm(`Сбросить пароль для ${targetName}? Будет сгенерирован новый.`))return;
+try{
+const {data,error}=await sb.rpc('admin_reset_password',{target_user:targetId});
+if(error)throw error;
+alert(`Новый пароль для ${targetName}:\n\n${data}\n\nСохраните и передайте пользователю.`);
+}catch(e){toast(e.message||String(e))}
 }
 function isAdmin(cid){const m=(state.members[cid]||[]).find(x=>x.user_id===state.user.id);return m?.role==='admin'}
 function isCreator(cid){const c=state.chats.find(x=>x.id===cid);return c&&c.created_by===state.user.id}
@@ -874,6 +884,54 @@ const marker=`[[story:${sid}:${s.user_id}]]`;
 await sb.from('messages').insert({chat_id:cid,sender_id:state.user.id,content:marker+x.trim()});
 toast('Отправлен','#10b981');
 }
+async function loadAppSettings(){
+try{
+const {data}=await sb.from('app_settings').select('*');
+const m={};(data||[]).forEach(r=>m[r.key]=r.value);
+state.appSettings=m;
+state.snowfall=!!(m.snowfall?.enabled);
+}catch(e){console.warn('app settings',e)}
+}
+async function toggleSnowfall(enabled){
+try{
+const {error}=await sb.from('app_settings').upsert({key:'snowfall',value:{enabled},updated_at:new Date().toISOString()},{onConflict:'key'});
+if(error)throw error;
+state.snowfall=enabled;
+state.appSettings.snowfall={enabled};
+if(enabled)renderSnowfall();else removeSnowfall();
+toast(enabled?'❄️ Снегопад включён':'Снегопад выключен','#10b981');
+}catch(e){toast('Ошибка: '+(e.message||e))}
+}
+function renderSnowfall(){
+if(document.getElementById('snowfall-container'))return;
+const c=document.createElement('div');
+c.id='snowfall-container';
+const flakes=['❄️','❅','❆','✻','✼'];
+for(let i=0;i<45;i++){
+const f=document.createElement('div');
+f.textContent=flakes[Math.floor(Math.random()*flakes.length)];
+const size=8+Math.random()*18;
+const dur=5+Math.random()*10;
+const delay=Math.random()*10;
+const drift=(Math.random()*120-60).toFixed(0);
+f.style.cssText=`left:${Math.random()*100}%;font-size:${size}px;opacity:${(0.4+Math.random()*0.5).toFixed(2)};animation-duration:${dur}s;animation-delay:-${delay}s;--drift:${drift}px;`;
+c.appendChild(f);
+}
+document.body.appendChild(c);
+}
+function removeSnowfall(){
+const c=document.getElementById('snowfall-container');
+if(c)c.remove();
+}
+async function loadAdminStats(){
+try{const {data}=await sb.rpc('admin_stats');state.adminStats=data}catch(e){state.adminStats=null}
+}
+async function loadAdminUsers(){
+try{
+const {data}=await sb.from('profiles').select('id,username,display_name,created_at,last_seen,avatar_url,accent_color').order('created_at',{ascending:false}).limit(200);
+state.adminUsers=data||[];
+}catch(e){state.adminUsers=[]}
+}
 function render(){
 document.documentElement.style.setProperty('--accent',state.profile?.accent_color||'#6366f1');
 document.body.classList.toggle('light', getEffectiveTheme()==='light');
@@ -881,7 +939,7 @@ const app=document.getElementById('app');
 if(!state.user){app.innerHTML=renderAuth();return}
 if(!state.profile){app.innerHTML=renderProfLoad();return}
 const mi=document.getElementById('msg-input');const mv=mi?mi.value:null;
-const saveIds=['a-login','a-user','a-name','a-pass','twofa-code','search-input','pick-search','msg-search-input','contacts-search','p-name','p-bio','p-phone'];
+const saveIds=['a-login','a-user','a-name','a-pass','twofa-code','search-input','pick-search','msg-search-input','contacts-search','p-name','p-bio','p-phone','cp-current','cp-new'];
 const saved={};let focusId=null;
 saveIds.forEach(fid=>{const el=document.getElementById(fid);if(el){saved[fid]=el.value;if(document.activeElement===el)focusId=fid}});
 app.innerHTML=renderApp();
@@ -919,8 +977,9 @@ if(state.aiModal==='image')ex+=renderImgModal();
 if(state.storyViewersModal)ex+=renderStoryViewers();
 if(state.ownerTransferPending)ex+=renderOwnerTransfer();
 if(state.chatMenu)ex+=renderChatMenu();
+if(state.showAdmin)ex+=renderAdminPanel();
 const showTop=!state.chatId;
-return `<header class="top"><div class="grow"><div class="top-title" data-act="logo-easter-egg">◈ Nova</div></div>${showTop&&state.tab==='chats'?`<button class="icon" data-act="open-stories" title="${t('storiesTitle')}">✨</button>`:''}${showTop?`<button class="icon" data-act="theme-quick" title="Тема: ${u.theme==='light'?'Светлая':(u.theme==='system'?'Системная':'Тёмная')}">${themeIcon(u.theme)}</button>`:''}${showTop?`<button class="icon" data-act="logout" title="${t('logout')}">🚪</button>`:''}</header><main class="content ${state.chatId?'chat':''}">${state.chatId?renderChat():renderTab()}</main>${state.chatId?'':`<nav class="tabs">${tabs.map(([k,l,label])=>{let badge='';if(k==='chats'&&totalUnread>0)badge=`<span class="tab-badge">${totalUnread>99?'99+':totalUnread}</span>`;if(k==='calls'&&missedCount>0)badge=`<span class="tab-badge">${missedCount>99?'99+':missedCount}</span>`;return `<button class="tab ${state.tab===k?'on':''}" data-act="tab" data-tab="${k}"><span class="tab-icon">${l}</span>${label}${badge}</button>`}).join('')}</nav>`}${state.tab==='chats'&&!state.chatId?`<button class="floating-ai" data-act="open-ai">🤖</button>`:''}${state.modal==='pick'?renderPick():''}${state.modal==='search'?renderSearchModal():''}${state.createGroup?renderCreate():''}${state.viewMembers?renderMembers():''}${state.groupSettings?renderGroupSet():''}${state.showStories?renderStoriesPage():''}${state.storyCompose?renderStoryComp():''}${state.storyPlayer?renderStoryPlayer():''}${state.msgMenu?renderMsgMenu():''}${state.viewProfile?renderProfileView():''}${state.incoming?renderIncoming():''}${state.call?renderCall():''}${state.lightbox?`<div class="lightbox" data-act="close-lb"><img src="${state.lightbox}"></div>`:''}${state.searchMsgs!==null?renderSearchMsgs():''}${state.showEmoji?renderEmojiPicker():''}${ex}`;
+return `<header class="top"><div class="grow"><div class="top-title" data-act="logo-easter-egg">◈ Nova</div></div>${showTop&&state.tab==='chats'?`<button class="icon" data-act="open-stories" title="${t('storiesTitle')}">✨</button>`:''}${showTop?`<button class="icon" data-act="theme-quick" title="Тема: ${u.theme==='light'?'Светлая':(u.theme==='system'?'Системная':'Тёмная')}">${themeIcon(u.theme)}</button>`:''}${showTop&&isSuperAdmin()?`<button class="icon" data-act="open-admin" title="Админ-панель" style="position:relative">👑<span class="admin-badge">A</span></button>`:''}${showTop?`<button class="icon" data-act="logout" title="${t('logout')}">🚪</button>`:''}</header><main class="content ${state.chatId?'chat':''}">${state.chatId?renderChat():renderTab()}</main>${state.chatId?'':`<nav class="tabs">${tabs.map(([k,l,label])=>{let badge='';if(k==='chats'&&totalUnread>0)badge=`<span class="tab-badge">${totalUnread>99?'99+':totalUnread}</span>`;if(k==='calls'&&missedCount>0)badge=`<span class="tab-badge">${missedCount>99?'99+':missedCount}</span>`;return `<button class="tab ${state.tab===k?'on':''}" data-act="tab" data-tab="${k}"><span class="tab-icon">${l}</span>${label}${badge}</button>`}).join('')}</nav>`}${state.tab==='chats'&&!state.chatId?`<button class="floating-ai" data-act="open-ai">🤖</button>`:''}${state.modal==='pick'?renderPick():''}${state.modal==='search'?renderSearchModal():''}${state.createGroup?renderCreate():''}${state.viewMembers?renderMembers():''}${state.groupSettings?renderGroupSet():''}${state.showStories?renderStoriesPage():''}${state.storyCompose?renderStoryComp():''}${state.storyPlayer?renderStoryPlayer():''}${state.msgMenu?renderMsgMenu():''}${state.viewProfile?renderProfileView():''}${state.incoming?renderIncoming():''}${state.call?renderCall():''}${state.lightbox?`<div class="lightbox" data-act="close-lb"><img src="${state.lightbox}"></div>`:''}${state.searchMsgs!==null?renderSearchMsgs():''}${state.showEmoji?renderEmojiPicker():''}${ex}`;
 }
 function renderTab(){if(state.tab==='calls')return renderCallsTab();if(state.tab==='contacts')return renderContactsTab();if(state.tab==='profile')return renderProfile();return renderChats()}
 function renderChats(){
@@ -1037,7 +1096,8 @@ const sb2=c.is_group?`${m.length} ${t('members').toLowerCase()}`:(isDeleted?t('d
 const eb=c.is_group&&isAdmin(c.id)?`<button class="icon" data-act="open-gs">⚙️</button>`:'';
 const badge=state.newMsgsBadge>0?`<span class="badge">${state.newMsgsBadge}</span>`:'';
 const callBtn=!c.is_group&&o&&!isDeleted?`<button class="icon" data-act="call" data-id="${o.user_id}">📞</button>`:'';
-return `<div class="chat-head"><button class="icon" data-act="back">←</button>${ab}<div class="grow"><b style="font-size:15px">${esc(ti)}</b><div class="muted small" style="margin-top:1px">${sb2}</div></div><button class="icon" data-act="msg-search">🔍</button>${eb}${callBtn}</div>${pinBar}${bn}<div class="messages-wrap"><div class="messages" id="msgs">${msgs.length?msgs.map(m=>{const out=m.sender_id===u.id;const snd=m.sender_id?state.profiles[m.sender_id]:null;const r=m.reactions||{};const rH=Object.entries(r).length?`<div class="reactions">${Object.entries(r).map(([e,a])=>`<button class="reaction-chip ${a.includes(u.id)?'mine':''}" data-act="react-msg" data-id="${m.id}" data-v="${e}">${e} ${a.length}</button>`).join('')}</div>`:'';const isNew=m._isNew?' new':'';const delCls=m.sender_id===null?' deleted':'';const showName=c.is_group&&!out;const senderLabel=snd?.display_name||(m.sender_id===null?t('deletedAccount'):'?');return `<div class="msg-row ${out?'out':'in'}${isNew}" data-msg-id="${m.id}"><div class="msg ${out?'out':'in'}${delCls}">${showName?`<div class="sender-name${m.sender_id===null?' deleted':''}">${esc(senderLabel)}</div>`:''}<div class="bubble">${renderMsgBody(m)}</div>${rH}${msgTs(m)}</div>${m.sender_id!==null?`<button class="msg-menu-btn" data-act="msg-menu" data-id="${m.id}">⋯</button>`:''}</div>`}).join(''):'<div class="empty">👋</div>'}</div><button class="scroll-down-btn ${state.scrollAtBottom?'':'show'}" id="scroll-down-btn" data-act="scroll-down">↓${badge}</button></div><div id="typing-indicator" class="typing-indicator"></div>${mm?`<div class="muted small" style="text-align:center;padding:8px">${t('mutedByAdmin')}</div>`:''}${replyPre}<div class="composer">${comp}</div>`;
+const delBtn=(isSuperAdmin()&&msgs.length)?`<button class="icon" data-act="admin-del-msg-mode" title="${t('deleteAnyMessage')}">🗑️</button>`:'';
+return `<div class="chat-head"><button class="icon" data-act="back">←</button>${ab}<div class="grow"><b style="font-size:15px">${esc(ti)}</b><div class="muted small" style="margin-top:1px">${sb2}</div></div><button class="icon" data-act="msg-search">🔍</button>${eb}${callBtn}${delBtn}</div>${pinBar}${bn}<div class="messages-wrap"><div class="messages" id="msgs">${msgs.length?msgs.map(m=>{const out=m.sender_id===u.id;const snd=m.sender_id?state.profiles[m.sender_id]:null;const r=m.reactions||{};const rH=Object.entries(r).length?`<div class="reactions">${Object.entries(r).map(([e,a])=>`<button class="reaction-chip ${a.includes(u.id)?'mine':''}" data-act="react-msg" data-id="${m.id}" data-v="${e}">${e} ${a.length}</button>`).join('')}</div>`:'';const isNew=m._isNew?' new':'';const delCls=m.sender_id===null?' deleted':'';const showName=c.is_group&&!out;const senderLabel=snd?.display_name||(m.sender_id===null?t('deletedAccount'):'?');const adminDel=isSuperAdmin()?`<button class="msg-menu-btn" data-act="admin-del-msg" data-id="${m.id}" title="${t('deleteAnyMessage')}">🗑️</button>`:'';return `<div class="msg-row ${out?'out':'in'}${isNew}" data-msg-id="${m.id}"><div class="msg ${out?'out':'in'}${delCls}">${showName?`<div class="sender-name${m.sender_id===null?' deleted':''}">${esc(senderLabel)}</div>`:''}<div class="bubble">${renderMsgBody(m)}</div>${rH}${msgTs(m)}</div>${m.sender_id!==null?`<button class="msg-menu-btn" data-act="msg-menu" data-id="${m.id}">⋯</button>`:''}${adminDel}</div>`}).join(''):'<div class="empty">👋</div>'}</div><button class="scroll-down-btn ${state.scrollAtBottom?'':'show'}" id="scroll-down-btn" data-act="scroll-down">↓${badge}</button></div><div id="typing-indicator" class="typing-indicator"></div>${mm?`<div class="muted small" style="text-align:center;padding:8px">${t('mutedByAdmin')}</div>`:''}${replyPre}<div class="composer">${comp}</div>`;
 }
 function renderStoriesPage(){
 const alive=[];
@@ -1085,6 +1145,33 @@ if(!c)return '';
 const others=(state.members[p.chatId]||[]).filter(m=>m.user_id!==state.user.id).map(m=>state.profiles[m.user_id]).filter(Boolean);
 return `<div class="overlay" data-act="close-owner-transfer-bg"><div class="card modal"><div class="row between"><b>👑 ${t('transferOwnerTitle')}</b><button class="icon" data-act="close-owner-transfer">✕</button></div><div class="small muted">${t('pickNewOwner')} — «${esc(c.name||'')}»</div>${others.length?others.map(u=>`<div class="member-row">${aHtml(u,'sm')}<div class="grow"><b>${esc(u.display_name||u.username)}</b></div><button class="btn small primary" data-act="pick-owner" data-id="${u.id}">${t('transfer')}</button></div>`).join(''):`<div class="empty">Нет других участников</div>`}<button class="btn danger wide" data-act="delete-group-from-transfer" data-id="${p.chatId}">🗑️ ${t('deleteInstead')}</button></div></div>`;
 }
+function renderAdminPanel(){
+if(!isSuperAdmin())return '';
+const st = state.adminStats || {};
+const users = state.adminUsers || [];
+const snowOn = !!state.snowfall;
+return `<div class="overlay" data-act="close-admin-bg"><div class="card modal" style="max-width:560px">
+<div class="row between"><b>👑 ${t('adminPanel')}</b><button class="icon" data-act="close-admin">✕</button></div>
+<div class="small muted">Только для @${esc(state.profile.username)}</div>
+<div class="lbl">❄️ Сезонные эффекты</div>
+<button class="btn ${snowOn?'success':'ghost'} wide" data-act="toggle-snow">${snowOn?t('snowfallOn')+' — выключить':t('snowfallOff')}</button>
+<div class="small muted" style="text-align:center;margin-top:-6px">Виден всем пользователям Nova</div>
+<div class="lbl">📊 Статистика</div>
+<div class="row" style="gap:8px;flex-wrap:wrap">
+<div class="memory-box" style="flex:1;min-width:100px;flex-direction:column;align-items:flex-start"><span class="small muted">Пользователей</span><span class="memory-val">${st.users ?? '—'}</span></div>
+<div class="memory-box" style="flex:1;min-width:100px;flex-direction:column;align-items:flex-start"><span class="small muted">Сообщений</span><span class="memory-val">${st.messages ?? '—'}</span></div>
+<div class="memory-box" style="flex:1;min-width:100px;flex-direction:column;align-items:flex-start"><span class="small muted">Чатов</span><span class="memory-val">${st.chats ?? '—'}</span></div>
+<div class="memory-box" style="flex:1;min-width:100px;flex-direction:column;align-items:flex-start"><span class="small muted">Историй</span><span class="memory-val">${st.stories ?? '—'}</span></div>
+</div>
+<div class="lbl">👥 Пользователи (${users.length})</div>
+<div style="max-height:40vh;overflow:auto;display:flex;flex-direction:column;gap:6px">
+${users.length?users.map(u=>`<div class="member-row" style="padding:8px"><div class="ava xs" style="${aStyle(u)}">${u.avatar_url?'':esc(u.display_name?.[0]?.toUpperCase()||'?')}</div><div class="grow"><b style="font-size:13px">${esc(u.display_name||u.username)}${u.username==='jasmute'?' 👑':''}</b><div class="small muted">@${esc(u.username)} · рег. ${u.created_at?new Date(u.created_at).toLocaleDateString():'—'}</div></div><button class="btn small danger" data-act="admin-reset-pass" data-id="${u.id}" data-name="${esc(u.display_name||u.username)}" style="padding:4px 8px;font-size:11px">${t('resetPass')}</button></div>`).join(''):`<div class="empty" style="padding:10px">Загрузка…</div>`}
+</div>
+<div class="lbl">🔧 Инструменты</div>
+<button class="btn ghost wide" data-act="admin-refresh">🔄 Обновить данные</button>
+<div class="small muted" style="text-align:center;padding-top:8px;line-height:1.5">Пароли посмотреть нельзя — они bcrypt-хешированы. Сброс генерирует новый пароль.</div>
+</div></div>`;
+}
 function renderProfile(){
 const u=state.profile;
 const ac=['#6366f1','#ec4899','#10b981','#f59e0b','#3b82f6','#ef4444','#8b5cf6','#14b8a6'];
@@ -1103,7 +1190,7 @@ ${sec('🔒', 'Приватность', `<div class="lbl">${t('lastSeenPrivacy')
 ${sec('🔔', 'Уведомления', `${notifState==='granted'?`<div class="small" style="color:var(--online)">✓ ${t('notifOn')}</div>`:notifState==='denied'?`<div class="small" style="color:#ef4444">${t('notifBlocked')}</div>`:`<button class="btn primary wide" data-act="allow-notif">${t('allowNotif')}</button>`}<button class="btn ghost wide" data-act="toggle-sounds">${S.sounds?t('soundsOn'):t('soundsOff')}</button><button class="btn ghost wide" data-act="toggle-notif">${S.notifications?t('notifOn'):t('notifOff')}</button>`)}
 ${sec('🔐', 'Безопасность (2FA)', `<button class="btn ghost wide" data-act="${u.twofa_enabled?'disable-2fa':'enable-2fa'}">${u.twofa_enabled?t('twofaOn'):t('twofaOff')}</button>`)}
 ${sec('💾', 'Память и хранилище', `<div class="memory-box"><span>${t('cacheSize')}</span><span class="memory-val">${cacheSize}</span></div><div class="memory-box"><span>${t('messagesCount')}</span><span class="memory-val">${msgCount}</span></div><div class="memory-box"><span>${t('storiesCount')}</span><span class="memory-val">${stCount}</span></div><button class="btn ghost wide" data-act="clear-cache">🧹 ${t('clearCache')}</button><button class="btn ghost wide" data-act="clear-old-msgs">🗑️ ${t('clearOld')}</button><button class="btn ghost wide" data-act="clear-stories">✨ ${t('clearStories')}</button>`)}
-${sec('⚠️', 'Опасная зона', `<button class="btn ghost wide" data-act="show-blocked">🚫 ${t('blocked')} (${state.blocks.length})</button><button class="btn ghost wide" data-act="logout">🚪 ${t('logout')}</button><button class="btn danger wide" data-act="delete-account">🗑️ ${t('deleteAcc')}</button>`)}`;
+${sec('⚠️', 'Опасная зона', `<button class="btn ghost wide" data-act="show-blocked">🚫 ${t('blocked')} (${state.blocks.length})</button><div class="lbl">${t('changePassword')}</div><input id="cp-current" type="password" placeholder="${t('currentPassword')}"><input id="cp-new" type="password" placeholder="${t('newPassword')}"><button class="btn primary wide" data-act="change-password">${t('changePassword')}</button><button class="btn ghost wide" data-act="logout">🚪 ${t('logout')}</button><button class="btn danger wide" data-act="delete-account">🗑️ ${t('deleteAcc')}</button>`)}`;
 }
 function renderPick(){return `<div class="overlay"><div class="card modal"><div class="row between"><b>${state.pickMode==='call'?'📞':t('newChat')}</b><button class="icon" data-act="close-modal">✕</button></div><input id="pick-search" placeholder="${t('searchAll')}" value="${esc(state.searchQuery||'')}" data-act="pick-search-input" autofocus><div id="pick-list">${renderPickList()}</div></div></div>`}
 function renderPickList(){const q=(state.searchQuery||'').toLowerCase().trim();if(!q)return `<div class="empty">${t('searchAll')}</div>`;const u=Object.values(state.profiles).filter(p=>p.id!==state.user.id);const f=u.filter(x=>(x.display_name||'').toLowerCase().includes(q)||(x.username||'').toLowerCase().includes(q)||(x.phone||'').includes(q)||(x.email||'').toLowerCase().includes(q));if(!f.length)return `<div class="empty">${t('noResults')}</div>`;return f.map(x=>`<div class="item" data-act="pick-user" data-id="${x.id}">${aHtml(x)}<div class="grow"><b>${esc(x.display_name||x.username)}</b><div class="muted small">${fLastSeen(x)||('@'+esc(x.username))}${x.phone?' · '+esc(x.phone):''}</div></div></div>`).join('')}
@@ -1187,6 +1274,8 @@ if(/already|duplicate|unique|registered/i.test(msg)){showErr('Этот логи�
 async function boot(){
 await loadProf();if(!state.profile){render();return}
 if(state.profile.theme){S.theme=state.profile.theme;saveS()}
+await loadAppSettings();
+if(state.snowfall) renderSnowfall(); else removeSnowfall();
 await loadChats();await loadStories();await loadAll();await loadContacts();await loadBlocks();
 await loadUnread();await loadMissedCalls();await loadAllCalls();
 await checkMissedCalls();
@@ -1229,9 +1318,30 @@ case 'retry-prof':await loadProf();if(state.profile)await boot();else render();b
 case 'force-logout':{try{await sb.auth.signOut()}catch(e){}state.user=null;state.profile=null;state.authErr='';render();break}
 case 'logout':signOut();break;
 case 'delete-account':await deleteAccount();break;
+case 'change-password':await changePassword();break;
+case 'open-admin':{
+if(!isSuperAdmin())break;
+state.showAdmin = true;
+state.adminStats = null;
+state.adminUsers = null;
+render();
+Promise.all([loadAdminStats(), loadAdminUsers()]).then(()=>{if(state.showAdmin)render()});
+break;
+}
+case 'close-admin':state.showAdmin=false;render();break;
+case 'close-admin-bg':if(e.target.closest('.card'))return;state.showAdmin=false;render();break;
+case 'toggle-snow':await toggleSnowfall(!state.snowfall);render();break;
+case 'admin-refresh':await Promise.all([loadAdminStats(),loadAdminUsers()]);render();break;
+case 'admin-reset-pass':await adminResetPassword(id,el.dataset.name);break;
+case 'admin-del-msg':{
+if(!isSuperAdmin())break;
+if(!confirm('Удалить это сообщение?'))break;
+try{const {error}=await sb.from('messages').delete().eq('id',id);if(error)throw error;state.messages=state.messages.filter(m=>m.id!==id);render()}catch(err){toast(err.message)}
+break;
+}
 case 'allow-notif':{if('Notification' in window){try{const p=await Notification.requestPermission();if(p==='granted'){toast('Включены','#10b981');notify('Nova','Уведомления работают','test',true)}else toast('Заблокированы','#ef4444')}catch(e){toast(e.message)}}render();break}
 case 'callback':await startCall(id);break;
-case 'tab':state.tab=el.dataset.tab;state.chatId=null;state.chat=null;state.settingsSection=null;state.showStories=false;if(state.storyPlayer){stopStoryTimer();state.storyPlayer=null}state.storyViewersModal=null;state.ownerTransferPending=null;state.chatMenu=null;if(state.tab==='calls'){setCallsSeenAt(new Date().toISOString());state.missedCalls=[]}render();break;
+case 'tab':state.tab=el.dataset.tab;state.chatId=null;state.chat=null;state.settingsSection=null;state.showStories=false;if(state.storyPlayer){stopStoryTimer();state.storyPlayer=null}state.storyViewersModal=null;state.ownerTransferPending=null;state.chatMenu=null;state.showAdmin=false;if(state.tab==='calls'){setCallsSeenAt(new Date().toISOString());state.missedCalls=[]}render();break;
 case 'open-stories':state.showStories=true;state.tab='chats';render();break;
 case 'close-stories':closeWithAnim('.overlay',()=>{state.showStories=false;render()});break;
 case 'close-stories-bg':if(e.target.closest('.card'))return;closeWithAnim('.overlay',()=>{state.showStories=false;render()});break;
