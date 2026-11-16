@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
 <title>◈Nova</title>
+<!-- ПОДКЛЮЧАЕМ MORPHDOM ДЛЯ БЕЗБОЛЕЗНЕННОГО ОБНОВЛЕНИЯ UI -->
+<script src="https://cdn.jsdelivr.net/npm/morphdom@2.7.0/dist/morphdom-umd.min.js"></script>
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/svg+xml" href="icon.svg">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
@@ -779,7 +781,26 @@ if(state.cameraOn){cameraTrack?.stop();cameraTrack=null;state.cameraOn=false;awa
 document.querySelectorAll('[data-act="t-cam"]').forEach(b=>b.className='call-btn'+(state.cameraOn?' on':''));
 }
 async function tScreen(){
-if(state.screenOn){screenTrack?.stop();screenTrack=null;state.screenOn=false;await updVS();pScreen(false)}else{try{const st=await navigator.mediaDevices.getDisplayMedia({video:true});screenTrack=st.getVideoTracks()[0];screenTrack.onended=()=>{screenTrack=null;state.screenOn=false;updVS();document.querySelectorAll('[data-act="t-scr"]').forEach(b=>b.className='call-btn')};state.screenOn=true;await updVS();pScreen(true)}catch(e){return}}
+if(state.screenOn){
+  screenTrack?.stop(); screenTrack=null; state.screenOn=false; await updVS(); pScreen(false);
+} else {
+  try{
+    if(!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia){
+      toast('Ваш браузер/телефон не поддерживает демонстрацию экрана','#ef4444');
+      return;
+    }
+    const st=await navigator.mediaDevices.getDisplayMedia({video:true});
+    screenTrack=st.getVideoTracks()[0];
+    screenTrack.onended=()=>{
+      screenTrack=null; state.screenOn=false; updVS();
+      document.querySelectorAll('[data-act="t-scr"]').forEach(b=>b.className='call-btn');
+    };
+    state.screenOn=true; await updVS(); pScreen(true);
+  }catch(e){
+    toast('Ошибка: '+(e.message||e),'#ef4444');
+    return;
+  }
+}
 document.querySelectorAll('[data-act="t-scr"]').forEach(b=>b.className='call-btn'+(state.screenOn?' on':''));
 }
 function attLocal(){
@@ -960,7 +981,7 @@ function removeSnowfall(){
 const c=document.getElementById('snowfall-container');
 if(c)c.remove();
 }
-/* === Season effects (new) === */
+/* === Season effects === */
 function getAutoSeason(){
 const m=new Date().getMonth();
 if(m===11||m===0||m===1)return 'snow';
@@ -1047,15 +1068,15 @@ try{const {data}=await sb.rpc('admin_stats');state.adminStats=data}catch(e){stat
 async function loadAdminUsers(){
 try{
 const {data,error}=await sb.rpc('admin_list_users');
+console.log('ADMIN RPC DATA:', data, 'ERROR:', error);
 if(error){
-console.warn('[admin] RPC admin_list_users:',error.message);
-const {data:d2,error:e2}=await sb.from('profiles').select('id,username,display_name,created_at,last_seen,avatar_url,accent_color').order('created_at',{ascending:false}).limit(200);
-if(e2)console.warn('[admin] fallback select:',e2.message);
-state.adminUsers=d2||[];
+console.warn('RPC error, fallback:', error.message);
+const {data:d2}=await sb.from('profiles').select('*').limit(200);
+state.adminUsers = Array.isArray(d2) ? d2 : [];
 }else{
-state.adminUsers=data||[];
+state.adminUsers = Array.isArray(data) ? data : [];
 }
-}catch(e){console.warn('[admin] loadAdminUsers',e);state.adminUsers=[]}
+}catch(e){console.error('loadAdminUsers', e);state.adminUsers=[]}
 }
 function render(){
 document.documentElement.style.setProperty('--accent',state.profile?.accent_color||'#6366f1');
@@ -1063,18 +1084,51 @@ document.body.classList.toggle('light', getEffectiveTheme()==='light');
 const app=document.getElementById('app');
 if(!state.user){app.innerHTML=renderAuth();return}
 if(!state.profile){app.innerHTML=renderProfLoad();return}
+
 const mi=document.getElementById('msg-input');const mv=mi?mi.value:null;
 const saveIds=['a-login','a-user','a-name','a-pass','twofa-code','search-input','pick-search','msg-search-input','contacts-search','p-name','p-bio','p-phone','cp-current','cp-new'];
 const saved={};let focusId=null;
 saveIds.forEach(fid=>{const el=document.getElementById(fid);if(el){saved[fid]=el.value;if(document.activeElement===el)focusId=fid}});
-app.innerHTML=renderApp();
-const nm=document.getElementById('msg-input');if(nm&&mv!==null){nm.value=mv;if(document.activeElement===mi)nm.focus()}
+
+const html = renderApp();
+
+// ИСПОЛЬЗУЕМ MORPHDOM ДЛЯ СОХРАНЕНИЯ ФОКУСА И КЛАВИАТУРЫ
+if (window.morphdom) {
+  morphdom(app, html, {
+    onBeforeElUpdated: function(fromEl, toEl) {
+      // Сохраняем скролл сообщений, если пользователь читает историю
+      if (fromEl.id === 'msgs') {
+        if (!state.scrollAtBottom) {
+          const sTop = fromEl.scrollTop;
+          requestAnimationFrame(() => {
+            const m = document.getElementById('msgs');
+            if (m) m.scrollTop = sTop;
+          });
+        }
+      }
+      // Сохраняем фокус и текст в инпутах (чтобы не закрывалась клавиатура на телефоне)
+      if (fromEl === document.activeElement && (fromEl.tagName === 'INPUT' || fromEl.tagName === 'TEXTAREA')) {
+        toEl.value = fromEl.value;
+      }
+      return true;
+    }
+  });
+} else {
+  app.innerHTML = html;
+}
+
+const nm=document.getElementById('msg-input');
+if(nm&&mv!==null){nm.value=mv;if(focusId==='msg-input')nm.focus()}
 saveIds.forEach(fid=>{const el=document.getElementById(fid);if(el&&saved[fid]!==undefined)el.value=saved[fid]});
 if(focusId){const el=document.getElementById(focusId);if(el)el.focus()}
+
 if(state.chatId){
-const m=document.getElementById('msgs');
-if(m){if(state.scrollAtBottom)m.scrollTop=m.scrollHeight;m.onscroll=()=>{const near=m.scrollHeight-m.scrollTop-m.clientHeight<80;if(near!==state.scrollAtBottom){state.scrollAtBottom=near;if(near)state.newMsgsBadge=0;updateScrollBtn()}}}
-updateScrollBtn();
+  const m=document.getElementById('msgs');
+  if(m){
+    if(state.scrollAtBottom){m.scrollTop=m.scrollHeight;}
+    m.onscroll=()=>{const near=m.scrollHeight-m.scrollTop-m.clientHeight<80;if(near!==state.scrollAtBottom){state.scrollAtBottom=near;if(near)state.newMsgsBadge=0;updateScrollBtn()}}
+  }
+  updateScrollBtn();
 }
 attLocal();attachRemote();
 updateTypingIndicator();
@@ -1276,6 +1330,22 @@ const st = state.adminStats || {};
 const users = state.adminUsers || [];
 const curSeason = state.seasonEffect || 'auto';
 const seasons = [['auto','🍂 Авто'],['snow','❄️ Снег'],['blossom','🌸 Весна'],['sun','☀️ Солнце'],['leaves','🍁 Листопад'],['none','🚫 Нет']];
+
+let rowsHtml = '';
+if (users.length > 0) {
+  rowsHtml = users.map(u => {
+    if (!u || typeof u !== 'object') return `<div class="member-row" style="padding:8px; border:1px solid red; background:rgba(255,0,0,0.1)">⚠ Ошибка: ${JSON.stringify(u)}</div>`;
+    return `<div class="member-row" style="padding:8px;margin-bottom:6px">
+      <div class="ava xs" style="${aStyle(u)}">${u.avatar_url?'':esc(u.display_name?.[0]?.toUpperCase()||'?')}</div>
+      <div class="grow"><b style="font-size:13px">${esc(u.display_name||u.username)}${u.username==='jasmute'?' 👑':''}</b>
+      <div class="small muted">@${esc(u.username)} · рег. ${u.created_at?new Date(u.created_at).toLocaleDateString():'—'}</div></div>
+      <button class="btn small danger" data-act="admin-reset-pass" data-id="${u.id}" data-name="${esc(u.display_name||u.username)}" style="padding:4px 8px;font-size:11px">${t('resetPass')}</button>
+    </div>`;
+  }).join('');
+} else {
+  rowsHtml = `<div class="empty" style="padding:10px">Данные не загружены (Массив пуст)</div>`;
+}
+
 return `<div class="overlay" data-act="close-admin-bg"><div class="card modal" style="max-width:560px">
 <div class="row between"><b>👑 ${t('adminPanel')}</b><button class="icon" data-act="close-admin">✕</button></div>
 <div class="small muted">Только для @${esc(state.profile.username)}</div>
@@ -1292,12 +1362,11 @@ ${seasons.map(([k,l])=>`<button class="btn small ${curSeason===k?'primary':'ghos
 <div class="memory-box" style="flex:1;min-width:100px;flex-direction:column;align-items:flex-start"><span class="small muted">Историй</span><span class="memory-val">${st.stories ?? '—'}</span></div>
 </div>
 <div class="lbl">👥 Пользователи (${users.length})</div>
-<div style="max-height:40vh;overflow:auto;display:flex;flex-direction:column;gap:6px">
-${users.length?users.map(u=>`<div class="member-row" style="padding:8px"><div class="ava xs" style="${aStyle(u)}">${u.avatar_url?'':esc(u.display_name?.[0]?.toUpperCase()||'?')}</div><div class="grow"><b style="font-size:13px">${esc(u.display_name||u.username)}${u.username==='jasmute'?' 👑':''}</b><div class="small muted">@${esc(u.username)} · рег. ${u.created_at?new Date(u.created_at).toLocaleDateString():'—'}</div></div><button class="btn small danger" data-act="admin-reset-pass" data-id="${u.id}" data-name="${esc(u.display_name||u.username)}" style="padding:4px 8px;font-size:11px">${t('resetPass')}</button></div>`).join(''):`<div class="empty" style="padding:10px">Загрузка…</div>`}
+<div style="max-height:40vh;overflow:auto;display:flex;flex-direction:column;gap:6px;padding-right:4px">
+${rowsHtml}
 </div>
 <div class="lbl">🔧 Инструменты</div>
 <button class="btn ghost wide" data-act="admin-refresh">🔄 Обновить данные</button>
-<div class="small muted" style="text-align:center;padding-top:8px;line-height:1.5">Пароли посмотреть нельзя — они bcrypt-хешированы. Сброс генерирует новый пароль.</div>
 </div></div>`;
 }
 function renderProfile(){
